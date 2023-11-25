@@ -3,25 +3,26 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const authenticateUser = async (username, password) => {
-    console.log("entrer authenticateuser");
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
     if(rows.length > 0){
         if(bcrypt.compare(password, rows[0].password)){
-            return genToken(username);
+            return genToken(rows[0].username, rows[0].role);
         }
     } else {
         throw new Error('Identifiants incorrects');
     }
 };
 
-function genToken(username){
-    const token = jwt.sign(
-        { userName: username },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-    );
-    return token;
-}
+const registerUser = async (username, password, name, firstname) => {
+    try{
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.query('INSERT INTO USERS(username, password, name, firstname, role) VALUES(?, ?, ?, ?, "eleve")', [username, hashedPassword, name, firstname]); 
+        return genToken(username, "eleve");
+    } catch (err) {
+        console.error(err);
+        throw new Error('erreur durant l inscription');
+    }
+};
 
 async function userExist(username){
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
@@ -32,19 +33,32 @@ async function userExist(username){
     }
 }
 
-const registerUser = async (username, password, name, firstname) => {
-    try{
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await db.query('INSERT INTO USERS(username, password, name, firstname) VALUES(?, ?, ?, ?)', [username, hashedPassword, name, firstname]); 
-        return genToken(username);
+function genToken(username, role){
+    const token = jwt.sign(
+        { 
+            userName: username,
+            role: role
+        },
+
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+    return token;
+}
+
+function verifyToken(token){
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return decoded;
     } catch (err) {
         console.error(err);
-        throw new Error('erreur durant l inscription');
+        throw new Error('Token invalide');
     }
-};
+}
 
 module.exports = {
     authenticateUser,
     registerUser,
-    userExist
+    userExist,
+    verifyToken
 };

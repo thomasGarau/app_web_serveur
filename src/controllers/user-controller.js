@@ -1,8 +1,19 @@
 const userService = require('../services/user-service');
 const inputService = require('../services/input-service');
 
-exports.verifyTokenAndAuthorization = ((req,res) => {
-    res.send('verifyTokenAndAuthorization');
+exports.verifyToken = ((req,res) => {
+    try {
+        const token = req.query.token;
+        if(!token || token == 'undefined' || token == 'null'){
+            throw new Error('Token invalide');
+        }else{
+            const decoded = userService.verifyToken(token);
+            res.status(200).send({valide:true, information:decoded});
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(401).send('Token invalide');
+    }
 })
 
 exports.Authenticate = (async (req,res) => {
@@ -21,7 +32,6 @@ exports.Authenticate = (async (req,res) => {
         const {username, password, name, firstName} = req.body.params;
         if(inputService.validInput(username, password, name, firstName) && !await userService.userExist(username)){
             const token = await userService.registerUser(username, password, name, firstName);
-            console.log(token);
             res.status(200).send({username: username, token: token, days: 7});
         }else{
             res.status(401).send("Nom d utilisateur déjà utilisé");
@@ -31,3 +41,4 @@ exports.Authenticate = (async (req,res) => {
         res.status(401).send('Echec de l inscription');
     }
 })
+

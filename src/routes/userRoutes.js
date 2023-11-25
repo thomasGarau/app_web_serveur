@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const  {verifyTokenAndAuthorization,Authenticate,register} = require('../controllers/user-controller.js')
+const  {verifyToken,Authenticate,register} = require('../controllers/user-controller.js')
 
 router.get('/login', Authenticate);
-router.get('/verify-token', verifyTokenAndAuthorization);
+router.get('/verify-token', verifyToken);
 router.post('/register', register);
 
 module.exports = router;
