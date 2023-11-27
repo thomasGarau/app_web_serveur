@@ -1,6 +1,5 @@
 const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 
 const authenticateUser = async (username, password) => {
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
@@ -15,8 +14,7 @@ const authenticateUser = async (username, password) => {
 
 const registerUser = async (username, password, name, firstname) => {
     try{
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await db.query('INSERT INTO USERS(username, password, name, firstname, role) VALUES(?, ?, ?, ?, "eleve")', [username, hashedPassword, name, firstname]); 
+        await db.query('INSERT INTO USERS(username, password, name, firstname, role) VALUES(?, ?, ?, ?, "eleve")', [username, password, name, firstname]); 
         return genToken(username, "eleve");
     } catch (err) {
         console.error(err);

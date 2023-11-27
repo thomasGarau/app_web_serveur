@@ -1,5 +1,4 @@
 const userService = require('../services/user-service');
-const inputService = require('../services/input-service');
 
 exports.verifyToken = ((req,res) => {
     try {
@@ -18,27 +17,28 @@ exports.verifyToken = ((req,res) => {
 
 exports.Authenticate = (async (req,res) => {
     try {
-        const {username, password} = req.query;
+        const {username, password} = req.body;
         const token = await userService.authenticateUser(username, password);
         res.status(200).send({username: username, token: token, days: 7});
     } catch (err) {
         console.error(err);
-        res.status(401).send('Echec de l authentification');
+        res.status(500).send('Echec de l authentification');
     }
 })
 
  exports.register = (async (req,res) => {
     try {
-        const {username, password, name, firstName} = req.body.params;
-        if(inputService.validInput(username, password, name, firstName) && !await userService.userExist(username)){
+        const { username, password, name, firstName } = req.body;
+        if(!await userService.userExist(username)){
             const token = await userService.registerUser(username, password, name, firstName);
             res.status(200).send({username: username, token: token, days: 7});
         }else{
             res.status(401).send("Nom d utilisateur déjà utilisé");
         }
-    }catch (err) {
+    } catch (err) {
         console.error(err);
-        res.status(401).send('Echec de l inscription');
+        res.status(500).send('Échec de l\'inscription');
     }
+
 })
 
