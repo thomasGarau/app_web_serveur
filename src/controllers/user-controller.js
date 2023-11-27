@@ -28,9 +28,9 @@ exports.Authenticate = (async (req,res) => {
 
  exports.register = (async (req,res) => {
     try {
-        const { username, password, name, firstName } = req.body;
+        const { username, password, name, firstname } = req.body;
         if(!await userService.userExist(username)){
-            const token = await userService.registerUser(username, password, name, firstName);
+            const token = await userService.registerUser(username, password, name, firstname);
             res.status(200).send({username: username, token: token, days: 7});
         }else{
             res.status(401).send("Nom d utilisateur déjà utilisé");
