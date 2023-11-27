@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { isTokenBlacklisted } = require('../services/user-service');
 
 const verifyAuthorisation = (req, res, next) => {   
     const token = req.headers['token'];
@@ -19,4 +20,21 @@ const verifyAuthorisation = (req, res, next) => {
     return next();
 };
 
-module.exports = verifyAuthorisation;
+const verifyTokenBlacklist = (req, res, next) => {
+    try{
+        console.log(req.headers.authorisation);
+        const token = req.headers.authorization.split(' ')[1];
+        if (isTokenBlacklisted(token)) {
+            return res.status(401).send('Token invalide');
+        }
+    }catch(err){
+        console.error(err);
+        return res.status(401).send('Token invalide');
+    }
+    next();
+};
+
+module.exports = {
+    verifyAuthorisation,
+    verifyTokenBlacklist
+}

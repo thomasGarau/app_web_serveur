@@ -1,5 +1,6 @@
 const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const authenticateUser = async (username, password) => {
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
@@ -21,15 +22,6 @@ const registerUser = async (username, password, name, firstname) => {
         throw new Error('erreur durant l inscription');
     }
 };
-
-async function userExist(username){
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
-    if(rows.length > 0){
-        return true;
-    } else {
-        return false;
-    }
-}
 
 function genToken(username, role){
     const token = jwt.sign(
@@ -54,9 +46,35 @@ function verifyToken(token){
     }
 }
 
+async function userExist(username){
+    const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
+    return rows.length > 0;
+}
+
+async function isTokenBlacklisted(token){
+    const [rows] = await db.query('SELECT * FROM blacklist WHERE token = ?', [token]);
+    return rows.length > 0;
+}
+
+async function invalidateToken(token){
+    try {
+        //test si le token est belle est bien valide
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decoded);
+        db.query('INSERT INTO token_blacklist(token, date_invalidite) VALUES(?, "12-12-23")', [token]);
+        return decoded;
+    } catch (err) {
+        console.error(err);
+        throw new Error('Token invalide');
+    }
+
+}
+
 module.exports = {
     authenticateUser,
     registerUser,
     userExist,
-    verifyToken
+    verifyToken,
+    isTokenBlacklisted,
+    invalidateToken
 };

@@ -39,6 +39,17 @@ exports.Authenticate = (async (req,res) => {
         console.error(err);
         res.status(500).send('Échec de l\'inscription');
     }
-
 })
+
+exports.invalidateToken = (async (req,res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = await userService.invalidateToken(token);
+        res.status(200).send({username: decoded.userName});
+    } catch (err) {
+        console.error(err);
+        res.status(401).send('Token invalide');
+    }
+});
+
 
