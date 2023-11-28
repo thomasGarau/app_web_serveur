@@ -20,17 +20,19 @@ const verifyAuthorisation = (req, res, next) => {
     return next();
 };
 
-const verifyTokenBlacklist = (req, res, next) => {
+const verifyTokenBlacklist = async (req, res, next) => {
     try{
-        console.log(req.headers.authorisation);
         const token = req.headers.authorization.split(' ')[1];
-        if (isTokenBlacklisted(token)) {
+        console.log(token," aa");
+        if (await isTokenBlacklisted(token)) {
+            console.log("invalide")
             return res.status(401).send('Token invalide');
         }
     }catch(err){
         console.error(err);
         return res.status(401).send('Token invalide');
     }
+    console.log("valide")
     next();
 };
 

@@ -52,15 +52,18 @@ async function userExist(username){
 }
 
 async function isTokenBlacklisted(token){
-    const [rows] = await db.query('SELECT * FROM blacklist WHERE token = ?', [token]);
-    return rows.length > 0;
+    const [rows] = await db.query('SELECT * FROM token_blacklist WHERE token = ?', [token]);
+    console.log(rows, "cc")
+    const a = rows.length > 0;
+    console.log(a, "zz")
+    return a;
 }
 
 async function invalidateToken(token){
     try {
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
+        console.log(decoded, "iii");
         db.query('INSERT INTO token_blacklist(token, date_invalidite) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
