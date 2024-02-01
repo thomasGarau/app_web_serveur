@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const authenticateUser = async (username, password) => {
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
+    const [rows] = await db.query('SELECT * FROM utilisateur WHERE mail = ?' , [username]); 
     if(rows.length > 0){
-        if(bcrypt.compare(password, rows[0].password)){
-            return genToken(rows[0].username, rows[0].role);
+        if(bcrypt.compare(password, rows[0].mdp)){
+            return genToken(rows[0].nom_utilisateur, rows[0].role);
         }
     } else {
         throw new Error('Identifiants incorrects');
@@ -15,7 +15,7 @@ const authenticateUser = async (username, password) => {
 
 const registerUser = async (username, password, name, firstname) => {
     try{
-        await db.query('INSERT INTO USERS(username, password, name, firstname, role) VALUES(?, ?, ?, ?, "eleve")', [username, password, name, firstname]); 
+        await db.query('INSERT INTO utilisateur(mail, mdp, nom, prenom, role) VALUES(?, ?, ?, ?, "eleve")', [username, password, name, firstname]); 
         return genToken(username, "eleve");
     } catch (err) {
         console.error(err);
@@ -47,12 +47,12 @@ function verifyToken(token){
 }
 
 async function userExist(username){
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ?' , [username]); 
+    const [rows] = await db.query('SELECT * FROM utilisateur WHERE mail = ?' , [username]); 
     return rows.length > 0;
 }
 
 async function isTokenBlacklisted(token){
-    const [rows] = await db.query('SELECT * FROM token_blacklist WHERE token = ?', [token]);
+    const [rows] = await db.query('SELECT * FROM liste_noire WHERE valeur = ?', [token]);
     console.log(rows, "cc")
     const a = rows.length > 0;
     console.log(a, "zz")
@@ -64,7 +64,7 @@ async function invalidateToken(token){
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded, "iii");
-        db.query('INSERT INTO token_blacklist(token, date_invalidite) VALUES(?, "12-12-23")', [token]);
+        db.query('INSERT INTO liste_noire(valeur, date) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
         console.error(err);
