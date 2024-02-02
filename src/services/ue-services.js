@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 // liste des ue d'un utilisateur
 const useruelist = async (id_pseudo) => {
-    const [rows] = await db.query('SELECT * FROM ue WHERE utilisateur_id_pseudo = ?' , [id_pseudo]);
+    const [rows] = await db.query('SELECT * FROM utilisateur_has_ue WHERE utilisateur_id_pseudo = ?' , [id_pseudo]);
     if (rows.length > 0){
         return rows;
     }
@@ -57,6 +57,7 @@ const updateue = async (id_ue,label,visible) => {
     }
 
 }
+
 
 module.exports = {
     useruelist,
