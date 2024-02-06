@@ -4,8 +4,8 @@ const bcrypt = require('bcrypt');
 
 
 // liste des ue d'un utilisateur
-const useruelist = async (id_pseudo) => {
-    const [rows] = await db.query('SELECT * FROM utilisateur_has_ue WHERE utilisateur_id_pseudo = ?' , [id_pseudo]);
+const useruelist = async (mail_utilisateur) => {
+    const [rows] = await db.query('SELECT * FROM utilisateur_has_ue WHERE mail_utilisateur = ?' , [mail_utilisateur]);
     if (rows.length > 0){
         return rows;
     }
@@ -24,7 +24,6 @@ const uelist = async () => {
         throw new Error('Aucune ue');
     }
 }
-
 // ajouter une ue
 const addue = async (id_ue,label,visible) => {
     try{
