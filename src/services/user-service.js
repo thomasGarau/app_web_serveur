@@ -14,10 +14,10 @@ const authenticateUser = async (username, password) => {
     }
 };
 
-const registerUser = async (mdp,num_etudiant) => {
+const registerUser = async (num_etudiant,mdp) => {
     const valideUser = await db.query('SELECT * FROM utilisateur_valide WHERE num_etudiant = ?', [num_etudiant]);
     if(valideUser.length > 0){
-        await db.query('INSERT INTO utilisateur(mdp,num_etudiant) VALUES(?, ?)', [mdp, num_etudiant]); 
+        await db.query('INSERT INTO utilisateur(num_etudiant,mdp) VALUES(?, ?)', [num_etudiant,mdp]); 
         return genToken(num_etudiant, "eleve");
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire');
@@ -65,7 +65,7 @@ async function invalidateToken(token){
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded, "iii");
-        db.query('INSERT INTO liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
+        db.query('INSERT INTO token_liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
         console.error(err);
