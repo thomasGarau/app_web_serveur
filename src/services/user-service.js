@@ -3,25 +3,27 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const authenticateUser = async (username, password) => {
-    const [rows] = await db.query('SELECT * FROM utilisateur WHERE mail = ?' , [username]); 
+    const [rows] = await db.query('SELECT * FROM utilisateur WHERE num_etudiant = ?' , [username]); 
     if(rows.length > 0){
         if(bcrypt.compare(password, rows[0].mdp)){
-            return genToken(rows[0].nom_utilisateur, rows[0].role);
+            const [user] = await db.query('SELECT * FROM utilisateur_valide where num_etudiant = ?', [rows[0].num_etudiant]);
+            return genToken(rows[0].num_etudiant, user[0].role);
         }
     } else {
         throw new Error('Identifiants incorrects');
     }
 };
 
-const registerUser = async (username, password, name, firstname) => {
-    try{
-        await db.query('INSERT INTO utilisateur(mail, mdp, nom, prenom, role) VALUES(?, ?, ?, ?, "eleve")', [username, password, name, firstname]); 
-        return genToken(username, "eleve");
-    } catch (err) {
-        console.error(err);
-        throw new Error('erreur durant l inscription');
+const registerUser = async (mdp,num_etudiant) => {
+    const valideUser = await db.query('SELECT * FROM utilisateur_valide WHERE num_etudiant = ?', [num_etudiant]);
+    if(valideUser.length > 0){
+        await db.query('INSERT INTO utilisateur(mdp,num_etudiant) VALUES(?, ?)', [mdp, num_etudiant]); 
+        return genToken(num_etudiant, "eleve");
+    } else {
+        throw new Error('Vous n\'êtes pas autorisé à vous inscrire');
     }
 };
+
 
 function genToken(username, role){
     const token = jwt.sign(
@@ -35,7 +37,6 @@ function genToken(username, role){
     );
     return token;
 }
-
 function verifyToken(token){
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -47,12 +48,12 @@ function verifyToken(token){
 }
 
 async function userExist(username){
-    const [rows] = await db.query('SELECT * FROM utilisateur WHERE mail = ?' , [username]); 
+    const [rows] = await db.query('SELECT * FROM utilisateur WHERE num_etudiant = ?' , [username]); 
     return rows.length > 0;
 }
 
 async function isTokenBlacklisted(token){
-    const [rows] = await db.query('SELECT * FROM liste_noire WHERE valeur = ?', [token]);
+    const [rows] = await db.query('SELECT * FROM token_liste_noire WHERE token = ?', [token]);
     console.log(rows, "cc")
     const a = rows.length > 0;
     console.log(a, "zz")
@@ -64,7 +65,7 @@ async function invalidateToken(token){
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded, "iii");
-        db.query('INSERT INTO liste_noire(valeur, date) VALUES(?, "12-12-23")', [token]);
+        db.query('INSERT INTO liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
         console.error(err);
