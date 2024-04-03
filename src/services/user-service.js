@@ -37,7 +37,6 @@ function genToken(username, role){
     );
     return token;
 }
-
 function verifyToken(token){
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

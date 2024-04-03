@@ -17,12 +17,19 @@ app.use(express.json());
 
 const userRoutes = require('./src/routes/userRoutes')
 const securePageRoutes = require('./src/routes/secure-page-Routes')
+
 const ueRoutes = require('./src/routes/ueRoutes')
 const coursRoutes = require('./src/routes/coursRoutes')
 const chatRoutes = require('./src/routes/chatRoutes')
+const quizzRoute = require('./src/routes/quizz-routes')
 
 app.use('/api/secure-page', securePageRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/ue', ueRoutes)
 app.use('/api/cours', coursRoutes)
 app.use('/api/chat', chatRoutes)
+
+app.use('/api/secure-page', securePageRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api/quizz', quizzRoute)
+
