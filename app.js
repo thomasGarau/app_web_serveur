@@ -28,8 +28,5 @@ app.use('/api/user', userRoutes)
 app.use('/api/ue', ueRoutes)
 app.use('/api/cours', coursRoutes)
 app.use('/api/chat', chatRoutes)
-
-app.use('/api/secure-page', securePageRoutes)
-app.use('/api/user', userRoutes)
 app.use('/api/quizz', quizzRoute)
 
