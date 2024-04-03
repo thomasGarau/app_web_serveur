@@ -7,6 +7,6 @@ const { verifyTokenBlacklist } = require('../middlewares/verifyAuthorisation.js'
 router.post('/login', [validateField('username'), validatePassword(), validate], Authenticate);
 router.get('/verify-token',verifyTokenBlacklist ,verifyToken);
 router.post('/register', [...validateField('username', 'name', 'firstname'), validatePassword(), hashPassword(), validate], register);
-router.post('/Logout', invalidateToken)
+router.post('/logout', invalidateToken)
 
 module.exports = router;
