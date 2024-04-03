@@ -14,10 +14,10 @@ const authenticateUser = async (username, password) => {
     }
 };
 
-const registerUser = async (mdp,num_etudiant) => {
+const registerUser = async (num_etudiant,mdp) => {
     const valideUser = await db.query('SELECT * FROM utilisateur_valide WHERE num_etudiant = ?', [num_etudiant]);
     if(valideUser.length > 0){
-        await db.query('INSERT INTO utilisateur(mdp,num_etudiant) VALUES(?, ?)', [mdp, num_etudiant]); 
+        await db.query('INSERT INTO utilisateur(num_etudiant,mdp) VALUES(?, ?)', [num_etudiant,mdp]); 
         return genToken(num_etudiant, "eleve");
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire');
