@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 
-// liste des ue d'un utilisateur
-const useruelist = async (mail_utilisateur) => {
-    const [rows] = await db.query('SELECT * FROM utilisateur_has_ue WHERE mail_utilisateur = ?' , [mail_utilisateur]);
+// liste d'ue d'un utilisateur
+
+const useruelist = async (num_etudiant) => {
+    const [rows] = await db.query('SELECT ue.id_ue, ue.label FROM utilisateur JOIN utilisateur_valide ON utilisateur.num_etudiant = utilisateur_valide.num_etudiant JOIN formation ON utilisateur_valide.id_universite = formation.id_universite JOIN formation_ue ON formation.id_formation = formation_ue.formation_id_formation JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE utilisateur.num_etudiant = ?' , [num_etudiant] );
     if (rows.length > 0){
         return rows;
     }
@@ -13,6 +14,7 @@ const useruelist = async (mail_utilisateur) => {
         throw new Error('Aucune ue pour cet utilisateur');
     }
 }
+
 
 // liste des ue
 const uelist = async () => {
@@ -24,10 +26,11 @@ const uelist = async () => {
         throw new Error('Aucune ue');
     }
 }
+// une ue est elle visible ou pas du coup peut etre attribut visible
 // ajouter une ue
-const addue = async (id_ue,label,visible) => {
+const addue = async (id_ue,label) => {
     try{
-        await db.query('INSERT INTO ue(id_ue,label,visible) VALUES(?, ?, ?)', [id_ue,label,visible]);
+        await db.query('INSERT INTO ue(id_ue,label) VALUES(?, ?)', [id_ue,label]);
     } catch (err) {
         console.error(err);
         throw new Error('erreur durant l ajout');
@@ -47,9 +50,9 @@ const deleteue = async (id_ue) => {
 }
 
 // modifier une ue
-const updateue = async (id_ue,label,visible) => {
+const updateue = async (id_ue,label) => {
     try{
-        await db.query('UPDATE ue SET label = ?, visible = ? WHERE id_ue = ?', [label,visible,id_ue]);
+        await db.query('UPDATE ue SET label = ? WHERE id_ue = ?', [label,id_ue]);
     } catch (err) {
         console.error(err);
         throw new Error('erreur durant la modification');

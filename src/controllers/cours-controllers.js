@@ -2,9 +2,10 @@ const coursService = require('../services/cours-services');
 
 // liste des cours
 
-exports.courlist = (async (res) => {
+exports.courlist = (async (req,res) => {
     try {
         const cours = await coursService.courlist();
+        console.log(cours);
         res.status(200).send(cours);
     } catch (err) {
         console.error(err);
@@ -12,6 +13,7 @@ exports.courlist = (async (res) => {
     }
 }
 )
+
 
 // cours par id
 
@@ -31,8 +33,8 @@ exports.courById = (async (req,res) => {
 
 exports.addcours = (async (req,res) => {
     try{
-        const {id_study,label,id_theme} = req.body;
-        await coursService.addcours(id_study,label,id_theme);
+        const {id_study,label,contenu,id_chapitre} = req.body;
+        await coursService.addcour(id_study,label,contenu,id_chapitre);
         res.status(200).send('Ajout réussi');
     }
     catch (err){
@@ -59,8 +61,8 @@ exports.deletecours = (async (req,res) => {
 
 exports.updatecours = (async (req,res)=>{
     try{
-        const {id_study,label,id_theme} = req.body;
-        await serviceCours.updatecours(id_study,label,id_theme);
+        const {id_study,label,contenu,id_chapitre} = req.body;
+        await coursService.updatecour(id_study,label,contenu,id_chapitre);
         res.status(200).send('Modification réussie');
     }
     catch(err){
@@ -68,4 +70,3 @@ exports.updatecours = (async (req,res)=>{
         res.status(200).send('Echec de la modification');
     }
 })
-

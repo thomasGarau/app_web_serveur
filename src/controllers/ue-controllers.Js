@@ -28,8 +28,8 @@ exports.uelist = (async (res) => {
 // ajouter une ue
 exports.addue = (async (req,res) => {
     try {
-        const {id_ue,label,visible} = req.body;
-        await ueService.addue(id_ue,label,visible);
+        const {id_ue,label} = req.body;
+        await ueService.addue(id_ue,label);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);
@@ -54,8 +54,8 @@ exports.deleteue = (async (req,res) => {
 // modifier une ue
 exports.updateue = (async (req,res) => {
     try {
-        const {id_ue,label,visible} = req.body;
-        await ueService.updateue(id_ue,label,visible);
+        const {id_ue,label} = req.body;
+        await ueService.updateue(id_ue,label);
         res.status(200).send('Modification réussie');
     } catch (err) {
         console.error(err);

@@ -2,6 +2,7 @@ const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
+// un cours à un chapitre et une ue à un cours du coup le select doit etre sur cours where id_e = 
 //liste des cours
 const courlist = async () => {
     const [rows] = await db.query('SELECT * FROM cours');
@@ -25,9 +26,9 @@ const courById = async (id_study) => {
 }
 
 // ajouter un cours
-const addcour = async (id_study,label,id_theme) => {
+const addcour = async (id_study,label,contenu,id_chapitre) => {
     try{
-        await db.query('INSERT INTO cours(id_cours,label,id_theme) VALUES(?, ?, ?)', [id_study,label,id_theme]);
+        await db.query('INSERT INTO cours(id_cours,label,contenu,id_chapitre) VALUES(?,?,?,?)', [id_study,label,contenu,id_chapitre]);
     }
     catch (err) {
         console.error(err);
@@ -47,15 +48,15 @@ const deletecour = async (id_study) => {
 }
 
 // modifier un cours
-const updatecour = async (id_study,label,id_theme) => {
-    try{
-        await db.query('UPDATE cours SET label = ?, id_theme = ? WHERE id_cours = ?', [label,id_theme,id_study]);
-    }
-    catch (err) {
+const updatecour = async (id_study, label, contenu, id_chapitre) => {
+    try {
+        await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ? AND id_chapitre = ?', [contenu, label, id_study, id_chapitre]);
+    } catch (err) {
         console.error(err);
-        throw new Error('erreur durant la modification');
+        throw new Error('Erreur durant la modification');
     }
 }
+
 
 module.exports = {
     courlist,

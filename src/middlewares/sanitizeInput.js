@@ -6,9 +6,6 @@ const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)
             .isLength({ min: 1, max: 100 })
-            .withMessage(`Le champ ${fieldName} doit être compris entre 1 et 100 caractères.`)
-            .matches(/^[a-zA-Z0-9\s]*$/)
-            .withMessage(`Le champ ${fieldName} ne doit contenir que des lettres, des chiffres et des espaces.`)
             .trim();
     });
 };
