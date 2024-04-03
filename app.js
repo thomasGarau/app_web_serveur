@@ -21,9 +21,12 @@ const quizzRoute = require('./src/routes/quizz-routes')
 const ueRoutes = require('./src/routes/ueRoutes')
 const coursRoutes = require('./src/routes/coursRoutes')
 const chatRoutes = require('./src/routes/chatRoutes')
+
+
 app.use('/api/secure-page', securePageRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/quizz', quizzRoute)
 app.use('/api/ue', ueRoutes)
 app.use('/api/cours', coursRoutes)
 app.use('/api/chat', chatRoutes)
+
