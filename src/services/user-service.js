@@ -65,7 +65,7 @@ async function invalidateToken(token){
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded, "iii");
-        db.query('INSERT INTO liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
+        db.query('INSERT INTO token_liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
         console.error(err);
