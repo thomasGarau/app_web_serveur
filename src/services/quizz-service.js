@@ -85,7 +85,7 @@ const addNoteUtilisateurQuizz = async (id_quizz, id_utilisateur, note, date) => 
 };
 
 const addNoteUtilisateurAuQuizz = async (id_quizz, id_utilisateur, note, date) => {
-    const query = ``;
+    const query = `INSERT INTO note_du_quizz (date, note, id_quizz, id_utilisateur) VALUES (?, ?, ?, ?)`;
     try {
         await db.query(query, [date, note, id_quizz, id_utilisateur]);
         return { success: true, message: 'Note ajoutée avec succès.' };
