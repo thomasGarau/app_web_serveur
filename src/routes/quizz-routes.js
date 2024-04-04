@@ -11,8 +11,8 @@ const {
     getReponsesUtilisateurPourQuestion,
     ajouterNoteUtilisateurPourQuizz,
     ajouterNoteUtilisateurAuQuizz,
-    ajouterReponseUtilisateurAuQuizz,
-    ajouterQuizz
+    // ajouterReponseUtilisateurAuQuizz,
+    // ajouterQuizz
 } = require('../controllers/quizz-controller.js');
 const {verifyAuthorisation, verifyTokenBlacklist} = require('../middlewares/verifyAuthorisation.js');
 const { validateField, validateQuizzType, validateReponseQuizzType } = require('../middlewares/sanitizeInput.js');
@@ -30,7 +30,7 @@ router.get('/annotationsPourQuestion', [validateField("question", "quizz"), veri
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyTokenBlacklist, verifyAuthorisation], ajouterNoteUtilisateurPourQuizz);
 router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note"), verifyTokenBlacklist, verifyAuthorisation], ajouterNoteUtilisateurAuQuizz);
 
-router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyTokenBlacklist, verifyAuthorisation], ajouterReponseUtilisateurAuQuizz);
-router.post('/ajouterQuizz', [validateField("label", "ue"), validateQuizzType, verifyTokenBlacklist, verifyAuthorisation], ajouterQuizz);
+// router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyTokenBlacklist, verifyAuthorisation], ajouterReponseUtilisateurAuQuizz);
+// router.post('/ajouterQuizz', [validateField("label", "ue"), validateQuizzType, verifyTokenBlacklist, verifyAuthorisation], ajouterQuizz);
 
 module.exports = router;

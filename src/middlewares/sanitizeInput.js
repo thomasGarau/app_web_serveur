@@ -1,13 +1,13 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-import { reponseQuizzSchema, creationQuizzSchema } from '../models_JSON/reponseQuizzValidation.js';
+// import { reponseQuizzSchema, creationQuizzSchema } from '../models_JSON/reponseQuizzValidation.js';
 
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)
-            .isLength({ min: 1, max: 100 })
+            .isLength({ min: 1, max: 500 })
             .trim();
     });
 };
@@ -51,28 +51,28 @@ const validate = (req, res, next) => {
     next();
 };
 
-const validateReponseQuizzType = (req, res, next) => {
-    const { error } = reponseQuizzSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
+// const validateReponseQuizzType = (req, res, next) => {
+//     const { error } = reponseQuizzSchema.validate(req.body);
+//     if (error) {
+//         return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+//     }
+//     next();
+// };
 
-const validateQuizzType = (req, res, next) => {
-    const { error } = creationQuizzSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
+// const validateQuizzType = (req, res, next) => {
+//     const { error } = creationQuizzSchema.validate(req.body);
+//     if (error) {
+//         return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+//     }
+//     next();
+// };
 
 module.exports = {
     validate,
     validateField,
     validateEmail,
     validatePassword,
-    validateReponseQuizzType,
-    validateQuizzType,
+    // validateReponseQuizzType,
+    // validateQuizzType,
     hashPassword
 };

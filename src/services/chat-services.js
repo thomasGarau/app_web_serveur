@@ -3,9 +3,9 @@ const db = require('../../config/database.js');
 
 // sauvegarder un message 
 
-const saveMessage = async (id_message,contenu,date,id_forum,id_utilisateur) => {
+const saveMessage = async (id_message,contenu,date,id_forum,id_etudiant) => {
     try{
-        await db.query('INSERT INTO message(id_message,contenu,date,id_forum,id_utilisateur) VALUES(?,?,?,?,?)', [id_message,contenu,date,id_forum,id_utilisateur]);
+        await db.query('INSERT INTO message(id_message,contenu,date,id_forum,id_utilisateur) VALUES(?,?,?,?,?)', [id_message,contenu,date,id_forum,id_etudiant]);
     }
     catch (err) {
         console.error(err);
@@ -15,9 +15,15 @@ const saveMessage = async (id_message,contenu,date,id_forum,id_utilisateur) => {
 
 // supprimer un message
 
-const deleteMessage = async (id_message) => {
+const deleteMessage = async (id_message,role,id_etudiant) => {
     try{
-        await db.query('DELETE FROM message WHERE id_message = ?', [id_message]);
+        const id_utilisateur = await db.query('SELECT id_utilisateur FROM message WHERE id_message = ?', [id_message]);
+        if((role === 'administration') || (role==='enseignant') || (role==='etudiant' && id_etudiant===id_utilisateur) ){
+             await db.query('DELETE FROM message WHERE id_message = ?', [id_message]);
+        }
+        else{
+            throw new Error('Vous n avez pas le droit de supprimer ce message');
+        }     
     }
     catch (err) {
         console.error(err);
@@ -27,9 +33,9 @@ const deleteMessage = async (id_message) => {
 
 // modifier un message
 
-const updateMessage = async (id_message,contenu,date,id_forum,id_utilisateur) => {
+const updateMessage = async (id_message,contenu,date,id_forum,id_etudiant) => {
     try{
-        await db.query('UPDATE message SET contenu = ?, date = ?, id_forum = ?, id_utilisateur = ? WHERE id_message = ?', [contenu,date,id_forum,id_utilisateur,id_message]);
+        await db.query('UPDATE message SET contenu = ?, date = ?, id_forum = ?, id_utilisateur = ? WHERE id_message = ?', [contenu,date,id_forum,id_etudiant,id_message]);
     }
     catch (err) {
         console.error(err);

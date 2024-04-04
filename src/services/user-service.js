@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
     if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
-        return genToken(rows[0].num_etudiant, rows[0].id_etudiant, rows[0].role);
+        console.log(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
+        return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
     } else {
         throw new Error('Identifiants incorrects');
     }
@@ -22,7 +23,7 @@ const registerUser = async (email, mdp) => {
 
     if (result.length > 0) {
         await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
-        return genToken(result[0].num_etudiant, result[0].id_etudiant, "eleve");
+        return genToken(result[0].num_etudiant, result[0].id_utilisateur, result[0].role);
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
