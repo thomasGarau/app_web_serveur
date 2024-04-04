@@ -134,8 +134,19 @@ exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
     try {
         const { quizz, utilisateur, data } = req.body;
         const note_quizz = await quizzService.ajouterReponsesAuQuizz(quizz, utilisateur, data);
-        const result = await quizzService.resultatQuizz(note_quizz)
+        const result = await quizzService.createResultatQuizz(note_quizz)
         return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+exports.getResultatUtilisateurQuizz = async (req, res) => {
+    try {
+        const { note_quizz } = req.body;
+        const result = await quizzService.getResultatQuizz(note_quizz)
+        return res.status(200).json({ resultat: result });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

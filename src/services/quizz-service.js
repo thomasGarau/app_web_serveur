@@ -193,7 +193,7 @@ const ajouterReponsesAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
     }
 };
 
-const resultatQuizz =  async (idQuizz, idUtilisateur, reponsesData) => {
+const createResultatQuizz =  async (idQuizz, idUtilisateur, reponsesData) => {
     const quizzType = await getTypeQuizz(idQuizz);
     const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idQuizz, reponsesData);
     let resultat;
@@ -304,6 +304,29 @@ function calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses)
     };
 }
 
+const getResultatQuizz = async (note_quizz) => {
+    try{
+        resultat = null;
+        const [rows] = await db.query(
+            `SELECT * FROM note_quizz NATURAL JOIN quizz WHERE id_note_quizz = ?`,
+            [note_quizz]
+        );
+        if (rows.length > 0) {
+            if (rows[0].type === "normal") {
+                resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
+            } else if (rows[0].type === "negatif") {
+                resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
+            }
+            return resultat;
+        } else {
+            throw new Error("Aucun résultat pour ce quizz");
+        }
+    
+    }catch (error) {
+        throw new Error("Impossible de récupérer le résultat du quizz");
+    }
+};
+
 
 
 
@@ -319,5 +342,6 @@ module.exports = {
     getReponsesUtilisateurPourQuestion,
     getAnnotationsPourQuestion,
     ajouterReponsesAuQuizz,
-    resultatQuizz
+    getResultatQuizz, 
+    createResultatQuizz
 };

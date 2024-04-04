@@ -28,7 +28,8 @@ const verifyTokenBlacklist = async (req, res, next) => {
     next();
 };
 
+
 module.exports = {
     verifyAuthorisation,
-    verifyTokenBlacklist
+    verifyTokenBlacklist,
 }

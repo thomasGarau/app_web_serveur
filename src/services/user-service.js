@@ -19,8 +19,6 @@ const registerUser = async (email, mdp) => {
         LEFT JOIN utilisateur u ON uv.num_etudiant = u.num_etudiant
         WHERE uv.mail_utilisateur = ? AND u.id_utilisateur IS NULL
     `;
-
-    console.log(email, mdp, "cc");
     const [result] = await db.query(query, [email]);
 
     if (result.length > 0) {
