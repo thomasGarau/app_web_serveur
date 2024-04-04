@@ -3,12 +3,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const authenticateUser = async (num_etudiant, password) => {
-    const [rows] = await db.query('SELECT * FROM utilisateur WHERE num_etudiant = ?' , [num_etudiant]); 
-    if(rows.length > 0){
-        if(bcrypt.compare(password, rows[0].mdp)){
-            const [user] = await db.query('SELECT * FROM utilisateur_valide where num_etudiant = ?', [rows[0].num_etudiant]);
-            return genToken(rows[0].num_etudiant, user[0].role);
-        }
+    const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
+    console.log(rows, "cc", password);
+    if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
+        return genToken(rows[0].num_etudiant, rows[0].role);
     } else {
         throw new Error('Identifiants incorrects');
     }

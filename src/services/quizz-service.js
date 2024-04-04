@@ -164,6 +164,149 @@ const getAnnotationsPourQuestion = async (id_question, id_quizz) => {
 };
 
 
+const ajouterReponsesAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
+    try {
+        await db.beginTransaction();
+
+        const [noteQuizz] = await connection.query(
+            `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (CURDATE(), 0, ?, ?)`,
+            [idQuizz, idUtilisateur]
+        );
+
+        const idNoteQuizz = noteQuizz.insertId;
+
+        for (const reponse of reponses) {
+            await connection.query(
+                `INSERT INTO reponse_utilisateur (id_reponse, id_utilisateur, id_note_quizz) VALUES (?, ?, ?)`,
+                [reponse.idReponse, idUtilisateur, idNoteQuizz]
+            );
+        }
+
+        await connection.commit();
+
+        return true;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+};
+
+const resultatQuizz =  async (idQuizz, idUtilisateur, reponsesData) => {
+    const quizzType = await getTypeQuizz(idQuizz);
+    const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idQuizz, reponsesData);
+    let resultat;
+    if (quizzType === "normal") {
+        resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
+    } else if (quizzType === "negatif") {
+        resultat = calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses);
+    }
+    const [noteQuizzResult] = await db.query(
+        `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (CURDATE(), ?, ?, ?)`,
+        [resultat.noteFinale, idQuizz, idUtilisateur]
+    );
+    const idNoteQuizz = noteQuizzResult.insertId;
+    return {
+        idNoteQuizz,
+        noteFinale: resultat.noteFinale,
+        details: resultat.details
+    };
+};
+
+async function getTypeQuizz(idQuizz) {
+    const [result] = await db.query(`
+        SELECT type FROM quizz WHERE id_quizz = ?
+    `, [idQuizz]);
+    return result[0].type;
+}
+
+async function preparerDetailsQuizz(idNoteQuizz) {
+    const questionsQuizz = await db.query(`
+        SELECT DISTINCT q.id_question
+        FROM question q
+        JOIN note_quizz nq ON q.id_quizz = nq.id_quizz
+        WHERE nq.id_note_quizz = ?
+    `, [idNoteQuizz]);
+
+    const reponsesUtilisateur = await db.query(`
+        SELECT ru.id_reponse, r.id_question
+        FROM reponse_utilisateur ru
+        JOIN reponse r ON ru.id_reponse = r.id_reponse
+        WHERE ru.id_note_quizz = ?
+    `, [idNoteQuizz]);
+
+    const bonnesReponses = await db.query(`
+        SELECT r.id_reponse, r.id_question
+        FROM reponse r
+        JOIN question q ON r.id_question = q.id_question
+        JOIN note_quizz nq ON q.id_quizz = nq.id_quizz
+        WHERE nq.id_note_quizz = ? AND r.est_bonne_reponse = 1
+    `, [idNoteQuizz]);
+
+    return { questionsQuizz, reponsesUtilisateur, bonnesReponses };
+}
+
+function calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses) {
+    let scoreTotal = 0;
+    let details = [];
+
+    questionsQuizz.forEach(question => {
+        const reponsesPourQuestion = reponsesUtilisateur.filter(r => r.id_question === question.id_question).map(r => r.id_reponse);
+        const bonnesReponsesPourQuestion = bonnesReponses.filter(r => r.id_question === question.id_question).map(r => r.id_reponse);
+        const bonnesReponsesUtilisateur = reponsesPourQuestion.filter(r => bonnesReponsesPourQuestion.includes(r));
+        
+        const scoreQuestion = bonnesReponsesUtilisateur.length / bonnesReponsesPourQuestion.length;
+        scoreTotal += scoreQuestion;
+
+        details.push({
+            id_question: question.id_question,
+            reponsesUtilisateur: reponsesPourQuestion,
+            bonnesReponses: bonnesReponsesPourQuestion,
+            scoreQuestion: scoreQuestion.toFixed(2)
+        });
+    });
+
+    const noteFinale = ((scoreTotal / questionsQuizz.length) * 100).toFixed(2);
+
+    return {
+        noteFinale,
+        details
+    };
+}
+
+function calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses) {
+    let scoreTotal = 0;
+    let details = [];
+
+    questionsQuizz.forEach(question => {
+        const reponsesPourQuestion = reponsesUtilisateur.filter(r => r.id_question === question.id_question).map(r => r.id_reponse);
+        const bonnesReponsesPourQuestion = bonnesReponses.filter(r => r.id_question === question.id_question).map(r => r.id_reponse);
+        const bonnesReponsesUtilisateur = reponsesPourQuestion.filter(r => bonnesReponsesPourQuestion.includes(r));
+        const mauvaisesReponses = reponsesPourQuestion.length - bonnesReponsesUtilisateur.length;
+        
+        const scoreQuestion = bonnesReponsesUtilisateur.length / bonnesReponsesPourQuestion.length - (mauvaisesReponses / bonnesReponsesPourQuestion.length);
+        scoreTotal += Math.max(scoreQuestion, -1);
+
+        details.push({
+            id_question: question.id_question,
+            reponsesUtilisateur: reponsesPourQuestion,
+            bonnesReponses: bonnesReponsesPourQuestion,
+            scoreQuestion: Math.max(scoreQuestion, -1).toFixed(2)
+        });
+    });
+
+    const noteFinale = ((scoreTotal / questionsQuizz.length) * 100).toFixed(2);
+
+    return {
+        noteFinale,
+        details
+    };
+}
+
+
+
+
 module.exports = {
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
@@ -174,5 +317,7 @@ module.exports = {
     getQuestionsPourQuizz,
     getReponsesPourQuestion,
     getReponsesUtilisateurPourQuestion,
-    getAnnotationsPourQuestion
+    getAnnotationsPourQuestion,
+    ajouterReponsesAuQuizz,
+    resultatQuizz
 };
