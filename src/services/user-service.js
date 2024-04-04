@@ -2,8 +2,8 @@ const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const authenticateUser = async (username, password) => {
-    const [rows] = await db.query('SELECT * FROM utilisateur WHERE num_etudiant = ?' , [username]); 
+const authenticateUser = async (num_etudiant, password) => {
+    const [rows] = await db.query('SELECT * FROM utilisateur WHERE num_etudiant = ?' , [num_etudiant]); 
     if(rows.length > 0){
         if(bcrypt.compare(password, rows[0].mdp)){
             const [user] = await db.query('SELECT * FROM utilisateur_valide where num_etudiant = ?', [rows[0].num_etudiant]);
@@ -14,21 +14,31 @@ const authenticateUser = async (username, password) => {
     }
 };
 
-const registerUser = async (num_etudiant,mdp) => {
-    const valideUser = await db.query('SELECT * FROM utilisateur_valide WHERE num_etudiant = ?', [num_etudiant]);
-    if(valideUser.length > 0){
-        await db.query('INSERT INTO utilisateur(num_etudiant,mdp) VALUES(?, ?)', [num_etudiant,mdp]); 
-        return genToken(num_etudiant, "eleve");
+const registerUser = async (email, mdp) => {
+    const query = `
+        SELECT uv.num_etudiant
+        FROM utilisateur_valide uv
+        LEFT JOIN utilisateur u ON uv.num_etudiant = u.num_etudiant
+        WHERE uv.mail_utilisateur = ? AND u.id_utilisateur IS NULL
+    `;
+
+    console.log(email, mdp, "cc");
+    const [result] = await db.query(query, [email]);
+
+    if (result.length > 0) {
+        await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
+        return genToken(result[0].num_etudiant, "eleve");
     } else {
-        throw new Error('Vous n\'êtes pas autorisé à vous inscrire');
+        throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
 };
 
 
-function genToken(username, role){
+
+function genToken(num_etudiant, role){
     const token = jwt.sign(
         { 
-            userName: username,
+            num_etudiant: num_etudiant,
             role: role
         },
 

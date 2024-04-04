@@ -12,7 +12,7 @@ const validateField = (...fieldNames) => {
 
 // Validation pour l'email
 const validateEmail = () => {
-    return body('email').isEmail().normalizeEmail();
+    return body('email').isEmail().normalizeEmail({gmail_remove_dots: false});
 };
 
 // Validation pour le mot de passe

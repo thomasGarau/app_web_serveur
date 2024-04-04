@@ -23,9 +23,9 @@ exports.verifyToken = ((req,res) => {
 
 exports.Authenticate = (async (req,res) => {
     try {
-        const {username, password} = req.body;
-        const token = await userService.authenticateUser(username, password);
-        res.status(200).send({username: username, token: token, days: 7});
+        const {num_etudiant, password} = req.body;
+        const token = await userService.authenticateUser(num_etudiant, password);
+        res.status(200).send({token: token, days: 7});
     } catch (err) {
         console.error(err);
         res.status(500).send('Echec de l authentification');
@@ -34,13 +34,10 @@ exports.Authenticate = (async (req,res) => {
 
  exports.register = (async (req,res) => {
     try {
-        const { username, password } = req.body;
-        if(!await userService.userExist(username)){
-            const token = await userService.registerUser(username, password);
-            res.status(200).send({username: username, token: token, days: 7});
-        }else{
-            res.status(401).send("Nom d utilisateur déjà utilisé");
-        }
+        const { email, password } = req.body;
+        const token = await userService.registerUser(email, password);
+        res.status(200).send({token: token, days: 7});
+        
     } catch (err) {
         console.error(err);
         res.status(500).send('Échec de l\'inscription');

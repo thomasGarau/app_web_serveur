@@ -4,9 +4,9 @@ const {verifyToken,Authenticate,register, invalidateToken} = require('../control
 const { validateField, validateEmail, validatePassword, validate, hashPassword } = require('../middlewares/sanitizeInput.js');
 const { verifyTokenBlacklist } = require('../middlewares/verifyAuthorisation.js');
 
-router.post('/login', [validateField('username'), validatePassword(), validate], Authenticate);
+router.post('/login', [validateField('num_etudiant'), validatePassword(), validate], Authenticate);
 router.get('/verify-token',verifyTokenBlacklist ,verifyToken);
-router.post('/register', [...validateField('username', 'name', 'firstname'), validatePassword(), hashPassword(), validate], register);
+router.post('/register', [validatePassword(), validateEmail(), hashPassword(), validate], register);
 router.post('/logout', invalidateToken)
 
 module.exports = router;
