@@ -1,4 +1,5 @@
 const quizzService = require('../services/quizz-service');
+const {getIdUtilisateurFromToken} = require('../services/user-service');
 
 exports.getQuizzForUe = async (req, res) => {
     try {
@@ -23,7 +24,9 @@ exports.getQuizzForUe = async (req, res) => {
 
 exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
     try {
-        const { quizz, utilisateur } = req.body;
+        const { quizz } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        console.log()
 
         const meilleureNote = await quizzService.getNoteUtilisateurQuizz(quizz, utilisateur);
 
@@ -40,7 +43,8 @@ exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
 
 exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
     try {
-        const { quizz, utilisateur, note } = req.body;
+        const { quizz, note } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
 
         await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
@@ -54,7 +58,8 @@ exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
 
 exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
     try {
-        const { quizz, utilisateur, note } = req.body;
+        const { quizz, note } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
 
         await quizzService.addNoteUtilisateurAuQuizz(quizz, utilisateur, note, date);
@@ -108,7 +113,9 @@ exports.getReponsesPourQuestion = async (req, res) => {
 };
 
 exports.getReponsesUtilisateurPourQuestion = async (req, res) => {
-    const { question, utilisateur, quizz } = req.body;
+    const { question, quizz } = req.body;
+    const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+
     try {
         const reponsesUtilisateur = await quizzService.getReponsesUtilisateurPourQuestion(question, utilisateur, quizz);
         res.status(200).send(reponsesUtilisateur);
@@ -132,7 +139,8 @@ exports.getAnnotationsPourQuestion = async (req, res) => {
 
 exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
     try {
-        const { quizz, utilisateur, data } = req.body;
+        const { quizz, data } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const note_quizz = await quizzService.ajouterReponsesAuQuizz(quizz, utilisateur, data);
         const result = await quizzService.createResultatQuizz(note_quizz)
         return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });

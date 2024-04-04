@@ -4,9 +4,8 @@ const bcrypt = require('bcrypt');
 
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
-    console.log(rows, "cc", password);
     if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
-        return genToken(rows[0].num_etudiant, rows[0].role);
+        return genToken(rows[0].num_etudiant, rows[0].id_etudiant, rows[0].role);
     } else {
         throw new Error('Identifiants incorrects');
     }
@@ -23,7 +22,7 @@ const registerUser = async (email, mdp) => {
 
     if (result.length > 0) {
         await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
-        return genToken(result[0].num_etudiant, "eleve");
+        return genToken(result[0].num_etudiant, result[0].id_etudiant, "eleve");
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
@@ -31,10 +30,11 @@ const registerUser = async (email, mdp) => {
 
 
 
-function genToken(num_etudiant, role){
+function genToken(num_etudiant, id_etudiant, role){
     const token = jwt.sign(
         { 
             num_etudiant: num_etudiant,
+            id_etudiant: id_etudiant,
             role: role
         },
 
@@ -60,24 +60,24 @@ async function userExist(username){
 
 async function isTokenBlacklisted(token){
     const [rows] = await db.query('SELECT * FROM token_liste_noire WHERE token = ?', [token]);
-    console.log(rows, "cc")
-    const a = rows.length > 0;
-    console.log(a, "zz")
-    return a;
+    return rows.length > 0;
 }
 
 async function invalidateToken(token){
     try {
         //test si le token est belle est bien valide
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded, "iii");
         db.query('INSERT INTO token_liste_noire(token, date) VALUES(?, "12-12-23")', [token]);
         return decoded;
     } catch (err) {
         console.error(err);
         throw new Error('Token invalide');
     }
+}
 
+async function getIdUtilisateurFromToken(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.id_utilisateur;
 }
 
 module.exports = {
@@ -86,5 +86,7 @@ module.exports = {
     userExist,
     verifyToken,
     isTokenBlacklisted,
-    invalidateToken
+    invalidateToken,
 };
+
+module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;
