@@ -34,10 +34,8 @@ exports.courById = (async (req,res) => {
 
 exports.addcours = (async (req,res) => {
     try{
-        const {id_study,label,contenu,id_chapitre,token} = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const role = decoded.role;
-        await coursService.addcour(id_study,label,contenu,id_chapitre,role);
+        const {id_study,label,contenu,id_chapitre} = req.body;
+        await coursService.addcour(id_study,label,contenu,id_chapitre);
         res.status(200).send('Ajout réussi');
     }
     catch (err){
@@ -50,10 +48,8 @@ exports.addcours = (async (req,res) => {
 
 exports.deletecours = (async (req,res) => {
     try{
-        const {id_study,token} = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const role = decoded.role;
-        await coursService.deletecour(id_study,role);
+        const {id_study} = req.body;
+        await coursService.deletecour(id_study);
         res.status(200).send('Suppression réussie');
     }
     catch (err) {
@@ -66,10 +62,8 @@ exports.deletecours = (async (req,res) => {
 
 exports.updatecours = (async (req,res)=>{
     try{
-        const {id_study,label,contenu,id_chapitre,token} = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const role = decoded.role;
-        await coursService.updatecour(id_study,label,contenu,id_chapitre,role);
+        const {id_study,label,contenu,id_chapitre} = req.body;
+        await coursService.updatecour(id_study,label,contenu,id_chapitre);
         res.status(200).send('Modification réussie');
     }
     catch(err){

@@ -130,11 +130,16 @@ const findOwnerOfResource = async (config, objectId) => {
     }
 };
 
+const GetToken = (req) => {
+    return req.headers.authorization.split(' ')[1];
+};
+
 
 module.exports = {
     verifyAuthorisation,
     verifyTokenBlacklist,
-    verifyOwner
+    verifyOwner,
+    GetToken
 }
 
 module.exports.verifyOwnerOrTeacherOfStudent = verifyOwnerOrTeacherOfStudent;

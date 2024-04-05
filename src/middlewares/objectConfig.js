@@ -74,9 +74,23 @@ const responseForDelConfig = {
     }
 };
 
-module.exports = {
+const coursConfig = {
+    tableName: 'cours',
+    userIdColumn: 'id_utilisateur',
+    objectIdColumn: 'id_study'
+};
+
+const ueConfig = {
+    tableName: 'ue',
+    userIdColumn: 'id_utilisateur',
+    objectIdColumn: 'id_ue'
+};
+
+module.exports.quizzConfig = {
     quizzConfig,
     questionConfig,
     responseConfig,
     responseForDelConfig
 };
+module.exports.coursConfig = coursConfig;
+module.exports.ueConfig = ueConfig;

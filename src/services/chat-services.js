@@ -3,9 +3,9 @@ const db = require('../../config/database.js');
 
 // sauvegarder un message 
 
-const saveMessage = async (id_message,contenu,date,id_forum,id_etudiant) => {
+const saveMessage = async (contenu,date,id_forum,id_etudiant) => {
     try{
-        await db.query('INSERT INTO message(id_message,contenu,date,id_forum,id_utilisateur) VALUES(?,?,?,?,?)', [id_message,contenu,date,id_forum,id_etudiant]);
+        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur) VALUES(?,?,?,?)', [contenu,date,id_forum,id_etudiant]);
     }
     catch (err) {
         console.error(err);
