@@ -72,7 +72,7 @@ module.exports = {
     validateField,
     validateEmail,
     validatePassword,
-    // validateReponseQuizzType,
-    // validateQuizzType,
+    validateReponseQuizzType,
+    validateQuizzType,
     hashPassword
 };
