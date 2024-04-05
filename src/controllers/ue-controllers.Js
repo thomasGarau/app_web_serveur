@@ -18,10 +18,10 @@ exports.useruelist = (async (req,res) => {
 )
 
 // liste des ue
-exports.uelist = (async (res) => {
+exports.uelist = (async (req,res) => {
     try {
         const ues = await ueService.uelist();
-        res.status(200).send();
+        res.status(200).send(ues);
     } catch (err) {
         console.error(err);
         res.status(500).send('Echec de la récupération des ue');
