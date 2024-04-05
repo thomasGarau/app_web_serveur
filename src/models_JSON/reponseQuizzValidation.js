@@ -29,4 +29,4 @@ const reponseQuizzSchema = Joi.object({
 });
 
 
-module.exports = { reponseQuizzSchema, creationQuizzSchema };
+module.exports = { reponseQuizzSchema, creationQuizzSchema, questionsSchema };

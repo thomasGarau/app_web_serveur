@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-const {reponseQuizzSchema, creationQuizzSchema} = require('../models_JSON/reponseQuizzValidation.js');
+const {reponseQuizzSchema, creationQuizzSchema, questionsSchema} = require('../models_JSON/reponseQuizzValidation.js');
 
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
@@ -67,12 +67,24 @@ const validateQuizzType = (req, res, next) => {
     next();
 };
 
+const validateQuestionType = (req, res, next) => {
+    const { error } = questionSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
     validateField,
     validateEmail,
     validatePassword,
-    validateReponseQuizzType,
-    validateQuizzType,
     hashPassword
 };
+
+module.exports.quizzValidation = { 
+    validateQuizzType, 
+    validateReponseQuizzType,
+    validateQuestionType
+}

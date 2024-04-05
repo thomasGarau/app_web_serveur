@@ -1,4 +1,3 @@
-const { verify } = require('jsonwebtoken');
 const quizzService = require('../services/quizz-service');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
 
@@ -122,20 +121,6 @@ exports.getAnnotationsPourQuestion = async (req, res) => {
     }
 };
 
-
-exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
-    try {
-        const { quizz, data } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const note_quizz = await quizzService.ajouterReponsesAuQuizz(quizz, utilisateur, data);
-        const result = await quizzService.createResultatQuizz(note_quizz)
-        return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-
 exports.getResultatUtilisateurQuizz = async (req, res) => {
     try {
         const { note_quizz } = req.body;
@@ -157,13 +142,67 @@ exports.ajouterQuizz = async (req, res) => {
     }
 };
 
+exports.ajouterQuestionAuQuizz = async (req, res) => {
+    try {
+        const { quizz, data } = req.body;
+        const question = await quizzService.ajouterQuestionAuQuizz(quizz, data);
+        return res.status(201).json({ message: "Question ajoutée avec succès", question: question });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+exports.ajouterReponseAQuestion = async (req, res) => {
+    try {
+        const { question, data } = req.body;
+        const reponse = await quizzService.ajouterReponseAQuestion(question, data);
+        return res.status(201).json({ message: "Réponse ajoutée avec succès", reponse: reponse });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
+    try {
+        const { quizz, data } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const note_quizz = await quizzService.ajouterReponsesUtilisateurAuQuizz(quizz, utilisateur, data);
+        const result = await quizzService.createResultatQuizz(note_quizz)
+        return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 exports.deleteQuizz = async (req, res) => {
     try {
         const { quizz } = req.body;
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await quizzService.deleteQuizz(quizz);
         return res.status(200).json({ message: "Quizz supprimé avec succès" });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
+
+exports.deleteQuestion = async (req, res) => {
+    try {
+        const { question } = req.body;
+        await quizzService.deleteQuestion(question);
+        return res.status(200).json({ message: "Question supprimée avec succès" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+exports.deleteReponse = async (req, res) => {
+    try {
+        const { reponse } = req.body;
+        await quizzService.deleteReponse(reponse);
+        return res.status(200).json({ message: "Réponse supprimée avec succès" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateQuizz = async (req, res) => {};
+exports.updateQuestion = async (req, res) => {};
+exports.updateReponse = async (req, res) => {};

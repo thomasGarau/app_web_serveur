@@ -153,7 +153,7 @@ const getAnnotationsPourQuestion = async (id_question, id_quizz) => {
 };
 
 
-const ajouterReponsesAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
+const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
     try {
         await db.beginTransaction();
 
@@ -395,6 +395,114 @@ const deleteQuizz = async (idQuizz) => {
     }
 };
 
+const ajouterQuestionAuQuizz = async (quizz, data) => {
+    try {
+        await db.beginTransaction();
+
+        const [result] = await db.query(
+            `INSERT INTO question (label, nombre_bonne_reponse, type, id_quizz) VALUES (?, ?, ?, ?)`,
+            [data.label, data.nombre_bonne_reponse, data.type, quizz]
+        );
+
+        const idQuestion = result.insertId;
+
+        for (const reponse of data.reponses) {
+            await db.query(
+                `INSERT INTO reponse (contenu, est_bonne_reponse, id_question) VALUES (?, ?, ?)`,
+                [reponse.contenu, reponse.est_bonne_reponse, idQuestion]
+            );
+        }
+
+        await db.commit();
+
+        return true;
+    } catch (error) {
+        await db.rollback();
+        throw new Error("Impossible d'ajouter la question");
+    } finally {
+        db.release();
+    }
+};
+
+const ajouterReponseAQuestion = async (question, data) => {
+    try {
+        await db.query(
+            `INSERT INTO reponse (contenu, est_bonne_reponse, id_question) VALUES (?, ?, ?)`,
+            [data.contenu, data.est_bonne_reponse, question]
+        );
+
+        return true;
+    } catch (error) {
+        throw new Error("Impossible d'ajouter la réponse");
+    }
+};
+
+const deleteQuestion = async (question) => {
+    try {
+        await db.beginTransaction();
+
+        await db.query(
+            `DELETE FROM reponse WHERE id_question = ?`,
+            [question]
+        );
+
+        await db.query(
+            `DELETE FROM question WHERE id_question = ?`,
+            [question]
+        );
+
+        await db.commit();
+
+        return true;
+    } catch (error) {
+        await db.rollback();
+        throw new Error("Impossible de supprimer la question");
+    } finally {
+        db.release();
+    }
+};
+
+const deleteReponse = async (reponse) => { 
+    try {
+        await db.query(
+            `DELETE FROM reponse WHERE id_reponse = ?`,
+            [reponse]
+        );
+
+        return true;
+    } catch (error) {
+        throw new Error("Impossible de supprimer la réponse");
+    }
+};
+
+const updateQuizz = async (id, data) => {
+    const { query, params } = buildUpdateQuery('quizz', data, id, 'id_quizz');
+    await db.query(query, params);
+};
+
+const updateQuestion = async (id, data) => {
+    const { query, params } = buildUpdateQuery('question', data, id, 'id_question');
+    await db.query(query, params);
+};
+
+const updateReponse = async (id, data) => {
+    const { query, params } = buildUpdateQuery('reponse', data, id, 'id_reponse');
+    await db.query(query, params);
+};
+
+const buildUpdateQuery = (tableName, data, id, primaryKeyColumn) => {
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+
+    const setClause = keys.map((key, index) => `${key} = ?`).join(', ');
+    const query = `UPDATE ${tableName} SET ${setClause} WHERE ${primaryKeyColumn} = ?`;
+
+    return {
+        query,
+        params: [...values, id]
+    };
+};
+
 
 module.exports = {
     getQuizzProfesseurForUe,
@@ -406,9 +514,16 @@ module.exports = {
     getReponsesPourQuestion,
     getReponsesUtilisateurPourQuestion,
     getAnnotationsPourQuestion,
-    ajouterReponsesAuQuizz,
+    ajouterReponsesUtilisateurAuQuizz,
     getResultatQuizz, 
     createResultatQuizz,
     createQuizz,
     deleteQuizz,
+    ajouterQuestionAuQuizz,
+    ajouterReponseAQuestion,
+    deleteQuestion,
+    deleteReponse,
+    updateQuizz,
+    updateQuestion,
+    updateReponse
 };
