@@ -9,7 +9,7 @@ exports.useruelist = (async (req,res) => {
         num_etudiant = token_decoded.num_etudiant;
         console.log(num_etudiant, "bbb")
         const ues = await ueService.useruelist(num_etudiant);
-        if(ues.length > 0){
+        if(ues.length < 0){
             res.status(200).send("Aucune ue pour cet utilisateur");
         }
         else{
@@ -51,7 +51,7 @@ exports.addue = (async (req,res) => {
 exports.deleteue = (async (req,res) => {
     try {
         const {id_ue} = req.body;
-        await ueService.deleteue(id_ue);
+        await ueService.deleteue(id_ue,role);
         res.status(200).send('Suppression réussie');
     } catch (err) {
         console.error(err);

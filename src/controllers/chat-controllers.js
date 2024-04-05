@@ -31,12 +31,13 @@ exports.messageByForum = (async (req,res) => {
 
 exports.addMessage = (async (req,res) => {
     try{
-        const {id_message,contenu,date,id_forum,token} = req.body;
+        const {contenu,date,id_forum} = req.body;
+        const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(token_decoded);
+        console.log(token_decoded,"token");
         const id_etudiant = token_decoded.id_etudiant;
         console.log(id_etudiant);
-        await chatService.saveMessage(id_message,contenu,date,id_forum,id_etudiant);
+        await chatService.saveMessage(contenu,date,id_forum,id_etudiant);
         res.status(200).send('Ajout réussi');
     }
     catch (err){

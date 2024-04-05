@@ -26,14 +26,9 @@ const courById = async (id_study) => {
 }
 
 // ajouter un cours
-const addcour = async (id_study,label,contenu,id_chapitre,role) => {
+const addcour = async (id_study,label,contenu,id_chapitre) => {
     try{
-        if ((role !== 'administration') || (role !== 'enseignant')){
-            throw new Error('Vous n avez pas les droits pour ajouter ce cours');
-        }   
-        else {
             await db.query('INSERT INTO cours(id_cours,label,contenu,id_chapitre) VALUES(?,?,?,?)', [id_study,label,contenu,id_chapitre]);
-        }
     }
     catch (err) {
         console.error(err);
@@ -44,12 +39,8 @@ const addcour = async (id_study,label,contenu,id_chapitre,role) => {
 // supprimer un cours
 const deletecour = async (id_study,role) => {
     try{
-        if ((role !== 'administration') || (role !== 'enseignant')){
-            throw new Error('Vous n avez pas les droits pour supprimer ce cours');
-        }
-        else {
             await db.query('DELETE FROM cours WHERE id_cours = ?', [id_study]);
-        }
+        
     }
     catch (err) {
         console.error(err);
@@ -58,14 +49,10 @@ const deletecour = async (id_study,role) => {
 }
 
 // modifier un cours
-const updatecour = async (id_study, label, contenu, id_chapitre,role) => {
+const updatecour = async (id_study, label, contenu, id_chapitre) => {
     try {
-        if ((role !== 'administration') || (role !== 'enseignant')){
-            throw new Error('Vous n avez pas les droits pour modifier ce cours');
-        }
-        else {
+       
             await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ? AND id_chapitre = ?', [contenu, label, id_study, id_chapitre]);
-        }
     } catch (err) {
         console.error(err);
         throw new Error('Erreur durant la modification');

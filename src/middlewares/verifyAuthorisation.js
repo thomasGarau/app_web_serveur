@@ -51,10 +51,30 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
     }
 };
 
+const GetToken = (req) => {
+    return req.headers.authorization.split(' ')[1];
+};
+
+const verifyRoleAdmin = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const role = decoded.role;
+        console.log(role);
+        if((role === 'administration')||(role === 'enseignant')){
+            next();
+        }
+    } catch (error) {
+        return res.status(401).send('Accès non autorisé. vous n\'avez pas les droits nécessaires.');
+    }
+};
+
 
 
 module.exports = {
     verifyAuthorisation,
     verifyTokenBlacklist,
-    verifyOwner
+    verifyOwner,
+    verifyRoleAdmin,
+    GetToken
 }

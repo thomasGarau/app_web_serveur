@@ -39,7 +39,7 @@ const addue = async (id_ue,label) => {
 }
 
 // supprimer une ue
-const deleteue = async (id_ue) => {
+const deleteue = async (id_ue,role) => {
     try{
         await db.query('DELETE FROM ue WHERE id_ue = ?', [id_ue]);
     } catch (err) {
