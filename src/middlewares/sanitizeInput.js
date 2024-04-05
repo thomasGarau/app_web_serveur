@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-import { reponseQuizzSchema, creationQuizzSchema } from '../models_JSON/reponseQuizzValidation.js';
+const {reponseQuizzSchema, creationQuizzSchema} = require('../models_JSON/reponseQuizzValidation.js');
 
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {

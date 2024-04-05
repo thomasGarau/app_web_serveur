@@ -84,17 +84,6 @@ const addNoteUtilisateurQuizz = async (id_quizz, id_utilisateur, note, date) => 
     }
 };
 
-const addNoteUtilisateurAuQuizz = async (id_quizz, id_utilisateur, note, date) => {
-    const query = `INSERT INTO note_du_quizz (date, note, id_quizz, id_utilisateur) VALUES (?, ?, ?, ?)`;
-    try {
-        await db.query(query, [date, note, id_quizz, id_utilisateur]);
-        return { success: true, message: 'Note ajoutée avec succès.' };
-    } catch (error) {
-        throw new Error('Impossible d\'ajouter la note.');
-    }
-};
-
-
 const getNoteMoyenneQuiz = async (id_quizz) => {
     const query = `
         SELECT AVG(note) AS note_moyenne
@@ -327,7 +316,84 @@ const getResultatQuizz = async (note_quizz) => {
     }
 };
 
+const createQuizz = async (label, type, chapitre, utilisateur, questions) => {
+    try {
+        await db.beginTransaction();
 
+        const [result] = await db.query(
+            `INSERT INTO quizz (label, type, id_chapitre, id_utilisateur) VALUES (?, ?, ?, ?)`,
+            [label, type, chapitre, utilisateur]
+        );
+
+        const idQuizz = result.insertId;
+
+        for (const question of questions) {
+            const [resultQuestion] = await db.query(
+                `INSERT INTO question (label, nombre_bonne_reponse, type, id_quizz) VALUES (?, ?, ?, ?)`,
+                [question.label, question.nombre_bonne_reponse, question.type, idQuizz]
+            );
+
+            const idQuestion = resultQuestion.insertId;
+
+            for (const reponse of question.reponses) {
+                await db.query(
+                    `INSERT INTO reponse (contenu, est_bonne_reponse, id_question) VALUES (?, ?, ?)`,
+                    [reponse.contenu, reponse.est_bonne_reponse, idQuestion]
+                );
+            }
+        }
+
+        await db.commit();
+
+        return true;
+    } catch (error) {
+        await db.rollback();
+        throw new Error("Impossible de créer le quizz");
+    } finally {
+        db.release();
+    }
+};
+
+const deleteQuizz = async (idQuizz) => {
+    try {
+        await db.beginTransaction();
+
+        await db.query(
+            `DELETE FROM note_quizz WHERE id_quizz = ?`,
+            [idQuizz]
+        );
+
+        await db.query(
+            `DELETE FROM reponse_utilisateur WHERE id_note_quizz IN (SELECT id_note_quizz FROM note_quizz WHERE id_quizz = ?)`,
+            [idQuizz]
+        );
+
+
+        await db.query(
+            `DELETE FROM reponse WHERE id_question IN (SELECT id_question FROM question WHERE id_quizz = ?)`,
+            [idQuizz]
+        );
+
+        await db.query(
+            `DELETE FROM question WHERE id_quizz = ?`,
+            [idQuizz]
+        );
+
+        await db.query(
+            `DELETE FROM quizz WHERE id_quizz = ?`,
+            [idQuizz]
+        );
+
+        await db.commit();
+
+        return true;
+    } catch (error) {
+        await db.rollback();
+        throw new Error("Impossible de supprimer le quizz");
+    } finally {
+        db.release();
+    }
+};
 
 
 module.exports = {
@@ -335,7 +401,6 @@ module.exports = {
     getQuizzEleveForUe,
     getNoteUtilisateurQuizz,
     addNoteUtilisateurQuizz,
-    addNoteUtilisateurAuQuizz,
     getNoteMoyenneQuiz,
     getQuestionsPourQuizz,
     getReponsesPourQuestion,
@@ -343,5 +408,7 @@ module.exports = {
     getAnnotationsPourQuestion,
     ajouterReponsesAuQuizz,
     getResultatQuizz, 
-    createResultatQuizz
+    createResultatQuizz,
+    createQuizz,
+    deleteQuizz,
 };

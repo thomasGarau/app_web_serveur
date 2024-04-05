@@ -18,14 +18,13 @@ const questionsSchema = Joi.object({
 
 const creationQuizzSchema = Joi.object({
     label: Joi.string().min(1).max(255).required(),
-    id_utilisateur: Joi.number().integer().required(),
-    id_chapitre: Joi.number().integer().required(),
+    type: Joi.string().min(1).max(255).required(),
+    chapitre: Joi.number().integer().required(),
     questions: Joi.array().items(questionsSchema).required()
 });
 
 const reponseQuizzSchema = Joi.object({
     quizz: Joi.number().integer().required(),
-    utilisateur: Joi.number().integer().required(),
     data: Joi.array().items(idReponseSchema).required()
 });
 

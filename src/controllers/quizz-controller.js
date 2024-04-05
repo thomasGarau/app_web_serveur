@@ -1,3 +1,4 @@
+const { verify } = require('jsonwebtoken');
 const quizzService = require('../services/quizz-service');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
 
@@ -48,21 +49,6 @@ exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
         const date = new Date();
 
         await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
-
-        res.status(201).send('Note ajoutée avec succès.');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send(error.message);
-    }
-};
-
-exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
-    try {
-        const { quizz, note } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const date = new Date();
-
-        await quizzService.addNoteUtilisateurAuQuizz(quizz, utilisateur, note, date);
 
         res.status(201).send('Note ajoutée avec succès.');
     } catch (error) {
@@ -155,6 +141,28 @@ exports.getResultatUtilisateurQuizz = async (req, res) => {
         const { note_quizz } = req.body;
         const result = await quizzService.getResultatQuizz(note_quizz)
         return res.status(200).json({ resultat: result });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+exports.ajouterQuizz = async (req, res) => { 
+    try {
+        const { label, type, chapitre, questions } = req.body.data;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const quizz = await quizzService.createQuizz(label,type, chapitre, utilisateur, questions);
+        return res.status(201).json({ message: "Quizz créé avec succès", quizz: quizz });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+exports.deleteQuizz = async (req, res) => {
+    try {
+        const { quizz } = req.body;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        await quizzService.deleteQuizz(quizz);
+        return res.status(200).json({ message: "Quizz supprimé avec succès" });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

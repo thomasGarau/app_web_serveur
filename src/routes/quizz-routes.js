@@ -10,11 +10,12 @@ const {
     getResultatUtilisateurQuizz,
     getReponsesUtilisateurPourQuestion,
     ajouterNoteUtilisateurPourQuizz,
-    ajouterNoteUtilisateurAuQuizz,
     ajouterReponseUtilisateurAuQuizz,
-    ajouterQuizz
+    ajouterQuizz,
+    deleteQuizz
 } = require('../controllers/quizz-controller.js');
-const {verifyAuthorisation, verifyTokenBlacklist} = require('../middlewares/verifyAuthorisation.js');
+const {quizzConfig} = require('../middlewares/objectConfig.js');
+const {verifyAuthorisation, verifyTokenBlacklist, verifyOwner} = require('../middlewares/verifyAuthorisation.js');
 const { validateField, validateQuizzType, validateReponseQuizzType } = require('../middlewares/sanitizeInput.js');
 
 router.get('/quizzForUe', [validateField("ue"), verifyTokenBlacklist, verifyAuthorisation], getQuizzForUe);
@@ -28,9 +29,19 @@ router.get('/resultatUtilisateurQuizz', [validateField("note_quizz"), verifyToke
 router.get('/annotationsPourQuestion', [validateField("question", "quizz"), verifyTokenBlacklist, verifyAuthorisation], getAnnotationsPourQuestion);
 
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyTokenBlacklist, verifyAuthorisation], ajouterNoteUtilisateurPourQuizz);
-router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note"), verifyTokenBlacklist, verifyAuthorisation], ajouterNoteUtilisateurAuQuizz);
 
 router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyTokenBlacklist, verifyAuthorisation], ajouterReponseUtilisateurAuQuizz);
-router.post('/ajouterQuizz', [validateField("label", "ue"), validateQuizzType, verifyTokenBlacklist, verifyAuthorisation], ajouterQuizz);
+router.post('/ajouterQuizz', [validateQuizzType, verifyTokenBlacklist, verifyAuthorisation], ajouterQuizz);
+
+router.post('ajouterQuestionAuQuizz')
+router.post('ajouterReponseAQuestion')
+
+router.delete('/deleteQuizz', [validateField("quizz"), verifyOwner(quizzConfig, "quizz"), verifyTokenBlacklist, verifyAuthorisation], deleteQuizz);
+router.delete('/deleteQuestion')
+router.delete('/deleteReponse')
+
+router.put('/updateQuizz')
+router.put('/updateQuestion')
+router.put('/updateReponse')
 
 module.exports = router;
