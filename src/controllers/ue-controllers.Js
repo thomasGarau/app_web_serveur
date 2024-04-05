@@ -9,7 +9,12 @@ exports.useruelist = (async (req,res) => {
         num_etudiant = token_decoded.num_etudiant;
         console.log(num_etudiant, "bbb")
         const ues = await ueService.useruelist(num_etudiant);
-        res.status(200).send(ues);
+        if(ues.length > 0){
+            res.status(200).send("Aucune ue pour cet utilisateur");
+        }
+        else{
+            res.status(200).send(ues);
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Echec de la récupération des ue');
