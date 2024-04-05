@@ -9,7 +9,7 @@ const reponseSchema = Joi.object({
     est_bonne_reponse: Joi.boolean().required()
 });
 
-const questionsSchema = Joi.object({
+const questionSchema = Joi.object({
     label: Joi.string().min(1).max(255).required(),
     nombre_bonne_reponse: Joi.number().integer().required(),
     type: Joi.string().min(1).max(255).required(),
@@ -20,7 +20,7 @@ const creationQuizzSchema = Joi.object({
     label: Joi.string().min(1).max(255).required(),
     type: Joi.string().min(1).max(255).required(),
     chapitre: Joi.number().integer().required(),
-    questions: Joi.array().items(questionsSchema).required()
+    questions: Joi.array().items(questionSchema).required()
 });
 
 const reponseQuizzSchema = Joi.object({
@@ -28,5 +28,38 @@ const reponseQuizzSchema = Joi.object({
     data: Joi.array().items(idReponseSchema).required()
 });
 
+const updateQuizzSchema = Joi.object({
+    quizz: Joi.number().integer().required(),
+    data: Joi.object({
+        label: Joi.string().min(1).max(255).optional(),
+        id_chapitre: Joi.number().integer().optional(),
+        type: Joi.string().min(1).max(255).optional()
+    }).required().min(1)
+});
 
-module.exports = { reponseQuizzSchema, creationQuizzSchema, questionsSchema };
+const updateQuestionSchema = Joi.object({
+    question: Joi.number().integer().required(),
+    data: Joi.object({
+        label: Joi.string().min(1).max(255).optional(),
+        nombre_bonne_reponse: Joi.number().integer().optional(),
+        type: Joi.string().min(1).max(255).optional()
+    }).required().min(1)
+});
+
+const updateReponseSchema = Joi.object({
+    reponse: Joi.number().integer().required(),
+    data: Joi.object({
+        contenu: Joi.string().min(1).max(255).optional(),
+        est_bonne_reponse: Joi.boolean().optional()
+    }).required().min(1)
+});
+
+
+module.exports = { 
+    reponseQuizzSchema,
+    creationQuizzSchema,
+    questionSchema,
+    updateQuizzSchema,
+    updateQuestionSchema,
+    updateReponseSchema
+};

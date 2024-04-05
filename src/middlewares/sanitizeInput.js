@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-const {reponseQuizzSchema, creationQuizzSchema, questionsSchema} = require('../models_JSON/reponseQuizzValidation.js');
+const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
 
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
@@ -75,6 +75,30 @@ const validateQuestionType = (req, res, next) => {
     next();
 };
 
+const validateQuizzUpdateType = (req, res, next) => {
+    const { error } = updateQuizzSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateQuestionUpdateType = (req, res, next) => {
+    const { error } = updateQuestionSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateReponseUpdateType = (req, res, next) => {
+    const { error } = updateReponseSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
     validateField,
@@ -86,5 +110,8 @@ module.exports = {
 module.exports.quizzValidation = { 
     validateQuizzType, 
     validateReponseQuizzType,
-    validateQuestionType
+    validateQuestionType,
+    validateQuizzUpdateType,
+    validateQuestionUpdateType,
+    validateReponseUpdateType
 }
