@@ -1,10 +1,14 @@
 const ueService = require('../services/ue-services');
+const jwt = require('jsonwebtoken');
  
 // liste des ue d'un utilisateur
 exports.useruelist = (async (req,res) => {
     try {
-        const {mail_utilisateur} = req.body;
-        const ues = await ueService.useruelist(mail_utilisateur);
+        const {token} = req.body;
+        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
+        num_etudiant = token_decoded.num_etudiant;
+        console.log(num_etudiant, "bbb")
+        const ues = await ueService.useruelist(num_etudiant);
         res.status(200).send(ues);
     } catch (err) {
         console.error(err);

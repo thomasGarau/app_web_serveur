@@ -1,4 +1,5 @@
 const chatService = require('../services/chat-services');
+const jwt = require('jsonwebtoken');
 
 // liste des messages
 
@@ -30,8 +31,12 @@ exports.messageByForum = (async (req,res) => {
 
 exports.addMessage = (async (req,res) => {
     try{
-        const {id_message,contenu,date,id_forum,id_utilisateur} = req.body;
-        await chatService.saveMessage(id_message,contenu,date,id_forum,id_utilisateur);
+        const {id_message,contenu,date,id_forum,token} = req.body;
+        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(token_decoded);
+        const id_etudiant = token_decoded.id_etudiant;
+        console.log(id_etudiant);
+        await chatService.saveMessage(id_message,contenu,date,id_forum,id_etudiant);
         res.status(200).send('Ajout réussi');
     }
     catch (err){
@@ -44,8 +49,11 @@ exports.addMessage = (async (req,res) => {
 
 exports.deleteMessage = (async (req,res) => {
     try{
-        const {id_message} = req.body;
-        await chatService.deleteMessage(id_message);
+        const {id_message,token} = req.body;
+        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const role = token_decoded.role;
+        const id_etudiant = token_decoded.id_etudiant;
+        await chatService.deleteMessage(id_message,role,id_etudiant);
         res.status(200).send('Suppression réussie');
     }
     catch (err) {
@@ -58,8 +66,10 @@ exports.deleteMessage = (async (req,res) => {
 
 exports.updateMessage = (async (req,res) => {
     try{
-        const {id_message,contenu,date,id_forum,id_utilisateur} = req.body;
-        await chatService.updateMessage(id_message,contenu,date,id_forum,id_utilisateur);
+        const {id_message,contenu,date,id_forum,token} = req.body;
+        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const id_etudiant = token_decoded.id_etudiant;
+        await chatService.updateMessage(id_message,contenu,date,id_forum,id_etudiant);
         res.status(200).send('Modification réussie');
     }
     catch (err) {

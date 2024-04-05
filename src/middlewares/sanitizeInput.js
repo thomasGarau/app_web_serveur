@@ -7,7 +7,7 @@ const {reponseQuizzSchema, creationQuizzSchema} = require('../models_JSON/repons
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)
-            .isLength({ min: 1, max: 100 })
+            .isLength({ min: 1, max: 500 })
             .trim();
     });
 };
@@ -72,7 +72,7 @@ module.exports = {
     validateField,
     validateEmail,
     validatePassword,
-    validateReponseQuizzType,
-    validateQuizzType,
+    // validateReponseQuizzType,
+    // validateQuizzType,
     hashPassword
 };
