@@ -8,7 +8,6 @@ exports.verifyToken = ((req,res) => {
         }
 
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token, "bbb")
         if(!token || token == 'undefined' || token == 'null'){
             throw new Error('Token invalide');
         }else{
@@ -46,10 +45,7 @@ exports.Authenticate = (async (req,res) => {
 
 exports.invalidateToken = (async (req,res) => {
     try {
-        console.log(req.body.headers, "kdi");
-        console.log(req.headers.authorization, "xxx")
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token, "yyy")
         const decoded = await userService.invalidateToken(token);
         res.status(200).send({username: decoded.userName});
     } catch (err) {

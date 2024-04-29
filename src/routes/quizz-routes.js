@@ -9,6 +9,7 @@ const {
     getReponsesPourQuestion,
     getResultatUtilisateurQuizz,
     getReponsesUtilisateurPourQuestion,
+    ajouterNoteUtilisateurAuQuizz,
     ajouterNoteUtilisateurPourQuizz,
     ajouterReponseUtilisateurAuQuizz,
     ajouterQuizz,
@@ -37,6 +38,7 @@ router.get('/resultatUtilisateurQuizz', [validateField("note_quizz"), verifyAuth
 router.get('/annotationsPourQuestion', [validateField("question", "quizz"), verifyAuthorisation, verifyTokenBlacklist], getAnnotationsPourQuestion);
 
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyAuthorisation, verifyTokenBlacklist], ajouterNoteUtilisateurPourQuizz);
+router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note")] , ajouterNoteUtilisateurAuQuizz);
 router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyAuthorisation, verifyTokenBlacklist], ajouterReponseUtilisateurAuQuizz);
 router.post('/ajouterQuizz', [validateQuizzType, verifyAuthorisation, verifyTokenBlacklist], ajouterQuizz);
 router.post('ajouterQuestionAuQuizz', [validateField("quizz"), validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);

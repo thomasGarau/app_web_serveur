@@ -437,6 +437,18 @@ const ajouterReponseAQuestion = async (question, data) => {
     }
 };
 
+const addNoteUtilisateurAuQuizz = async (idQuizz, idUtilisateur, note, date) => {
+    try {
+        await db.query(
+            `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (?, ?, ?, ?)`,
+            [date, note, idQuizz, idUtilisateur]
+        );
+        return true;
+    } catch (error) {
+        throw new Error("Impossible d'ajouter la note");
+    }
+}
+
 const deleteQuestion = async (question) => {
     try {
         await db.beginTransaction();
@@ -521,6 +533,7 @@ module.exports = {
     deleteQuizz,
     ajouterQuestionAuQuizz,
     ajouterReponseAQuestion,
+    addNoteUtilisateurAuQuizz,
     deleteQuestion,
     deleteReponse,
     updateQuizz,

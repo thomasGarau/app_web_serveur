@@ -41,21 +41,6 @@ exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
     }
 };
 
-exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
-    try {
-        const { quizz, note } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const date = new Date();
-
-        await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
-
-        res.status(201).send('Note ajoutée avec succès.');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send(error.message);
-    }
-};
-
 
 exports.getNoteMoyennePourQuizz = async (req, res) => {
     try {
@@ -131,6 +116,34 @@ exports.getResultatUtilisateurQuizz = async (req, res) => {
     }
 };
 
+exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
+    try {
+        const { quizz, note } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const date = new Date();
+
+        await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
+
+        res.status(201).send('Note ajoutée avec succès.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
+exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
+    try{
+        const { quizz, note } = req.body;
+        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const date = new Date();
+        await quizzService.addNoteUtilisateurAuQuizz(quizz, utilisateur, note, date);
+        res.status(201).send('Note ajoutée avec succès.');
+    }catch (error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
 exports.ajouterQuizz = async (req, res) => { 
     try {
         const { label, type, chapitre, questions } = req.body.data;
@@ -203,6 +216,30 @@ exports.deleteReponse = async (req, res) => {
     }
 };
 
-exports.updateQuizz = async (req, res) => {};
-exports.updateQuestion = async (req, res) => {};
-exports.updateReponse = async (req, res) => {};
+exports.updateQuizz = async (req, res) => {
+    try {
+        const { quizz, data } = req.body;
+        await quizzService.updateQuizz(quizz, data);
+        return res.status(200).json({ message: "Quizz modifié avec succès" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+exports.updateQuestion = async (req, res) => {
+    try {
+        const { question, data } = req.body;
+        await quizzService.updateQuestion(question, data);
+        return res.status(200).json({ message: "Question modifiée avec succès" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+exports.updateReponse = async (req, res) => {
+    try {
+        const { reponse, data } = req.body;
+        await quizzService.updateReponse(reponse, data);
+        return res.status(200).json({ message: "Réponse modifiée avec succès" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
