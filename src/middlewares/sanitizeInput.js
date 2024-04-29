@@ -1,21 +1,20 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
+const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
+
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)
-            .isLength({ min: 1, max: 100 })
-            .withMessage(`Le champ ${fieldName} doit être compris entre 1 et 100 caractères.`)
-            .matches(/^[a-zA-Z0-9\s]*$/)
-            .withMessage(`Le champ ${fieldName} ne doit contenir que des lettres, des chiffres et des espaces.`)
+            .isLength({ min: 1, max: 500 })
             .trim();
     });
 };
 
 // Validation pour l'email
 const validateEmail = () => {
-    return body('email').isEmail().normalizeEmail();
+    return body('email').isEmail().normalizeEmail({gmail_remove_dots: false});
 };
 
 // Validation pour le mot de passe
@@ -52,6 +51,54 @@ const validate = (req, res, next) => {
     next();
 };
 
+const validateReponseQuizzType = (req, res, next) => {
+    const { error } = reponseQuizzSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateQuizzType = (req, res, next) => {
+    const { error } = creationQuizzSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateQuestionType = (req, res, next) => {
+    const { error } = questionSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateQuizzUpdateType = (req, res, next) => {
+    const { error } = updateQuizzSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateQuestionUpdateType = (req, res, next) => {
+    const { error } = updateQuestionSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateReponseUpdateType = (req, res, next) => {
+    const { error } = updateReponseSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
     validateField,
@@ -59,3 +106,12 @@ module.exports = {
     validatePassword,
     hashPassword
 };
+
+module.exports.quizzValidation = { 
+    validateQuizzType, 
+    validateReponseQuizzType,
+    validateQuestionType,
+    validateQuizzUpdateType,
+    validateQuestionUpdateType,
+    validateReponseUpdateType
+}
