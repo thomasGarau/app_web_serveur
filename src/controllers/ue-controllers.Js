@@ -8,7 +8,6 @@ exports.useruelist = (async (req,res) => {
         const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id_etudiant = token_decoded.id_etudiant;
-        console.log(id_etudiant, "bbbuun")
         const ues = await ueService.useruelist(id_etudiant);
         if(ues.length < 0){
             res.status(200).send("Aucune ue pour cet utilisateur");
@@ -31,6 +30,19 @@ exports.uelist = (async (req,res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Echec de la récupération des ue');
+    }
+}
+)
+
+//liste des chapitre d'une ue
+exports.chapitreuelist = (async (req,res) => {
+    try {
+        const {id_ue} = req.body;
+        const chapitres = await ueService.chapitreuelist(id_ue);
+        res.status(200).send(chapitres);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la récupération des chapitres');
     }
 }
 )
@@ -75,11 +87,37 @@ exports.addue = (async (req,res) => {
 }
 )
 
+// ajouter un chapitre
+exports.addchapitre = (async (req,res) => {
+    try {
+        const {label,id_ue} = req.body;
+        await ueService.addchapitre(label,id_ue);
+        res.status(200).send('Ajout réussi');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de l ajout');
+    }
+}
+)
+
 // supprimer une formation
 exports.deleteformation = (async (req,res) => {
     try {
         const {id_formation} = req.body;
         await ueService.deleteformation(id_formation);
+        res.status(200).send('Suppression réussie');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la suppression');
+    }
+}
+)
+
+// supprimer un chapitre
+exports.deletechapitre = (async (req,res) => {
+    try {
+        const {id_chapitre} = req.body;
+        await ueService.deletechapitre(id_chapitre);
         res.status(200).send('Suppression réussie');
     } catch (err) {
         console.error(err);
@@ -119,6 +157,19 @@ exports.updateue = (async (req,res) => {
     try {
         const {id_ue,label} = req.body;
         await ueService.updateue(id_ue,label);
+        res.status(200).send('Modification réussie');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la modification');
+    }
+}
+)
+
+// modifier un chapitre
+exports.updatechapitre = (async (req,res) => {
+    try {
+        const {id_chapitre,label} = req.body;
+        await ueService.updatechapitre(id_chapitre,label);
         res.status(200).send('Modification réussie');
     } catch (err) {
         console.error(err);

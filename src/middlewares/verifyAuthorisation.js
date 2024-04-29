@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { isTokenBlacklisted } = require('../services/user-service');
 const db = require('../../config/database.js');
-const {getIdUtilisateurFromToken} = require('../services/user-service');
+const {getIdUtilisateurFromToken, getRoleUtilisateurFromToken} = require('../services/user-service');
 
 const verifyAuthorisation = (req, res, next) => {   
     try {
@@ -53,6 +53,25 @@ const verifyOwnerOrTeacherOfStudent = (config, idParamName) => async (req, res, 
         return res.status(401).send('Token invalide ou problème d\'authentification.');
     }
 };
+
+const verifyOwnerOrAdmin = (config, idParamName) => async (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const userId = await getIdUtilisateurFromToken(token);
+        const role = await getRoleUtilisateurFromToken(token);
+        const objectId = req.body[idParamName];
+        const { query, params } = config.generateOwnerQuery(userId, objectId);
+        const [rows] = await db.query(query, params);
+        if (rows.length > 0 || role === "administration") {
+            return next();
+        } else {
+            return res.status(403).send('Accès non autorisé. Vous devez être le propriétaire ou un administrateur.');
+        }
+    } catch (error) {
+        return res.status(401).send('Token invalide ou problème d\'authentification.');
+    }
+};
+
 
 
 const verifyOwner = (config, idParamName) => async (req, res, next) => {
@@ -120,6 +139,20 @@ const verifyIsAdministration = async (req, res , next) => {
     }
 }
 
+const verifyIsTeacherOrAdmin = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.num_etudiant === "11111111" || (decoded.num_etudiant === "00000000" && decoded.role === "administration")) {
+            return next();
+        } else {
+            return res.status(403).send('Accès non autorisé. Vous devez être un enseignant ou un administrateur.');
+        }
+    } catch (error) {
+        return res.status(401).send('Token invalide ou problème d\'authentification.');
+    }
+}
+
 const findOwnerOfResource = async (config, objectId) => {
     const { query, params } = config.generateFindOwnerQuery(objectId);
 
@@ -151,3 +184,5 @@ module.exports.verifyOwnerOrTeacherOfStudent = verifyOwnerOrTeacherOfStudent;
 module.exports.verifyTeacherOfStudent = verifyTeacherOfStudent;
 module.exports.verifyIsTeacher = verifyIsTeacher;
 module.exports.verifyIsAdministration = verifyIsAdministration;
+module.exports.verifyIsTeacherOrAdmin = verifyIsTeacherOrAdmin;
+module.exports.verifyOwnerOrAdmin = verifyOwnerOrAdmin;

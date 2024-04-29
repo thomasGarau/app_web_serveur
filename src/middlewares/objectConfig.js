@@ -74,6 +74,19 @@ const responseForDelConfig = {
     }
 };
 
+// Verifier si l'utilisateur est bien le propriétaire du message ou si c'est un admin
+const messageConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT COUNT(*) AS count
+                    FROM message
+                    WHERE id_message = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        };
+    }
+};
+
+
 const ueUserConfig = {
     generateOwnerQuery: (userId) => {
         return {
