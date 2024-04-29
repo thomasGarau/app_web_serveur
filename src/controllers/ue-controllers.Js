@@ -7,9 +7,9 @@ exports.useruelist = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const num_etudiant = token_decoded.num_etudiant;
-        console.log(num_etudiant, "bbbuun")
-        const ues = await ueService.useruelist(num_etudiant);
+        const id_etudiant = token_decoded.id_etudiant;
+        console.log(id_etudiant, "bbbuun")
+        const ues = await ueService.useruelist(id_etudiant);
         if(ues.length < 0){
             res.status(200).send("Aucune ue pour cet utilisateur");
         }

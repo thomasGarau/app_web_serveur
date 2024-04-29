@@ -5,14 +5,13 @@ const bcrypt = require('bcrypt');
 
 // liste d'ue d'un utilisateur
 
-const useruelist = async (num_etudiant) => {
-    const query =`SELECT ue.id_ue, ue.label 
-                    FROM utilisateur JOIN utilisateur_valide 
-                    ON utilisateur.num_etudiant = utilisateur_valide.num_etudiant 
-                    JOIN formation ON utilisateur_valide.id_universite = formation.id_universite 
-                    JOIN formation_ue ON formation.id_formation = formation_ue.formation_id_formation 
-                    JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE utilisateur.num_etudiant = ?`;
-    const [rows] = await db.query(query, [num_etudiant] );
+const useruelist = async (id_etudiant) => {
+    const query =`SELECT DISTINCT ue.id_ue, ue.label
+            FROM promotion
+            JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
+            JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
+            WHERE promotion.id_utilisateur = ?`;
+    const [rows] = await db.query(query, [id_etudiant] );
     if (rows.length > 0){
         return rows;
     }
