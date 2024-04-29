@@ -14,7 +14,7 @@ const quizzConfig = {
 };
 
 const questionConfig = {
-    generateOwnerQuery: (userId, objectId) => {
+    generateOwnerQuery: (objectId) => {
         return {
             query: `SELECT quizz.id_utilisateur FROM quizz
             JOIN question ON quizz.id_quizz = question.id_quizz
@@ -90,7 +90,9 @@ module.exports.quizzConfig = {
     quizzConfig,
     questionConfig,
     responseConfig,
-    responseForDelConfig
 };
+
+module.exports.responseForDelConfig = responseForDelConfig;
 module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;
+

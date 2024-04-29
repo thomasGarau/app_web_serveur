@@ -22,7 +22,8 @@ const {
     updateQuestion,
     updateReponse
 } = require('../controllers/quizz-controller.js');
-const {quizzConfig, questionConfig, responseConfig, responseForDelConfig} = require('../middlewares/objectConfig.js');
+const {quizzConfig, questionConfig, responseConfig} = require('../middlewares/objectConfig.js');
+const {responseForDelConfig} = require('../middlewares/objectConfig.js');
 const {verifyAuthorisation, verifyTokenBlacklist, verifyOwner} = require('../middlewares/verifyAuthorisation.js');
 const { validateField } = require('../middlewares/sanitizeInput.js');
 const { quizzValidation } = require('../middlewares/sanitizeInput.js');
