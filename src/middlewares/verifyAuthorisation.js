@@ -17,16 +17,13 @@ const verifyAuthorisation = (req, res, next) => {
 const verifyTokenBlacklist = async (req, res, next) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token," aa");
         if (await isTokenBlacklisted(token)) {
-            console.log("invalide")
             return res.status(401).send('Token invalide');
         }
     }catch(err){
         console.error(err);
         return res.status(401).send('Token invalide');
     }
-    console.log("valide")
     next();
 };
 
@@ -60,13 +57,9 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         const userId = await getIdUtilisateurFromToken(token);
         const objectId = req.body[idParamName];
-        console.log(userId, objectId, "d")
         const { query, params } = config.generateOwnerQuery(userId, objectId);
-        console.log(query, params, "e")
 
         let [rows] = await db.query(query, params);
-        console.log("rows",rows);
-        console.log("length",rows[0].count);
         rows.length = rows[0].count;
 
         if (rows.length > 0) {

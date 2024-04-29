@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {
     getQuizzForUe,
+    getQuizzForChapter,
     getMeilleureNoteUtilisateurPourQuizz,
     getNoteMoyennePourQuizz,
     getAnnotationsPourQuestion,
@@ -30,13 +31,14 @@ const { quizzValidation } = require('../middlewares/sanitizeInput.js');
 const { validateQuizzType, validateReponseQuizzType, validateQuestionType, validateQuestionUpdateType, validateQuizzUpdateType, validateReponseUpdateType  } = quizzValidation;
 
 router.get('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
+router.get('/quizzForChapter', [validateField("chapitre"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForChapter);
 router.get('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
 router.get('/noteMoyennePourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteMoyennePourQuizz);
 router.get('/questionsPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuestionsPourQuizz);
 router.get('/reponsesPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getReponsesPourQuestion);
 router.get('/reponsesUtilisateurPourQuestion', [validateField("question", "quizz"), verifyAuthorisation, verifyTokenBlacklist], getReponsesUtilisateurPourQuestion);
 router.get('/resultatUtilisateurQuizz', [validateField("note_quizz"), verifyAuthorisation, verifyTokenBlacklist], getResultatUtilisateurQuizz);
-router.get('/annotationsPourQuestion', [validateField("question", "quizz"), verifyAuthorisation, verifyTokenBlacklist], getAnnotationsPourQuestion);
+router.get('/annotationsPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getAnnotationsPourQuestion);
 
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyAuthorisation, verifyTokenBlacklist], ajouterNoteUtilisateurPourQuizz);
 router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note")] , ajouterNoteUtilisateurAuQuizz);
