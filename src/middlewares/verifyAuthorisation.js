@@ -64,7 +64,10 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const { query, params } = config.generateOwnerQuery(userId, objectId);
         console.log(query, params, "e")
 
-        const [rows] = await db.query(query, params);
+        let [rows] = await db.query(query, params);
+        console.log("rows",rows);
+        console.log("length",rows[0].count);
+        rows.length = rows[0].count;
 
         if (rows.length > 0) {
             next();

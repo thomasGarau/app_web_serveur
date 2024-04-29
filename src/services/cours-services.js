@@ -2,15 +2,15 @@ const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-// un cours à un chapitre et une ue à un cours du coup le select doit etre sur cours where id_e = 
-//liste des cours
-const courlist = async () => {
-    const [rows] = await db.query('SELECT * FROM cours');
+
+//liste des cours d'un chapitre
+const courlist = async (id_chapitre) => {
+    const [rows] = await db.query('SELECT * FROM cours WHERE id_chapitre = ?' , [id_chapitre]);
     if (rows.length > 0){
         return rows;
     }
     else {
-        throw new Error('Aucun cours disponible');
+        throw new Error('Aucun cours pour ce chapitre');
     }
 }
 
