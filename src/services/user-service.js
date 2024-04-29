@@ -14,10 +14,10 @@ const authenticateUser = async (num_etudiant, password) => {
 
 const registerUser = async (email, mdp) => {
     const query = `
-        SELECT uv.num_etudiant
-        FROM utilisateur_valide uv
-        LEFT JOIN utilisateur u ON uv.num_etudiant = u.num_etudiant
-        WHERE uv.mail_utilisateur = ? AND u.id_utilisateur IS NULL
+    SELECT uv.num_etudiant
+    FROM utilisateur_valide uv
+    WHERE uv.mail_utilisateur = ?
+    AND uv.num_etudiant NOT IN (SELECT num_etudiant FROM utilisateur);
     `;
     const [result] = await db.query(query, [email]);
 
@@ -78,7 +78,7 @@ async function invalidateToken(token){
 
 async function getIdUtilisateurFromToken(token){
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return decoded.id_utilisateur;
+    return decoded.id_etudiant;
 }
 
 module.exports = {

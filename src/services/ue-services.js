@@ -5,8 +5,13 @@ const bcrypt = require('bcrypt');
 
 // liste d'ue d'un utilisateur
 
-const useruelist = async (num_etudiant) => {
-    const [rows] = await db.query('SELECT ue.id_ue, ue.label FROM utilisateur JOIN utilisateur_valide ON utilisateur.num_etudiant = utilisateur_valide.num_etudiant JOIN formation ON utilisateur_valide.id_universite = formation.id_universite JOIN formation_ue ON formation.id_formation = formation_ue.formation_id_formation JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE utilisateur.num_etudiant = ?' , [num_etudiant] );
+const useruelist = async (id_etudiant) => {
+    const query =`SELECT DISTINCT ue.id_ue, ue.label
+            FROM promotion
+            JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
+            JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
+            WHERE promotion.id_utilisateur = ?`;
+    const [rows] = await db.query(query, [id_etudiant] );
     if (rows.length > 0){
         return rows;
     }
@@ -14,7 +19,6 @@ const useruelist = async (num_etudiant) => {
         throw new Error('Aucune ue pour cet utilisateur');
     }
 }
-
 
 // liste des ue
 const uelist = async () => {
@@ -26,14 +30,70 @@ const uelist = async () => {
         throw new Error('Aucune ue');
     }
 }
-// une ue est elle visible ou pas du coup peut etre attribut visible
-// ajouter une ue
-const addue = async (id_ue,label) => {
+
+// liste des ue d'une formation
+
+const formationuelist = async (id_formation) => {
+    const query =`SELECT ue.id_ue, ue.label 
+                    FROM formation JOIN formation_ue 
+                    ON formation.id_formation = formation_ue.formation_id_formation 
+                    JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE formation.id_formation = ?`;
+    const [rows] = await db.query(query, [id_formation] );
+    if (rows.length > 0){
+        return rows;
+    }
+    else {
+        throw new Error('Aucune ue pour cette formation');
+    }
+}
+
+// ajouter une formation
+const addformation = async (id_formation,label,id_universite) => {
     try{
-        await db.query('INSERT INTO ue(id_ue,label) VALUES(?, ?)', [id_ue,label]);
+        await db.query('INSERT INTO formation(id_formation,label,id_universite) VALUES(?, ?, ?)', [id_formation,label,id_universite]);
     } catch (err) {
         console.error(err);
         throw new Error('erreur durant l ajout');
+    }
+
+}
+
+// liste des chapitres d'une ue
+const uechapitreslist = async (id_ue) => {
+    const query =`SELECT chapitre.id_chapitre, chapitre.label
+                    FROM chapitre
+                    JOIN ue ON chapitre.id_ue = ue.id_ue
+                    WHERE ue.id_ue = ?`;
+    const [rows] = await db.query(query, [id_ue] );
+    if (rows.length > 0){
+        return rows;
+    }
+    else {
+        throw new Error('Aucun chapitre pour cette ue');
+    }
+}
+
+
+
+// ajouter une ue
+const addue = async (label,id_formation) => {
+    try{
+        await db.query('INSERT INTO ue(label) VALUES(?)', [label]);
+        await db.query('INSERT INTO formation_ue(formation_id_formation,ue_id_ue) VALUES(?, ?)', [id_formation,id_ue]);
+    } catch (err) {
+        console.error(err);
+        throw new Error('erreur durant l ajout');
+    }
+
+}
+
+//supprimer une formation
+const deleteformation = async (id_formation) => {
+    try{
+        await db.query('DELETE FROM formation WHERE id_formation = ?', [id_formation]);
+    } catch (err) {
+        console.error(err);
+        throw new Error('erreur durant la suppression');
     }
 
 }
@@ -60,11 +120,26 @@ const updateue = async (id_ue,label) => {
 
 }
 
+// modifier une formation
+const updateformation = async (id_formation,label) => {
+    try{
+        await db.query('UPDATE formation SET label = ? WHERE id_formation = ?', [label,id_formation]);
+    } catch (err) {
+        console.error(err);
+        throw new Error('erreur durant la modification');
+    }
+
+}
+
 
 module.exports = {
     useruelist,
     uelist,
     addue,
     deleteue,
-    updateue
+    updateue,
+    formationuelist,
+    addformation,
+    deleteformation,
+    updateformation,
 }

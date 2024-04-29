@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { isTokenBlacklisted } = require('../services/user-service');
+const db = require('../../config/database.js');
+const {getIdUtilisateurFromToken} = require('../services/user-service');
 
 const verifyAuthorisation = (req, res, next) => {   
     try {
@@ -15,16 +17,13 @@ const verifyAuthorisation = (req, res, next) => {
 const verifyTokenBlacklist = async (req, res, next) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token," aa");
         if (await isTokenBlacklisted(token)) {
-            console.log("invalide")
             return res.status(401).send('Token invalide');
         }
     }catch(err){
         console.error(err);
         return res.status(401).send('Token invalide');
     }
-    console.log("valide")
     next();
 };
 
@@ -56,13 +55,12 @@ const verifyOwnerOrTeacherOfStudent = (config, idParamName) => async (req, res, 
 const verifyOwner = (config, idParamName) => async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id_utilisateur;
+        const userId = await getIdUtilisateurFromToken(token);
         const objectId = req.body[idParamName];
-
         const { query, params } = config.generateOwnerQuery(userId, objectId);
 
-        const [rows] = await db.query(query, params);
+        let [rows] = await db.query(query, params);
+        rows.length = rows[0].count;
 
         if (rows.length > 0) {
             next();
