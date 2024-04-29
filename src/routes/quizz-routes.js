@@ -39,8 +39,8 @@ router.get('/annotationsPourQuestion', [validateField("question", "quizz"), veri
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyAuthorisation, verifyTokenBlacklist], ajouterNoteUtilisateurPourQuizz);
 router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyAuthorisation, verifyTokenBlacklist], ajouterReponseUtilisateurAuQuizz);
 router.post('/ajouterQuizz', [validateQuizzType, verifyAuthorisation, verifyTokenBlacklist], ajouterQuizz);
-router.post('ajouterQuestionAuQuizz', [validateField("quizz"), validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);
-router.post('ajouterReponseAQuestion', [validateField("question"), validateReponseQuizzType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseConfig, "question")], ajouterReponseAQuestion);
+router.post('/ajouterQuestionAuQuizz', [validateField("quizz"), validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);
+router.post('/ajouterReponseAQuestion', [validateField("question"), validateReponseQuizzType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseConfig, "question")], ajouterReponseAQuestion);
 
 router.delete('/deleteQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], deleteQuizz);
 router.delete('/deleteQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(questionConfig, "question")], deleteQuestion);
