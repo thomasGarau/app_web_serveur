@@ -24,15 +24,17 @@ exports.getQuizzForUe = async (req, res) => {
 
 exports.getQuizzForChapter = async (req, res) => {
     try{
+        console.log("req.body : ",req.body);
         const chapitre = req.body.chapitre;
+        console.log("chapitre : ",chapitre);
         const quizzProfesseurs = await quizzService.getQuizzProfesseurForChapitre(chapitre);
         const quizzEleves = await quizzService.getQuizzEleveForChapitre(chapitre);
 
         if(quizzProfesseurs.length > 0 || quizzEleves.length > 0){
-            res.status(200).send({
-                listQuizzCreesParLesProfesseurs: quizzProfesseurs,
-                listQuizzCreesParLesEleves: quizzEleves
-            });
+            res.status(200).send([
+                quizzProfesseurs,
+                quizzEleves
+            ]);
         }else{
             res.status(200).send([]);
         }
