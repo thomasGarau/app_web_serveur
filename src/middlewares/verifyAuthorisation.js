@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { isTokenBlacklisted } = require('../services/user-service');
+const db = require('../../config/database.js');
 
 const verifyAuthorisation = (req, res, next) => {   
     try {
@@ -57,12 +58,16 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id_utilisateur;
+        const userId = decoded.num_etudiant;
         const objectId = req.body[idParamName];
-
+        console.log(userId, objectId);
         const { query, params } = config.generateOwnerQuery(userId, objectId);
+        console.log("query",query, params);
 
-        const [rows] = await db.query(query, params);
+        let [rows] = await db.query(query, params);
+        console.log("rows",rows);
+        console.log("length",rows[0].count);
+        rows.length = rows[0].count;
 
         if (rows.length > 0) {
             next();

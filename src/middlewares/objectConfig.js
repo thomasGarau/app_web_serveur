@@ -74,16 +74,38 @@ const responseForDelConfig = {
     }
 };
 
+const ueUserConfig = {
+    generateOwnerQuery: (userId) => {
+        return {
+             query: `SELECT ue.id_ue, ue.label
+                FROM utilisateur
+                JOIN promotion ON utilisateur.id_utilisateur = promotion.id_utilisateur
+                JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
+                JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
+                WHERE utilisateur.num_etudiant = ?`,
+            params: [userId]
+        };
+    }
+}
+
+const ueConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+          query : `SELECT COUNT(*) AS count
+            FROM utilisateur u
+            JOIN enseignant_ue eu ON u.id_utilisateur = eu.id_utilisateur
+            JOIN chapitre c ON eu.id_ue = c.id_ue
+            JOIN cours cr ON c.id_chapitre = cr.id_chapitre
+            WHERE u.num_etudiant = ? AND cr.id_cours = ?`,
+          params: [userId, objectId]
+        };
+    }
+}
+
 const coursConfig = {
     tableName: 'cours',
     userIdColumn: 'id_utilisateur',
     objectIdColumn: 'id_study'
-};
-
-const ueConfig = {
-    tableName: 'ue',
-    userIdColumn: 'id_utilisateur',
-    objectIdColumn: 'id_ue'
 };
 
 module.exports.quizzConfig = {
@@ -94,3 +116,4 @@ module.exports.quizzConfig = {
 };
 module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;
+module.exports.ueUserConfig = ueUserConfig;
