@@ -125,13 +125,14 @@ const getNoteUtilisateurQuizz = async (id_quizz, id_utilisateur) => {
     }
 };
 
-const addNoteUtilisateurQuizz = async (id_quizz, id_utilisateur, note, date) => {
+const addNoteUtilisateurPourQuizz = async (id_quizz, id_utilisateur, note) => {
     const query = `
-        INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO note_du_quizz (note, id_quizz, id_utilisateur)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE note = VALUES(note)
     `;
     try {
-        await db.query(query, [date, note, id_quizz, id_utilisateur]);
+        await db.query(query, [note, id_quizz, id_utilisateur]);
         return { success: true, message: 'Note ajoutée avec succès.' };
     } catch (error) {
         throw new Error('Impossible d\'ajouter la note.');
@@ -581,7 +582,7 @@ module.exports = {
     getQuizzProfesseurForChapitre,
     getQuizzEleveForChapitre,
     getNoteUtilisateurQuizz,
-    addNoteUtilisateurQuizz,
+    addNoteUtilisateurPourQuizz,
     getNoteMoyenneQuiz,
     getQuestionsPourQuizz,
     getReponsesPourQuestion,

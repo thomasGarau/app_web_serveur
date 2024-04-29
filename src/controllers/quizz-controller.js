@@ -138,10 +138,9 @@ exports.getResultatUtilisateurQuizz = async (req, res) => {
 exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
     try {
         const { quizz, note } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const date = new Date();
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
 
-        await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
+        await quizzService.addNoteUtilisateurPourQuizz(quizz, utilisateur, note);
 
         res.status(201).send('Note ajoutée avec succès.');
     } catch (error) {
