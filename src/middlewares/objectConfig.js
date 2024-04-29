@@ -117,8 +117,4 @@ module.exports.quizzConfig = {
 module.exports.responseForDelConfig = responseForDelConfig;
 module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;
-<<<<<<< HEAD
-
-=======
 module.exports.ueUserConfig = ueUserConfig;
->>>>>>> cecd66f38fdb562d105931acceb57a212558e896
