@@ -19,7 +19,7 @@ const getQuizzProfesseurForUe = async (ue) => {
                 note: row.note_moyenne ? parseFloat(row.note_moyenne).toFixed(1) : 'Pas de note'
             }));
         } else {
-            throw new Error('Aucun quizz pour cette UE créé par des professeurs');
+            return false;
         }
     } catch (error) {
         throw error;
@@ -46,9 +46,65 @@ const getQuizzEleveForUe = async (ue) => {
                 note: row.note_moyenne ? parseFloat(row.note_moyenne).toFixed(1) : 'Pas de note'
             }));
         } else {
-            throw new Error('Aucun quizz pour cette UE créé par des élèves');
+            return false;
         }
     } catch (error) {
+        throw error;
+    }
+};
+
+const getQuizzProfesseurForChapitre = async (id_chapitre) => {
+    const query = `
+        SELECT q.*, AVG(ndq.note) AS note_moyenne
+        FROM quizz q
+        JOIN chapitre c ON q.id_chapitre = c.id_chapitre
+        JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
+        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
+        WHERE c.id_chapitre = ? AND uv.role = 'professeur'
+        GROUP BY q.id_quizz
+    `;
+    try {
+        const [rows] = await db.query(query, [id_chapitre]);
+
+        if (rows.length > 0) {
+            return rows.map(row => ({
+                ...row,
+                note: row.note_moyenne ? parseFloat(row.note_moyenne).toFixed(1) : 'Pas de note'
+            }));
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Database query error:', error);
+        throw error;
+    }
+};
+
+const getQuizzEleveForChapitre = async (id_chapitre) => {
+    const query = `
+        SELECT q.*, AVG(ndq.note) AS note_moyenne
+        FROM quizz q
+        JOIN chapitre c ON q.id_chapitre = c.id_chapitre
+        JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
+        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
+        WHERE c.id_chapitre = ? AND uv.role = 'etudiant'
+        GROUP BY q.id_quizz
+    `;
+    try {
+        
+        const [rows] = await db.query(query, [id_chapitre]);
+        if (rows.length > 0) {
+            return rows.map(row => ({
+                ...row,
+                note: row.note_moyenne ? parseFloat(row.note_moyenne).toFixed(1) : 'Pas de note'
+            }));
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Database query error:', error);
         throw error;
     }
 };
@@ -71,13 +127,14 @@ const getNoteUtilisateurQuizz = async (id_quizz, id_utilisateur) => {
     }
 };
 
-const addNoteUtilisateurQuizz = async (id_quizz, id_utilisateur, note, date) => {
+const addNoteUtilisateurPourQuizz = async (id_quizz, id_utilisateur, note) => {
     const query = `
-        INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO note_du_quizz (note, id_quizz, id_utilisateur)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE note = VALUES(note)
     `;
     try {
-        await db.query(query, [date, note, id_quizz, id_utilisateur]);
+        await db.query(query, [note, id_quizz, id_utilisateur]);
         return { success: true, message: 'Note ajoutée avec succès.' };
     } catch (error) {
         throw new Error('Impossible d\'ajouter la note.');
@@ -93,7 +150,7 @@ const getNoteMoyenneQuiz = async (id_quizz) => {
     try {
         const [rows] = await db.query(query, [id_quizz]);
         if (rows.length > 0 && rows[0].note_moyenne !== null) {
-            return parseFloat(rows[0].note_moyenne.toFixed(2));
+            return parseFloat(rows[0].note_moyenne);
         } else {
             return null;
         }
@@ -122,30 +179,33 @@ const getReponsesPourQuestion = async (id_question) => {
     }
 };
 
-const getReponsesUtilisateurPourQuestion = async (id_question, id_utilisateur, id_quizz) => {
+const getReponsesUtilisateurPourQuestion = async (id_question, id_utilisateur, id_note_quizz) => {
     const query = `
         SELECT r.* FROM reponse_utilisateur ru
         JOIN reponse r ON ru.id_reponse = r.id_reponse
-        WHERE ru.id_utilisateur = ? AND r.id_question = ? AND EXISTS (
-            SELECT 1 FROM question q WHERE q.id_question = r.id_question AND q.id_quizz = ?
+        JOIN question q ON r.id_question = q.id_question
+        JOIN note_quizz nq ON ru.id_note_quizz = nq.id_note_quizz
+        WHERE ru.id_utilisateur = ? AND r.id_question = ? AND nq.id_note_quizz = ? AND EXISTS (
+            SELECT 1 FROM question q2 WHERE q2.id_question = r.id_question
         )
     `;
+    console.log(id_question, id_utilisateur, id_note_quizz)
     try {
-        const [rows] = await db.query(query, [id_utilisateur, id_question, id_quizz]);
+        const [rows] = await db.query(query, [id_utilisateur, id_question, id_note_quizz]);
         return rows;
     } catch (error) {
         throw error;
     }
 };
 
-const getAnnotationsPourQuestion = async (id_question, id_quizz) => {
+const getAnnotationsPourQuestion = async (id_question) => {
     const query = `
         SELECT a.* FROM annotation a
         JOIN question q ON a.id_question = q.id_question
-        WHERE a.id_question = ? AND q.id_quizz = ?
+        WHERE a.id_question = ?
     `;
     try {
-        const [rows] = await db.query(query, [id_question, id_quizz]);
+        const [rows] = await db.query(query, [id_question]);
         return rows;
     } catch (error) {
         throw error;
@@ -297,9 +357,10 @@ const getResultatQuizz = async (note_quizz) => {
     try{
         resultat = null;
         const [rows] = await db.query(
-            `SELECT * FROM note_quizz NATURAL JOIN quizz WHERE id_note_quizz = ?`,
+            `SELECT * FROM note_quizz JOIN quizz on note_quizz.id_quizz = quizz.id_quizz WHERE id_note_quizz = ?`,
             [note_quizz]
         );
+
         if (rows.length > 0) {
             if (rows[0].type === "normal") {
                 resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
@@ -519,8 +580,10 @@ const buildUpdateQuery = (tableName, data, id, primaryKeyColumn) => {
 module.exports = {
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
+    getQuizzProfesseurForChapitre,
+    getQuizzEleveForChapitre,
     getNoteUtilisateurQuizz,
-    addNoteUtilisateurQuizz,
+    addNoteUtilisateurPourQuizz,
     getNoteMoyenneQuiz,
     getQuestionsPourQuizz,
     getReponsesPourQuestion,

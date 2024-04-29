@@ -22,12 +22,33 @@ exports.getQuizzForUe = async (req, res) => {
     }
 };
 
+exports.getQuizzForChapter = async (req, res) => {
+    try{
+        console.log("req.body : ",req.body);
+        const chapitre = req.body.chapitre;
+        console.log("chapitre : ",chapitre);
+        const quizzProfesseurs = await quizzService.getQuizzProfesseurForChapitre(chapitre);
+        const quizzEleves = await quizzService.getQuizzEleveForChapitre(chapitre);
+
+        if(quizzProfesseurs.length > 0 || quizzEleves.length > 0){
+            res.status(200).send([
+                quizzProfesseurs,
+                quizzEleves
+            ]);
+        }else{
+            res.status(200).send([]);
+        }
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
 exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
     try {
         const { quizz } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        console.log()
-
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+       
         const meilleureNote = await quizzService.getNoteUtilisateurQuizz(quizz, utilisateur);
 
         if (meilleureNote !== null) {
@@ -83,8 +104,8 @@ exports.getReponsesPourQuestion = async (req, res) => {
 };
 
 exports.getReponsesUtilisateurPourQuestion = async (req, res) => {
-    const { question, quizz } = req.body;
-    const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+    const { question, note_quizz } = req.body;
+    const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
 
     try {
         const reponsesUtilisateur = await quizzService.getReponsesUtilisateurPourQuestion(question, utilisateur, quizz);
@@ -96,9 +117,9 @@ exports.getReponsesUtilisateurPourQuestion = async (req, res) => {
 };
 
 exports.getAnnotationsPourQuestion = async (req, res) => {
-    const { question, quizz } = req.body;
+    const { question } = req.body;
     try {
-        const annotations = await quizzService.getAnnotationsPourQuestion(question, quizz);
+        const annotations = await quizzService.getAnnotationsPourQuestion(question);
         res.status(200).send(annotations);
     } catch (error) {
         console.error(error);
@@ -119,10 +140,9 @@ exports.getResultatUtilisateurQuizz = async (req, res) => {
 exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
     try {
         const { quizz, note } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const date = new Date();
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
 
-        await quizzService.addNoteUtilisateurQuizz(quizz, utilisateur, note, date);
+        await quizzService.addNoteUtilisateurPourQuizz(quizz, utilisateur, note);
 
         res.status(201).send('Note ajoutée avec succès.');
     } catch (error) {
