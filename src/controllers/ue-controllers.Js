@@ -2,7 +2,7 @@ const ueService = require('../services/ue-services');
 const jwt = require('jsonwebtoken');
 const {GetToken} = require('../middlewares/verifyAuthorisation');
  
-// liste des ue d'un utilisateur
+// liste des ue d'un utilisateur et le nom et prenoms de l'enseignant associé
 exports.useruelist = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -77,8 +77,8 @@ exports.addformation = (async (req,res) => {
 // ajouter une ue
 exports.addue = (async (req,res) => {
     try {
-        const {label,id_formation} = req.body;
-        await ueService.addue(label,id_formation);
+        const {label,id_formation,path} = req.body;
+        await ueService.addue(label,id_formation,path);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);

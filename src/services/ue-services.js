@@ -115,9 +115,9 @@ const uechapitreslist = async (id_ue) => {
 
 
 // ajouter une ue
-const addue = async (label,id_formation) => {
+const addue = async (label,id_formation,path) => {
     try{
-        await db.query('INSERT INTO ue(label) VALUES(?)', [label]);
+        await db.query('INSERT INTO ue(label) VALUES(?)', [label,,path]);
         await db.query('INSERT INTO formation_ue(formation_id_formation,ue_id_ue) VALUES(?, ?)', [id_formation,id_ue]);
     } catch (err) {
         console.error(err);
