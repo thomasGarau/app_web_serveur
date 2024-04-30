@@ -1,5 +1,23 @@
 const db = require('../../config/database.js');
 
+const getQuizzInfo = async (quizz) => {
+    try{
+        const query = `
+        SELECT q.*, c.id_ue 
+        FROM quizz q
+        JOIN chapitre c ON q.id_chapitre = c.id_chapitre 
+        WHERE id_quizz = ?;`;
+        const [rows] = await db.query(query, [quizz]);
+        if(rows.length > 0){
+            return rows[0];
+        }else{
+            return false;
+        }
+    }catch(error){
+        throw error;
+    }
+}
+
 const getQuizzProfesseurForUe = async (ue) => {
     const query = `
         SELECT q.*, AVG(ndq.note) AS note_moyenne
@@ -189,7 +207,6 @@ const getReponsesUtilisateurPourQuestion = async (id_question, id_utilisateur, i
             SELECT 1 FROM question q2 WHERE q2.id_question = r.id_question
         )
     `;
-    console.log(id_question, id_utilisateur, id_note_quizz)
     try {
         const [rows] = await db.query(query, [id_utilisateur, id_question, id_note_quizz]);
         return rows;
@@ -214,14 +231,13 @@ const getAnnotationsPourQuestion = async (id_question) => {
 
 
 const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
+    const connection = await db.getConnection()
     try {
-        await db.beginTransaction();
-
+        await connection.beginTransaction();
         const [noteQuizz] = await connection.query(
             `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (CURDATE(), 0, ?, ?)`,
             [idQuizz, idUtilisateur]
         );
-
         const idNoteQuizz = noteQuizz.insertId;
 
         for (const reponse of reponses) {
@@ -233,29 +249,30 @@ const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponse
 
         await connection.commit();
 
-        return true;
-    } catch (error) {
-        await connection.rollback();
-        throw error;
+        return idNoteQuizz;
+    } catch(error) {
+        if (connection) await connection.rollback();
+        throw new Error(error.message);
     } finally {
-        connection.release();
+        if (connection) await connection.release();
     }
 };
 
-const createResultatQuizz =  async (idQuizz, idUtilisateur, reponsesData) => {
+const createResultatQuizz =  async (idQuizz, idNoteQuizz, reponsesData) => {
     const quizzType = await getTypeQuizz(idQuizz);
-    const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idQuizz, reponsesData);
+    const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idNoteQuizz, reponsesData);
     let resultat;
+    console.log(questionsQuizz, reponsesUtilisateur, bonnesReponses)
     if (quizzType === "normal") {
         resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     } else if (quizzType === "negatif") {
         resultat = calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     }
-    const [noteQuizzResult] = await db.query(
-        `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (CURDATE(), ?, ?, ?)`,
-        [resultat.noteFinale, idQuizz, idUtilisateur]
+    await db.query(
+        `UPDATE note_quizz set note = ? WHERE id_note_quizz = ?`,
+        [resultat.noteFinale, idNoteQuizz]
     );
-    const idNoteQuizz = noteQuizzResult.insertId;
+
     return {
         idNoteQuizz,
         noteFinale: resultat.noteFinale,
@@ -271,21 +288,22 @@ async function getTypeQuizz(idQuizz) {
 }
 
 async function preparerDetailsQuizz(idNoteQuizz) {
-    const questionsQuizz = await db.query(`
+    console.log(idNoteQuizz)
+    const [questionsQuizz] = await db.query(`
         SELECT DISTINCT q.id_question
         FROM question q
         JOIN note_quizz nq ON q.id_quizz = nq.id_quizz
         WHERE nq.id_note_quizz = ?
     `, [idNoteQuizz]);
 
-    const reponsesUtilisateur = await db.query(`
+    const [reponsesUtilisateur] = await db.query(`
         SELECT ru.id_reponse, r.id_question
         FROM reponse_utilisateur ru
         JOIN reponse r ON ru.id_reponse = r.id_reponse
         WHERE ru.id_note_quizz = ?
     `, [idNoteQuizz]);
 
-    const bonnesReponses = await db.query(`
+    const [bonnesReponses] = await db.query(`
         SELECT r.id_reponse, r.id_question
         FROM reponse r
         JOIN question q ON r.id_question = q.id_question
@@ -578,6 +596,7 @@ const buildUpdateQuery = (tableName, data, id, primaryKeyColumn) => {
 
 
 module.exports = {
+    getQuizzInfo,
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
     getQuizzProfesseurForChapitre,
