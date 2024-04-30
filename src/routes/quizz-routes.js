@@ -30,15 +30,15 @@ const { validateField } = require('../middlewares/sanitizeInput.js');
 const { quizzValidation } = require('../middlewares/sanitizeInput.js');
 const { validateQuizzType, validateReponseQuizzType, validateQuestionType, validateQuestionUpdateType, validateQuizzUpdateType, validateReponseUpdateType  } = quizzValidation;
 
-router.get('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
+router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
 router.post('/quizzForChapter', [validateField("chapitre"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForChapter);
-router.get('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
-router.get('/noteMoyennePourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteMoyennePourQuizz);
-router.get('/questionsPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuestionsPourQuizz);
-router.get('/reponsesPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getReponsesPourQuestion);
-router.get('/reponsesUtilisateurPourQuestion', [validateField("question", "quizz"), verifyAuthorisation, verifyTokenBlacklist], getReponsesUtilisateurPourQuestion);
-router.get('/resultatUtilisateurQuizz', [validateField("note_quizz"), verifyAuthorisation, verifyTokenBlacklist], getResultatUtilisateurQuizz);
-router.get('/annotationsPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getAnnotationsPourQuestion);
+router.post('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
+router.post('/noteMoyennePourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteMoyennePourQuizz);
+router.post('/questionsPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuestionsPourQuizz);
+router.post('/reponsesPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getReponsesPourQuestion);
+router.post('/reponsesUtilisateurPourQuestion', [validateField("question", "quizz"), verifyAuthorisation, verifyTokenBlacklist], getReponsesUtilisateurPourQuestion);
+router.post('/resultatUtilisateurQuizz', [validateField("note_quizz"), verifyAuthorisation, verifyTokenBlacklist], getResultatUtilisateurQuizz);
+router.post('/annotationsPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getAnnotationsPourQuestion);
 
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyAuthorisation, verifyTokenBlacklist], ajouterNoteUtilisateurPourQuizz);
 router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note")] , ajouterNoteUtilisateurAuQuizz);
