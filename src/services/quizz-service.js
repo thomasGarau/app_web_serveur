@@ -66,6 +66,7 @@ const getQuizzProfesseurForChapitre = async (id_chapitre) => {
     `;
     try {
         const [rows] = await db.query(query, [id_chapitre]);
+
         if (rows.length > 0) {
             return rows.map(row => ({
                 ...row,
@@ -92,6 +93,7 @@ const getQuizzEleveForChapitre = async (id_chapitre) => {
         GROUP BY q.id_quizz
     `;
     try {
+        
         const [rows] = await db.query(query, [id_chapitre]);
         if (rows.length > 0) {
             return rows.map(row => ({
@@ -358,7 +360,6 @@ const getResultatQuizz = async (note_quizz) => {
             `SELECT * FROM note_quizz JOIN quizz on note_quizz.id_quizz = quizz.id_quizz WHERE id_note_quizz = ?`,
             [note_quizz]
         );
-        console.log(rows);
 
         if (rows.length > 0) {
             if (rows[0].type === "normal") {

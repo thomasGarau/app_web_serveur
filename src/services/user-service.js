@@ -81,6 +81,11 @@ async function getIdUtilisateurFromToken(token){
     return decoded.id_etudiant;
 }
 
+async function getRoleUtilisateurFromToken(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.role;
+}
+
 module.exports = {
     authenticateUser,
     registerUser,
@@ -91,3 +96,4 @@ module.exports = {
 };
 
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;
+module.exports.getRoleUtilisateurFromToken = getRoleUtilisateurFromToken;
