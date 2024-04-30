@@ -24,7 +24,9 @@ const {
     updateQuestion,
     updateReponse
 } = require('../controllers/quizz-controller.js');
-const {quizzConfig, questionConfig, responseConfig} = require('../middlewares/objectConfig.js');
+const {quizzConfig} = require('../middlewares/objectConfig.js');
+const {questionConfig} = require('../middlewares/objectConfig.js');
+const {responseConfig} = require('../middlewares/objectConfig.js');
 const {responseForDelConfig} = require('../middlewares/objectConfig.js');
 const {verifyAuthorisation, verifyTokenBlacklist, verifyOwner} = require('../middlewares/verifyAuthorisation.js');
 const { validateField } = require('../middlewares/sanitizeInput.js');
@@ -47,14 +49,11 @@ router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note")] ,
 router.post('/ajouterReponseUtilisateurAuQuizz', [validateReponseQuizzType,  verifyAuthorisation, verifyTokenBlacklist], ajouterReponseUtilisateurAuQuizz);
 router.post('/ajouterQuizz', [validateQuizzType, verifyAuthorisation, verifyTokenBlacklist], ajouterQuizz);
 router.post('/ajouterQuestionAuQuizz', [validateField("quizz"), validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);
-router.post('/ajouterReponseAQuestion', [validateField("question"), validateReponseQuizzType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseConfig, "question")], ajouterReponseAQuestion);
 
 router.delete('/deleteQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], deleteQuizz);
 router.delete('/deleteQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(questionConfig, "question")], deleteQuestion);
-router.delete('/deleteReponse', [validateField("reponse"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseForDelConfig, "reponse")], deleteReponse);
 
 router.put('/updateQuizz', [validateField("quizz"), validateQuizzUpdateType,  verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], updateQuizz);
 router.put('/updateQuestion', [validateField("question"), validateQuestionUpdateType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(questionConfig, "question")], updateQuestion);
-router.put('/updateReponse', [validateField("reponse"), validateReponseUpdateType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseConfig, "reponse")], updateReponse);
 
 module.exports = router;

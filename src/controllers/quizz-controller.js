@@ -186,7 +186,8 @@ exports.ajouterQuizz = async (req, res) => {
 
 exports.ajouterQuestionAuQuizz = async (req, res) => {
     try {
-        const { quizz, data } = req.body;
+        const { quizz, label, nombre_bonne_reponse, type, reponses } = req.body;
+        const data = { label, nombre_bonne_reponse, type, reponses };
         const question = await quizzService.ajouterQuestionAuQuizz(quizz, data);
         return res.status(201).json({ message: "Question ajoutée avec succès", question: question });
     } catch (error) {
