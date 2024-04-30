@@ -1,6 +1,17 @@
 const quizzService = require('../services/quizz-service');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
 
+exports.getQuizzInfo = async (req, res) => {
+    try{
+        const quizz = req.body.quizz;
+        const quizzInfo = await quizzService.getQuizzInfo(quizz);
+        res.status(200).send(quizzInfo);
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
 exports.getQuizzForUe = async (req, res) => {
     try {
         const ue = req.body.ue;
@@ -152,7 +163,7 @@ exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
 exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
     try{
         const { quizz, note } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
         await quizzService.addNoteUtilisateurAuQuizz(quizz, utilisateur, note, date);
         res.status(201).send('Note ajoutée avec succès.');
@@ -165,8 +176,8 @@ exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
 exports.ajouterQuizz = async (req, res) => { 
     try {
         const { label, type, chapitre, questions } = req.body.data;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const quizz = await quizzService.createQuizz(label,type, chapitre, utilisateur, questions);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const quizz = await quizzService.createQuizz(label, type, chapitre, utilisateur, questions);
         return res.status(201).json({ message: "Quizz créé avec succès", quizz: quizz });
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -195,11 +206,12 @@ exports.ajouterReponseAQuestion = async (req, res) => {
 exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
     try {
         const { quizz, data } = req.body;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const note_quizz = await quizzService.ajouterReponsesUtilisateurAuQuizz(quizz, utilisateur, data);
-        const result = await quizzService.createResultatQuizz(note_quizz)
+        const result = await quizzService.createResultatQuizz(quizz, note_quizz, data)
         return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: error.message });
     }
 };

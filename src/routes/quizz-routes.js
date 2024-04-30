@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {
+    getQuizzInfo,
     getQuizzForUe,
     getQuizzForChapter,
     getMeilleureNoteUtilisateurPourQuizz,
@@ -30,6 +31,7 @@ const { validateField } = require('../middlewares/sanitizeInput.js');
 const { quizzValidation } = require('../middlewares/sanitizeInput.js');
 const { validateQuizzType, validateReponseQuizzType, validateQuestionType, validateQuestionUpdateType, validateQuizzUpdateType, validateReponseUpdateType  } = quizzValidation;
 
+router.post('/getQuizzInfo', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuizzInfo);
 router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
 router.post('/quizzForChapter', [validateField("chapitre"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForChapter);
 router.post('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
@@ -42,7 +44,7 @@ router.post('/annotationsPourQuestion', [validateField("question"), verifyAuthor
 
 router.post('/ajouterNoteUtilisateurPourQuizz', [validateField("quizz", "note"), verifyAuthorisation, verifyTokenBlacklist], ajouterNoteUtilisateurPourQuizz);
 router.post('/ajouterNoteUtilisateurAuQuizz', [validateField("quizz", "note")] , ajouterNoteUtilisateurAuQuizz);
-router.post('/ajouterReponseUtilisateurAuQuizz', [validateField("quizz"), validateReponseQuizzType,  verifyAuthorisation, verifyTokenBlacklist], ajouterReponseUtilisateurAuQuizz);
+router.post('/ajouterReponseUtilisateurAuQuizz', [validateReponseQuizzType,  verifyAuthorisation, verifyTokenBlacklist], ajouterReponseUtilisateurAuQuizz);
 router.post('/ajouterQuizz', [validateQuizzType, verifyAuthorisation, verifyTokenBlacklist], ajouterQuizz);
 router.post('/ajouterQuestionAuQuizz', [validateField("quizz"), validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);
 router.post('/ajouterReponseAQuestion', [validateField("question"), validateReponseQuizzType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(responseConfig, "question")], ajouterReponseAQuestion);
