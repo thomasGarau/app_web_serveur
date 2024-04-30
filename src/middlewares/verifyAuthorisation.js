@@ -40,8 +40,10 @@ const verifyOwnerOrTeacherOfStudent = (config, idParamName) => async (req, res, 
         if (ownerRows.length > 0) {
             return next();
         }
-
-        if (decoded.num_etudiant === "11111111" && await verifyTeacherOfStudent(userId, studentId)) {
+        
+        
+        const num_etudiant = parseInt(decoded.num_etudiant);
+        if (num_etudiant < 200000 && await verifyTeacherOfStudent(userId, studentId)) {
             return next();
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être le propriétaire ou l’enseignant de l’étudiant.');
@@ -107,8 +109,9 @@ const verifyIsTeacher = async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.num_etudiant === "11111111") {
-            return next();
+        const num_etudiant = parseInt(decoded.num_etudiant);
+        if (num_etudiant < 200000 ) {
+            return next();  
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être un enseignant.');
         }
@@ -120,7 +123,7 @@ const verifyIsAdministration = async (req, res , next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.num_etudiant === "00000000" && decoded.role === "administration") {
+        if (decoded.role === "administration") {
             return next();
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être un administrateur.');
@@ -134,7 +137,8 @@ const verifyIsTeacherOrAdmin = async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.num_etudiant === "11111111" || (decoded.num_etudiant === "00000000" && decoded.role === "administration")) {
+        const num_etudiant = parseInt(decoded.num_etudiant);
+        if (num_etudiant < 200000 || (decoded.role === "administration")) {
             return next();
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être un enseignant ou un administrateur.');
