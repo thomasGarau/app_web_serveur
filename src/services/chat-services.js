@@ -57,8 +57,8 @@ const messageList = async () => {
 
 // liste des messages forums quizz
 
-const messageListQuizz = async () => {
-    const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_quizz)');
+const messageListQuizz = async (id_forum) => {
+    const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_quizz) AND id_forum = ?', [id_forum]);
     if (rows.length > 0){
         return rows;
     }
@@ -69,8 +69,8 @@ const messageListQuizz = async () => {
 
 // liste des messages forums cours
 
-const messageListCours = async () => {
-    const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_cours)');
+const messageListCours = async (id_forum) => {
+    const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_cours) AND id_forum = ?', [id_forum]);
     if (rows.length > 0){
         return rows;
     }
@@ -97,8 +97,9 @@ const messageListCoursChapitre = async (id_chapitre) => {
 
 const forumListCours = async (id_cours) => {
     const [rows] = await db.query('SELECT * FROM forum_cours WHERE id_cours = ?', [id_cours]);
-    const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[0].id_forum);
+    
     for (let i=0; i<rows.length; i++){
+        const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[i].id_forum);
         rows[i].forum = rows3;
     }
     
@@ -114,8 +115,9 @@ const forumListCours = async (id_cours) => {
 
 const forumListQuizz = async (id_quizz) => {
     const [rows] = await db.query('SELECT * FROM forum_quizz WHERE id_quizz = ?', [id_quizz]);
-    const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[0].id_forum);
+
     for (let i=0; i<rows.length; i++){
+        const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[i].id_forum);
         rows[i].forum = rows3;
     }
 

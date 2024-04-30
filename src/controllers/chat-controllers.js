@@ -83,7 +83,8 @@ exports.updateMessage = (async (req,res) => {
 
 exports.messageListQuizz = (async (req,res) => {
     try {
-        const messages = await chatService.messageListQuizz();
+        const id_forum = req.body.id_forum;
+        const messages = await chatService.messageListQuizz(id_forum);
         res.status(200).send(messages);
     } catch (err) {
         console.error(err);
@@ -95,7 +96,8 @@ exports.messageListQuizz = (async (req,res) => {
 
 exports.messageListCours = (async (req,res) => {
     try {
-        const messages = await chatService.messageListCours();
+        const id_forum = req.body.id_forum;
+        const messages = await chatService.messageListCours(id_forum);
         res.status(200).send(messages);
     } catch (err) {
         console.error(err);

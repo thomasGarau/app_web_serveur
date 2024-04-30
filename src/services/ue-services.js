@@ -1,36 +1,58 @@
 const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
 
 
 // liste d'ue d'un utilisateur
 
 const useruelist = async (id_etudiant) => {
-    const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
-            FROM promotion
-            JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
-            JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
-            WHERE promotion.id_utilisateur = ?`;
-    const [rows] = await db.query(query, [id_etudiant] );
-    //nom du professeur associé à chaque ue de la liste des ue
+    const query = `
+        SELECT DISTINCT ue.id_ue, ue.label, ue.path
+        FROM promotion
+        JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
+        JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
+        WHERE promotion.id_utilisateur = ?`;
+
+    const [rows] = await db.query(query, [id_etudiant]);
+
+    // Nom du professeur associé à chaque UE de la liste des UE
     for (let i = 0; i < rows.length; i++) {
-        const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
-                FROM utilisateur_valide
-                JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                JOIN enseignant_ue ON utilisateur.id_utilisateur = enseignant_ue.id_utilisateur
-                WHERE enseignant_ue.id_ue = ?`;
-        const [rows2] = await db.query(query, [rows[i].id_ue] );
+        const query = `
+            SELECT utilisateur_valide.nom, utilisateur_valide.prenom
+            FROM utilisateur_valide
+            JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
+            JOIN enseignant_ue ON utilisateur.id_utilisateur = enseignant_ue.id_utilisateur
+            WHERE enseignant_ue.id_ue = ?`;
+
+        const [rows2] = await db.query(query, [rows[i].id_ue]);
         rows[i].enseignant = rows2;
     }
-    console.log(rows);
 
+    // Lecture des fichiers image de manière asynchrone
+    const promises = rows.map(async (row) => {
+        const path = row.path;
+        return new Promise((resolve, reject) => {
+            fs.readFile('../'+path, (err, data) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    row.path = data; // Stocker les données de l'image
+                    resolve(row);
+                    rows[i].path = data;
+                }
+            });
+        });
+    });
     if (rows.length > 0){
         return rows;
     }
     else {
-        throw new Error('Aucune ue pour cet utilisateur');
+        throw new Error('Aucune ue');
     }
-}
+};
+
 
 // liste des ue ainsi que le nom de chaque enseignant associé
 const uelist = async () => {
@@ -97,27 +119,22 @@ const addformation = async (id_formation,label,id_universite) => {
 
 }
 
-// liste des chapitres d'une ue
-const uechapitreslist = async (id_ue) => {
-    const query =`SELECT chapitre.id_chapitre, chapitre.label
-                    FROM chapitre
-                    JOIN ue ON chapitre.id_ue = ue.id_ue
-                    WHERE ue.id_ue = ?`;
-    const [rows] = await db.query(query, [id_ue] );
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucun chapitre pour cette ue');
-    }
-}
-
 
 
 // ajouter une ue
 const addue = async (label,id_formation,path) => {
+
     try{
-        await db.query('INSERT INTO ue(label) VALUES(?)', [label,,path]);
+        // Sauvegarde du fichier dans un dossier sur le serveur
+        const fileName = Date.now() = '_' + label;
+        const newPath = 'images/' + fileName; // Spécifiez le chemin où vous souhaitez enregistrer le fichier
+        fs.writeFileSync('../'+newPath, path,'base64'), (err) => {
+            if (err) {
+                console.error(err);
+                throw new Error('erreur durant l ajout');
+            }
+        };
+        await db.query('INSERT INTO ue(label) VALUES(?)', [label,newPath]);
         await db.query('INSERT INTO formation_ue(formation_id_formation,ue_id_ue) VALUES(?, ?)', [id_formation,id_ue]);
     } catch (err) {
         console.error(err);
