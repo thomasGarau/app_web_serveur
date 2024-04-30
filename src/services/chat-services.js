@@ -97,6 +97,11 @@ const messageListCoursChapitre = async (id_chapitre) => {
 
 const forumListCours = async (id_cours) => {
     const [rows] = await db.query('SELECT * FROM forum_cours WHERE id_cours = ?', [id_cours]);
+    const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[0].id_forum);
+    for (let i=0; i<rows.length; i++){
+        rows[i].forum = rows3;
+    }
+    
     if (rows.length > 0){
         return rows;
     }
@@ -109,6 +114,11 @@ const forumListCours = async (id_cours) => {
 
 const forumListQuizz = async (id_quizz) => {
     const [rows] = await db.query('SELECT * FROM forum_quizz WHERE id_quizz = ?', [id_quizz]);
+    const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[0].id_forum);
+    for (let i=0; i<rows.length; i++){
+        rows[i].forum = rows3;
+    }
+
     if (rows.length > 0){
         return rows;
     }

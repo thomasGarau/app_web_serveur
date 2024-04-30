@@ -14,7 +14,7 @@ router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validate
 router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','date','id_forum','token'),validate, verifyOwnerOrAdmin], updateMessage);
 router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message','token'),validate,verifyOwnerOrAdmin], deleteMessage);
 router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_cours'),validate], forumListCours);
-router.get('/forum-quizz', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_quizz'),validate], forumListQuizz);
+router.post('/forum-quizz', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_quizz'),validate], forumListQuizz);
 
 
 module.exports = router;
