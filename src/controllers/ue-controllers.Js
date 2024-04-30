@@ -155,8 +155,8 @@ exports.updateformation = (async (req,res) => {
 // modifier une ue
 exports.updateue = (async (req,res) => {
     try {
-        const {id_ue,label} = req.body;
-        await ueService.updateue(id_ue,label);
+        const {id_ue,label,path} = req.body;
+        await ueService.updateue(id_ue,label,path);
         res.status(200).send('Modification réussie');
     } catch (err) {
         console.error(err);

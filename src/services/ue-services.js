@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 // liste d'ue d'un utilisateur
 
 const useruelist = async (id_etudiant) => {
-    const query =`SELECT DISTINCT ue.id_ue, ue.label
+    const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
             FROM promotion
             JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
             JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
@@ -57,7 +57,7 @@ const uelist = async () => {
 // liste des ue d'une formation
 
 const formationuelist = async (id_formation) => {
-    const query =`SELECT ue.id_ue, ue.label 
+    const query =`SELECT ue.id_ue, ue.label ,ue.path
                     FROM formation JOIN formation_ue 
                     ON formation.id_formation = formation_ue.formation_id_formation 
                     JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE formation.id_formation = ?`;
@@ -171,9 +171,9 @@ const deleteue = async (id_ue,role) => {
 }
 
 // modifier une ue
-const updateue = async (id_ue,label) => {
+const updateue = async (id_ue,label,path) => {
     try{
-        await db.query('UPDATE ue SET label = ? WHERE id_ue = ?', [label,id_ue]);
+        await db.query('UPDATE ue SET label = ?, path = ? WHERE id_ue = ?', [label,id_ue,path]);
     } catch (err) {
         console.error(err);
         throw new Error('erreur durant la modification');
