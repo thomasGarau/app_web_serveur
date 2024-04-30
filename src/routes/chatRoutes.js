@@ -6,8 +6,8 @@ const { verifyOwnerOrAdmin } = require('../middlewares/verifyAuthorisation');
 const { forumListCours,forumListQuizz,messageList,messageListQuizz,messageListCours,messageListCoursChapitre, addMessage, updateMessage, deleteMessage } = require('../controllers/chat-controllers');
 
 
-router.get('/chat-quizz', [verifyAuthorisation, verifyTokenBlacklist,validate], messageListQuizz);
-router.get('/chat-cours', [verifyAuthorisation, verifyTokenBlacklist,validate], messageListCours);
+router.post('/chat-quizz', [validateField('id_forum'),verifyAuthorisation, verifyTokenBlacklist,validate], messageListQuizz);
+router.post('/chat-cours', [validateField('id_forum'),verifyAuthorisation, verifyTokenBlacklist,validate], messageListCours);
 router.get('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'),validate], messageListCoursChapitre);
 router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
 router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','date','id_forum') ,validate], addMessage);
