@@ -121,12 +121,9 @@ const coursConfig = {
     objectIdColumn: 'id_study'
 };
 
-module.exports.quizzConfig = {
-    quizzConfig,
-    questionConfig,
-    responseConfig,
-};
-
+module.exports.quizzConfig = quizzConfig,
+module.exports.questionConfig = questionConfig;
+module.exports.responseConfig = responseConfig;
 module.exports.responseForDelConfig = responseForDelConfig;
 module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;

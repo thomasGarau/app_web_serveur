@@ -10,6 +10,7 @@ const reponseSchema = Joi.object({
 });
 
 const questionSchema = Joi.object({
+    quizz: Joi.number().integer().optional(),
     label: Joi.string().min(1).max(255).required(),
     nombre_bonne_reponse: Joi.number().integer().required(),
     type: Joi.string().min(1).max(255).required(),
@@ -26,8 +27,7 @@ const creationQuizzSchema = Joi.object({
 });
 
 const reponseQuizzSchema = Joi.object({
-    quizz: Joi.number().integer().required(),
-    data: Joi.array().items(idReponseSchema).required()
+    data: Joi.array().items(idReponseSchema).min(1).required()
 });
 
 const updateQuizzSchema = Joi.object({
@@ -44,7 +44,8 @@ const updateQuestionSchema = Joi.object({
     data: Joi.object({
         label: Joi.string().min(1).max(255).optional(),
         nombre_bonne_reponse: Joi.number().integer().optional(),
-        type: Joi.string().min(1).max(255).optional()
+        type: Joi.string().min(1).max(255).optional(),
+        reponses: Joi.array().items(reponseSchema).min(2).optional()
     }).required().min(1)
 });
 

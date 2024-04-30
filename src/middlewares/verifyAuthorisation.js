@@ -77,16 +77,14 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const userId = await getIdUtilisateurFromToken(token);
         const objectId = req.body[idParamName];
         const { query, params } = config.generateOwnerQuery(userId, objectId);
-
         let [rows] = await db.query(query, params);
-        rows.length = rows[0].count;
-
         if (rows.length > 0) {
             next();
         } else {
             return res.status(403).send('Accès non autorisé.');
         }
     } catch (error) {
+        console.error(error)
         return res.status(401).send('Token invalide ou problème d\'authentification.');
     }
 };
