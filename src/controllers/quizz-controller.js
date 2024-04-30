@@ -24,9 +24,7 @@ exports.getQuizzForUe = async (req, res) => {
 
 exports.getQuizzForChapter = async (req, res) => {
     try{
-        console.log("req.body : ",req.body);
         const chapitre = req.body.chapitre;
-        console.log("chapitre : ",chapitre);
         const quizzProfesseurs = await quizzService.getQuizzProfesseurForChapitre(chapitre);
         const quizzEleves = await quizzService.getQuizzEleveForChapitre(chapitre);
 
