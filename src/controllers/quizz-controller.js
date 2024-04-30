@@ -176,8 +176,8 @@ exports.ajouterNoteUtilisateurAuQuizz = async (req, res) => {
 exports.ajouterQuizz = async (req, res) => { 
     try {
         const { label, type, chapitre, questions } = req.body.data;
-        const utilisateur = getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const quizz = await quizzService.createQuizz(label,type, chapitre, utilisateur, questions);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const quizz = await quizzService.createQuizz(label, type, chapitre, utilisateur, questions);
         return res.status(201).json({ message: "Quizz créé avec succès", quizz: quizz });
     } catch (error) {
         return res.status(500).json({ message: error.message });

@@ -396,18 +396,19 @@ const getResultatQuizz = async (note_quizz) => {
 };
 
 const createQuizz = async (label, type, chapitre, utilisateur, questions) => {
+    const connection = await db.getConnection();
     try {
-        await db.beginTransaction();
+        await connection.beginTransaction();
 
-        const [result] = await db.query(
+        const [result] = await connection.query(
             `INSERT INTO quizz (label, type, id_chapitre, id_utilisateur) VALUES (?, ?, ?, ?)`,
             [label, type, chapitre, utilisateur]
         );
 
         const idQuizz = result.insertId;
-
+        console.log(idQuizz)
         for (const question of questions) {
-            const [resultQuestion] = await db.query(
+            const [resultQuestion] = await connection.query(
                 `INSERT INTO question (label, nombre_bonne_reponse, type, id_quizz) VALUES (?, ?, ?, ?)`,
                 [question.label, question.nombre_bonne_reponse, question.type, idQuizz]
             );
@@ -415,21 +416,21 @@ const createQuizz = async (label, type, chapitre, utilisateur, questions) => {
             const idQuestion = resultQuestion.insertId;
 
             for (const reponse of question.reponses) {
-                await db.query(
+                await connection.query(
                     `INSERT INTO reponse (contenu, est_bonne_reponse, id_question) VALUES (?, ?, ?)`,
                     [reponse.contenu, reponse.est_bonne_reponse, idQuestion]
                 );
             }
         }
 
-        await db.commit();
+        await connection.commit();
 
         return true;
     } catch (error) {
-        await db.rollback();
+        if (connection) await connection.rollback();
         throw new Error("Impossible de créer le quizz");
     } finally {
-        db.release();
+        if (connection) await connection.release();
     }
 };
 

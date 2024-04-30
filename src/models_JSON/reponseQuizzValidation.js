@@ -6,21 +6,23 @@ const idReponseSchema = Joi.object({
 
 const reponseSchema = Joi.object({
     contenu: Joi.string().min(1).max(255).required(),
-    est_bonne_reponse: Joi.boolean().required()
+    est_bonne_reponse: Joi.number().integer().required()
 });
 
 const questionSchema = Joi.object({
     label: Joi.string().min(1).max(255).required(),
     nombre_bonne_reponse: Joi.number().integer().required(),
     type: Joi.string().min(1).max(255).required(),
-    reponses: Joi.array().items(reponseSchema).required()
+    reponses: Joi.array().items(reponseSchema).min(2).required()
 });
 
 const creationQuizzSchema = Joi.object({
-    label: Joi.string().min(1).max(255).required(),
-    type: Joi.string().min(1).max(255).required(),
-    chapitre: Joi.number().integer().required(),
-    questions: Joi.array().items(questionSchema).required()
+    data : Joi.object({
+        label: Joi.string().min(1).max(255).required(),
+        type: Joi.string().min(1).max(255).required(),
+        chapitre: Joi.number().integer().required(),
+        questions: Joi.array().items(questionSchema).min(3).required()
+    }).required()
 });
 
 const reponseQuizzSchema = Joi.object({
