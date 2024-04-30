@@ -9,7 +9,7 @@ const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deletefo
 router.get('/ue-user', [verifyAuthorisation,verifyTokenBlacklist,validate], useruelist);
 router.get('/allue', [verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], uelist);
 router.get('/allue-formation', [validateField('id_formation'),verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], formationuelist);
-router.post('/allchapitre-ue', [validateField('id_ue'),verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], chapitreuelist);
+router.post('/allchapitre-ue', [validateField('id_ue'),verifyAuthorisation, verifyTokenBlacklist], chapitreuelist);
 
 router.post('/add-formation', [validateField('id_formation', 'label', 'id_universite'),verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration], addformation);
 router.post('/add-ue', [validateField('label', 'id_formation'),verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration], addue);
