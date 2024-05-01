@@ -9,7 +9,7 @@ const {ueConfig} = require('../middlewares/objectConfig.js');
 const { courlist, courById, addcours, updatecours, deletecours } = require('../controllers/cours-controllers');
 
 router.post('/allcours-chapitre',[validateField('id_chapitre'),verifyAuthorisation, verifyTokenBlacklist] , courlist); // les etudiants peuvent voir les cours
-router.post('/cours-id',[validateField('id_study'), verifyAuthorisation, verifyTokenBlacklist], courById);
+router.post('/cours-id',[validateField('id_study'), verifyAuthorisation, verifyIsTeacher], courById);
 
 router.post('/add-cours', [validateField('id_study','label','contenu','id_chapitre'), verifyAuthorisation, verifyTokenBlacklist], addcours);
 router.post('/update-cours',[validateField('id_study','label','contenu','id_chapitre'),verifyAuthorisation, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
