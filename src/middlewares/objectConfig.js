@@ -106,7 +106,7 @@ const ueConfig = {
         return {
           query : `SELECT COUNT(*) AS count
             FROM utilisateur u
-            JOIN enseignant_ue eu ON u.id_utilisateur = eu.id_utilisateur
+            JOIN enseignants_ue eu ON u.id_utilisateur = eu.id_utilisateur
             JOIN chapitre c ON eu.id_ue = c.id_ue
             JOIN cours cr ON c.id_chapitre = cr.id_chapitre
             WHERE u.num_etudiant = ? AND cr.id_cours = ?`,
