@@ -14,12 +14,12 @@ const quizzConfig = {
 };
 
 const questionConfig = {
-    generateOwnerQuery: (objectId) => {
+    generateOwnerQuery: (userId, objectId,) => {
         return {
-            query: `SELECT quizz.id_utilisateur FROM quizz
+            query: `SELECT * FROM quizz
             JOIN question ON quizz.id_quizz = question.id_quizz
-            WHERE question.id_question = ? LIMIT 1`,
-            params: [objectId]
+            WHERE question.id_question = ? AND quizz.id_utilisateur = ? LIMIT 1`,
+            params: [objectId, userId]
         };
     },
     generateFindOwnerQuery: (objectId) => {

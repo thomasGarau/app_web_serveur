@@ -435,43 +435,44 @@ const createQuizz = async (label, type, chapitre, utilisateur, questions) => {
 };
 
 const deleteQuizz = async (idQuizz) => {
+    const connection = await db.getConnection();
     try {
-        await db.beginTransaction();
+        await connection.beginTransaction();
 
-        await db.query(
+        await connection.query(
             `DELETE FROM note_quizz WHERE id_quizz = ?`,
             [idQuizz]
         );
 
-        await db.query(
+        await connection.query(
             `DELETE FROM reponse_utilisateur WHERE id_note_quizz IN (SELECT id_note_quizz FROM note_quizz WHERE id_quizz = ?)`,
             [idQuizz]
         );
 
 
-        await db.query(
+        await connection.query(
             `DELETE FROM reponse WHERE id_question IN (SELECT id_question FROM question WHERE id_quizz = ?)`,
             [idQuizz]
         );
 
-        await db.query(
+        await connection.query(
             `DELETE FROM question WHERE id_quizz = ?`,
             [idQuizz]
         );
 
-        await db.query(
+        await connection.query(
             `DELETE FROM quizz WHERE id_quizz = ?`,
             [idQuizz]
         );
 
-        await db.commit();
+        await connection.commit();
 
         return true;
     } catch (error) {
-        await db.rollback();
+        if (conenction) await connection.rollback();
         throw new Error("Impossible de supprimer le quizz");
     } finally {
-        db.release();
+       if(connection) await connection.release();
     }
 };
 
@@ -532,27 +533,28 @@ const addNoteUtilisateurAuQuizz = async (idQuizz, idUtilisateur, note, date) => 
 }
 
 const deleteQuestion = async (question) => {
+    const connection = await db.getConnection();
     try {
-        await db.beginTransaction();
+        await connection.beginTransaction();
 
-        await db.query(
+        await connection.query(
             `DELETE FROM reponse WHERE id_question = ?`,
             [question]
         );
 
-        await db.query(
+        await connection.query(
             `DELETE FROM question WHERE id_question = ?`,
             [question]
         );
 
-        await db.commit();
+        await connection.commit();
 
         return true;
     } catch (error) {
-        await db.rollback();
+        if (connection) await connection.rollback();
         throw new Error("Impossible de supprimer la question");
     } finally {
-        db.release();
+        if (connection) connection.release();
     }
 };
 
