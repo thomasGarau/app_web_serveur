@@ -17,8 +17,8 @@ const useruelist = async (id_etudiant) => {
         const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
                 FROM utilisateur_valide
                 JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                JOIN enseignant_ue ON utilisateur.id_utilisateur = enseignant_ue.id_utilisateur
-                WHERE enseignant_ue.id_ue = ?`;
+                JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                WHERE enseignants_ue.id_ue = ?`;
         const [rows2] = await db.query(query, [rows[i].id_ue] );
         rows[i].enseignant = rows2;
     }
@@ -40,8 +40,8 @@ const uelist = async () => {
         const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
                 FROM utilisateur_valide
                 JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                JOIN enseignant_ue ON utilisateur.id_utilisateur = enseignant_ue.id_utilisateur
-                WHERE enseignant_ue.id_ue = ?`;
+                JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                WHERE enseignants_ue.id_ue = ?`;
         const [rows2] = await db.query(query, [rows[i].id_ue] );
         rows[i].enseignant = rows2;
     }
@@ -173,7 +173,7 @@ const deleteue = async (id_ue,role) => {
 // modifier une ue
 const updateue = async (id_ue,label,path) => {
     try{
-        await db.query('UPDATE ue SET label = ?, path = ? WHERE id_ue = ?', [label,id_ue,path]);
+        await db.query('UPDATE ue SET label = ?, path = ? WHERE id_ue = ?', [label,path,id_ue]);
     } catch (err) {
         console.error(err);
         throw new Error('erreur durant la modification');

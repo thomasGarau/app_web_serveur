@@ -79,7 +79,7 @@ const getQuizzProfesseurForChapitre = async (id_chapitre) => {
         JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
-        WHERE c.id_chapitre = ? AND uv.role = 'professeur'
+        WHERE c.id_chapitre = ? AND uv.role = 'enseignant'
         GROUP BY q.id_quizz
     `;
     try {
