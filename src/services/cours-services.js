@@ -28,7 +28,7 @@ const courById = async (id_study) => {
 // ajouter un cours
 const addcour = async (id_study,label,contenu,id_chapitre) => {
     try{
-            await db.query('INSERT INTO cours(id_cours,label,contenu,id_chapitre) VALUES(?,?,?,?)', [id_study,label,contenu,id_chapitre]);
+        await db.query('INSERT INTO cours(id_cours,label,contenu,id_chapitre) VALUES(?,?,?,?)', [id_study,label,contenu,id_chapitre]);
     }
     catch (err) {
         console.error(err);

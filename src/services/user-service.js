@@ -6,7 +6,6 @@ const {formatDate} = require('../services/utils.js');
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
     if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
-        console.log(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
         return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
     } else {
         throw new Error('Identifiants incorrects');

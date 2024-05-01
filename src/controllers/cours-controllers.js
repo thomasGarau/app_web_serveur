@@ -53,7 +53,7 @@ exports.deletecours = (async (req,res) => {
         res.status(200).send('Suppression réussie');
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).send('Echec de la suppression');
     }
 })
@@ -67,7 +67,7 @@ exports.updatecours = (async (req,res)=>{
         res.status(200).send('Modification réussie');
     }
     catch(err){
-        console.log(err);
+        console.error(err);
         res.status(200).send('Echec de la modification');
     }
 })

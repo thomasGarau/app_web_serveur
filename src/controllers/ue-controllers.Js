@@ -77,8 +77,9 @@ exports.addformation = (async (req,res) => {
 // ajouter une ue
 exports.addue = (async (req,res) => {
     try {
-        const {label,id_formation,path} = req.body;
-        await ueService.addue(label,id_formation,path);
+        const {label, id_formation} = req.body;
+        const path = req.file.path;
+        await ueService.addue(label, id_formation, path);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);

@@ -9,4 +9,5 @@ const {ajouterSuivisActivite} = require('../controllers/j-methode-controller');
 
 router.post('/recolteInteraction', [validateJtrackingType, verifyAuthorisation, verifyTokenBlacklist, verifyIsStuddent], ajouterSuivisActivite);
 
+
 module.exports = router;

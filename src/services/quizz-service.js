@@ -288,7 +288,6 @@ const createResultatQuizz =  async (idQuizz, idNoteQuizz, reponsesData) => {
     const quizzType = await getTypeQuizz(idQuizz);
     const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idNoteQuizz, reponsesData);
     let resultat;
-    console.log(questionsQuizz, reponsesUtilisateur, bonnesReponses)
     if (quizzType === "normal") {
         resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     } else if (quizzType === "negatif") {
@@ -314,7 +313,6 @@ async function getTypeQuizz(idQuizz) {
 }
 
 async function preparerDetailsQuizz(idNoteQuizz) {
-    console.log(idNoteQuizz)
     const [questionsQuizz] = await db.query(`
         SELECT DISTINCT q.id_question
         FROM question q
@@ -432,7 +430,6 @@ const createQuizz = async (label, type, chapitre, utilisateur, questions) => {
         );
 
         const idQuizz = result.insertId;
-        console.log(idQuizz)
         for (const question of questions) {
             const [resultQuestion] = await connection.query(
                 `INSERT INTO question (label, nombre_bonne_reponse, type, id_quizz) VALUES (?, ?, ?, ?)`,
@@ -504,7 +501,6 @@ const deleteQuizz = async (idQuizz) => {
 
 const ajouterQuestionAuQuizz = async (quizz, data) => {
     let connection = await db.getConnection();
-    console.log(quizz, data)
     try {
         await connection.beginTransaction();
 

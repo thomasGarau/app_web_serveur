@@ -22,7 +22,6 @@ const useruelist = async (id_etudiant) => {
         const [rows2] = await db.query(query, [rows[i].id_ue] );
         rows[i].enseignant = rows2;
     }
-    console.log(rows);
 
     if (rows.length > 0){
         return rows;
@@ -115,9 +114,10 @@ const uechapitreslist = async (id_ue) => {
 
 
 // ajouter une ue
-const addue = async (label,id_formation,path) => {
+const addue = async (label, id_formation, path) => {
     try{
-        await db.query('INSERT INTO ue(label,path) VALUES(?,?)', [label,path]);
+        const [rows] = await db.query('INSERT INTO ue(label,path) VALUES(?,?)', [label,path]);
+        const id_ue = rows.insertId;
         await db.query('INSERT INTO formation_ue(formation_id_formation,ue_id_ue) VALUES(?, ?)', [id_formation,id_ue]);
     } catch (err) {
         console.error(err);

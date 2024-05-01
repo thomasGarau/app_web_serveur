@@ -212,7 +212,7 @@ exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
         const result = await quizzService.createResultatQuizz(quizz, note_quizz, data)
         return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({ message: error.message });
     }
 };

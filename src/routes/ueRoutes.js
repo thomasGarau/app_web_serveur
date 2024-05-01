@@ -5,6 +5,8 @@ const { verifyTokenBlacklist, verifyAuthorisation, verifyIsAdministration } = re
 const {verifyIsTeacher} = require('../middlewares/verifyAuthorisation.js');
 const {verifyIsTeacherOrAdmin} = require('../middlewares/verifyAuthorisation.js');
 const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deleteformation, updateformation,addformation,chapitreuelist,addchapitre,updatechapitre,deletechapitre,ue } = require('../controllers/ue-controllers.js') 
+const {uploadImage} = require('../middlewares/imageCloud');
+
 
 router.get('/ue-user', [verifyAuthorisation,verifyTokenBlacklist,validate], useruelist);
 router.get('/allue', [verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], uelist);
@@ -12,7 +14,7 @@ router.get('/allue-formation', [validateField('id_formation'),verifyAuthorisatio
 router.post('/allchapitre-ue', [validateField('id_ue'),verifyAuthorisation, verifyTokenBlacklist], chapitreuelist);
 
 router.post('/add-formation', [validateField('id_formation', 'label', 'id_universite'),verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration], addformation);
-router.post('/add-ue', [validateField('label', 'id_formation','path'),verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration], addue);
+router.post('/add-ue', [validateField('label', 'id_formation'),verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration, uploadImage], addue);
 router.post('/add-chapitre', [validateField('label', 'id_ue'),verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher], addchapitre);
 
 router.post('/delete-ue', [validateField('id_ue'),verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteue); // role admin 
