@@ -1,6 +1,7 @@
 const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const {formatDate} = require('../services/utils.js');
 
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
@@ -86,6 +87,33 @@ async function getRoleUtilisateurFromToken(token){
     return decoded.role;
 }
 
+async function getUserInfo(id_utilisateur){
+    try{
+        const query = `
+        SELECT uv.nom, uv.prenom, uv.date_naissance, f.label FROM utilisateur u
+        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
+        JOIN formation f ON p.id_formation = f.id_formation
+        WHERE u.id_utilisateur = ?;`;
+
+        const [rows] = await db.query(query, [id_utilisateur]);
+        if(rows.length > 0){
+            const anniversaire = formatDate(rows[0].date_naissance)
+            const info = {
+                nom: rows[0].nom,
+                prenom: rows[0].prenom,
+                formation: rows[0].label,
+                anniversaire: anniversaire
+            };
+            return info;
+        }else{
+            throw new Error('Utilisateur non trouvé');
+        }
+    }catch(err){
+        throw new Error('Erreur lors de la récupération des informations de l\'utilisateur');
+    }
+}
+
 module.exports = {
     authenticateUser,
     registerUser,
@@ -93,6 +121,7 @@ module.exports = {
     verifyToken,
     isTokenBlacklisted,
     invalidateToken,
+    getUserInfo
 };
 
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;

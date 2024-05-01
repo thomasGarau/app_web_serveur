@@ -1,5 +1,31 @@
 const db = require('../../config/database.js');
 
+
+const listQuizzPasser = async (id_utilisateur) => {
+    try {
+        const query = `
+        SELECT * 
+        FROM note_quizz 
+        JOIN quizz ON note_quizz.id_quizz = quizz.id_quizz
+        WHERE note_quizz.id_utilisateur = ?`;
+        const [rows] = await db.query(query, [id_utilisateur]);
+        return rows;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+
+const listQuizzCreer = async (id_utilisateur) => {
+    try {
+        const query = `SELECT * FROM quizz WHERE id_utilisateur = ?`;
+        const [rows] = await db.query(query, [id_utilisateur]);
+        return rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const getQuizzInfo = async (quizz) => {
     try{
         const query = `
@@ -601,6 +627,8 @@ const buildUpdateQuery = (tableName, data, id, primaryKeyColumn) => {
 
 
 module.exports = {
+    listQuizzPasser,
+    listQuizzCreer,
     getQuizzInfo,
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
@@ -625,5 +653,5 @@ module.exports = {
     deleteReponse,
     updateQuizz,
     updateQuestion,
-    updateReponse
+    updateReponse,
 };

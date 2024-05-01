@@ -1,4 +1,5 @@
 const userService = require('../services/user-service');
+const {getIdUtilisateurFromToken} = require('../services/user-service');
 
 exports.verifyToken = ((req,res) => {
     try {
@@ -54,4 +55,15 @@ exports.invalidateToken = (async (req,res) => {
     }
 });
 
+
+exports.getUserInfo = async (req,res) => {
+    try {
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const info = await userService.getUserInfo(userId);
+        res.status(200).send(info);
+    } catch (err) {
+        console.error(err);
+        res.status(401).send('erreur lors de la récupération des informations de l\'utilisateur');
+    }
+};
 

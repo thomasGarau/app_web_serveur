@@ -276,3 +276,23 @@ exports.updateReponse = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+exports.listQuizzCreer = async (req, res) => {
+    try {
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const quizz = await quizzService.listQuizzCreer(utilisateur);
+        return res.status(200).json(quizz);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+exports.listQuizzPasser = async (req, res) => {
+    try {
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const quizz = await quizzService.listQuizzPasser(utilisateur);
+        return res.status(200).json(quizz);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}

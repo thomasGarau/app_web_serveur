@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
+const connectDB = require('./config/db-mongo')
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
@@ -14,6 +15,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+connectDB()
 
 const userRoutes = require('./src/routes/userRoutes')
 const securePageRoutes = require('./src/routes/secure-page-Routes')

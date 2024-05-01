@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const {
+    listQuizzCreer,
+    listQuizzPasser,
     getQuizzInfo,
     getQuizzForUe,
     getQuizzForChapter,
@@ -32,6 +34,9 @@ const {verifyAuthorisation, verifyTokenBlacklist, verifyOwner} = require('../mid
 const { validateField } = require('../middlewares/sanitizeInput.js');
 const { quizzValidation } = require('../middlewares/sanitizeInput.js');
 const { validateQuizzType, validateReponseQuizzType, validateQuestionType, validateQuestionUpdateType, validateQuizzUpdateType, validateReponseUpdateType  } = quizzValidation;
+
+router.get('/listQuizzCreer', [verifyAuthorisation, verifyTokenBlacklist], listQuizzCreer);
+router.get('/listQuizzPasser', [verifyAuthorisation, verifyTokenBlacklist], listQuizzPasser);
 
 router.post('/getQuizzInfo', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuizzInfo);
 router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);

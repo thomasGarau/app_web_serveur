@@ -121,6 +121,17 @@ const coursConfig = {
     objectIdColumn: 'id_study'
 };
 
+const userConfig = {
+    generateOwnerQuery: (userId) => {
+        return {
+            query: `SELECT COUNT(*) AS count
+                    FROM utilisateur
+                    WHERE id_utilisateur = ?`,
+            params: [userId]
+        };
+    }
+};
+
 module.exports.quizzConfig = quizzConfig,
 module.exports.questionConfig = questionConfig;
 module.exports.responseConfig = responseConfig;
@@ -128,3 +139,4 @@ module.exports.responseForDelConfig = responseForDelConfig;
 module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;
 module.exports.ueUserConfig = ueUserConfig;
+module.exports.userConfig = userConfig;
