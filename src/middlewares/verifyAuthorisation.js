@@ -110,8 +110,7 @@ const verifyIsTeacher = async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const num_etudiant = parseInt(decoded.num_etudiant);
-        if (num_etudiant < 200000 ) {
+        if (decoded.role == "enseignant") {
             return next();  
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être un enseignant.');
