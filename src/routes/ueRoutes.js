@@ -21,7 +21,7 @@ router.post('/delete-ue', [validateField('id_ue'),verifyAuthorisation, verifyTok
 router.post('/delete-formation', [validateField('id_formation'),verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteformation); // role admin
 router.post('/delete-chapitre', [validateField('id_chapitre'),verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher], deletechapitre); // role enseignant
 
-router.post('/update-ue', [validateField('id_ue', 'label','path'),verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], updateue); // role admin
+router.post('/update-ue', [validateField('id_ue', 'label'),verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration, uploadImage], updateue); // role admin
 router.post('/update-formation', [validateField('id_formation', 'label'),verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], updateformation); // role admin
 router.post('/update-chapitre', [validateField('id_chapitre', 'label'),verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher], updatechapitre); // role enseignant
 module.exports = router;

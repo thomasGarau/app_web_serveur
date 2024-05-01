@@ -171,14 +171,30 @@ const deleteue = async (id_ue,role) => {
 }
 
 // modifier une ue
-const updateue = async (id_ue,label,path) => {
-    try{
-        await db.query('UPDATE ue SET label = ?, path = ? WHERE id_ue = ?', [label,path,id_ue]);
+const updateue = async (id_ue, options) => {
+    try {
+        const { label, path } = options;
+
+        const fieldsToUpdate = [
+            { field: 'label', value: label },
+            { field: 'path', value: path }
+        ];
+
+        const fieldsWithValues = fieldsToUpdate.filter(field => field.value !== null && field.value !== undefined);
+
+        const setClauses = fieldsWithValues.map(field => `${field.field} = ?`);
+
+        const updateQuery = `UPDATE ue SET ${setClauses.join(', ')} WHERE id_ue = ?`;
+
+        const updateValues = fieldsWithValues.map(field => field.value);
+        updateValues.push(id_ue);
+
+        await db.query(updateQuery, updateValues);
+
     } catch (err) {
         console.error(err);
-        throw new Error('erreur durant la modification');
+        throw new Error('Erreur lors de la modification');
     }
-
 }
 
 // modifier une formation
