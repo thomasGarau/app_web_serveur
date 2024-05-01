@@ -27,6 +27,7 @@ const creationQuizzSchema = Joi.object({
 });
 
 const reponseQuizzSchema = Joi.object({
+    quizz: Joi.number().integer().optional(),
     data: Joi.array().items(idReponseSchema).min(1).required()
 });
 
