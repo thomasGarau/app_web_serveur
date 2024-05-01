@@ -120,6 +120,23 @@ const verifyIsTeacher = async (req, res, next) => {
         return res.status(401).send('Token invalide ou problème d\'authentification.');
     }
 }
+
+const verifyIsStuddent = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const role = decoded.role;
+        if (role === "etudiant") {
+            return next();
+        }
+        return res.status(403).send('Accès non autorisé. Vous devez être un étudiant.');
+
+    }catch(error) {
+        return res.status(401).send('Token invalide ou problème d\'authentification.');
+    }
+};
+
+
 const verifyIsAdministration = async (req, res , next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -182,3 +199,4 @@ module.exports.verifyIsTeacher = verifyIsTeacher;
 module.exports.verifyIsAdministration = verifyIsAdministration;
 module.exports.verifyIsTeacherOrAdmin = verifyIsTeacherOrAdmin;
 module.exports.verifyOwnerOrAdmin = verifyOwnerOrAdmin;
+module.exports.verifyIsStuddent = verifyIsStuddent;

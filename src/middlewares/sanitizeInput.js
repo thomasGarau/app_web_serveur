@@ -2,7 +2,7 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
 const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
-
+const { schemaInteraction } = require('../models_JSON/trackingDataValidation.js')
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
@@ -99,6 +99,14 @@ const validateReponseUpdateType = (req, res, next) => {
     next();
 };
 
+const validateJtrackingType = (req, res, next) => {
+    const { error } = schemaInteraction.validate(req.body.data);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
     validateField,
@@ -114,4 +122,8 @@ module.exports.quizzValidation = {
     validateQuizzUpdateType,
     validateQuestionUpdateType,
     validateReponseUpdateType
+}
+
+module.exports.jMethode = {
+    validateJtrackingType
 }
