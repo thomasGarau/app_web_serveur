@@ -8,6 +8,7 @@ const {
     getQuizzForUe,
     getQuizzForChapter,
     getMeilleureNoteUtilisateurPourQuizz,
+    getLastNoteForQuizz,
     getNoteMoyennePourQuizz,
     getAnnotationsPourQuestion,
     getQuestionsPourQuizz,
@@ -45,6 +46,7 @@ router.post('/getQuizzInfo', [validateField("quizz"), verifyAuthorisation, verif
 router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
 router.post('/quizzForChapter', [validateField("chapitre"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForChapter);
 router.post('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
+router.post('/getLastNoteForQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getLastNoteForQuizz);
 router.post('/noteMoyennePourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteMoyennePourQuizz);
 router.post('/questionsPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuestionsPourQuizz);
 router.post('/reponsesPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getReponsesPourQuestion);

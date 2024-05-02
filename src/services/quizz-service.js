@@ -643,6 +643,26 @@ const getNoteQuizzInfo = async (note_quizz) => {
     }
 };
 
+const getLastNoteForQuizz = async (id_quizz, id_utilisateur) => {
+    try {
+        const query = `
+        SELECT *
+        FROM note_quizz
+        WHERE id_quizz = ? AND id_utilisateur = ?
+        ORDER BY date DESC
+        LIMIT 1`;
+        
+        const [rows] = await db.query(query, [id_quizz, id_utilisateur]);
+        if (rows.length > 0) {
+            return rows[0];
+        } else {
+            return "aucune note pour ce quizz";
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     listQuizzPasser,
     listQuizzCreer,
@@ -653,6 +673,7 @@ module.exports = {
     getQuizzProfesseurForChapitre,
     getQuizzEleveForChapitre,
     getNoteUtilisateurQuizz,
+    getLastNoteForQuizz,
     addNoteUtilisateurPourQuizz,
     getNoteMoyenneQuiz,
     getQuestionsPourQuizz,
