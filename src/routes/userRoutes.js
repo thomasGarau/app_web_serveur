@@ -12,4 +12,6 @@ router.post('/login', [validateField('num_etudiant'), validatePassword(), valida
 router.post('/register', [validatePassword(), validateEmail(), hashPassword(), validate], register);
 router.post('/logout', invalidateToken)
 
+router.put('/update', [verifyAuthorisation, verifyTokenBlacklist, validatePassword, validateEmail, hashPassword, verifyOwner(userConfig) ], updateUser);
+
 module.exports = router;
