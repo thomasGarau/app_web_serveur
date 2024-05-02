@@ -18,7 +18,11 @@ async function getQuizzId(note_quizz) {
         `SELECT id_quizz FROM note_quizz WHERE id_note_quizz = ?`,
         [note_quizz]
     );
-    return rows[0].id_quizz;
+    if (rows.length > 0) {
+        return rows[0].id_quizz;
+    }else {
+        return "Aucun quizz pour cette note";
+    }
 }
 
 function calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses) {
@@ -82,7 +86,11 @@ async function getTypeQuizz(idQuizz) {
     const [result] = await db.query(`
         SELECT type FROM quizz WHERE id_quizz = ?
     `, [idQuizz]);
-    return result[0].type;
+    if (result.length > 0) {
+        return result[0].type;
+    }else {
+        return "Info de quizz introuvable";
+    }
 }
 
 async function preparerDetailsQuizz(idNoteQuizz) {
@@ -402,11 +410,12 @@ const createResultatQuizz =  async (idQuizz, idNoteQuizz) => {
     } else if (quizzType === "negatif") {
         resultat = calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     }
-
+    noteFinal = resultat ? resultat.noteFinale : undefined;
+    details = resultat ? resultat.details : undefined;
     return {
         idNoteQuizz,
-        noteFinale: resultat.noteFinale,
-        details: resultat.details
+        noteFinale: noteFinal,
+        details: details
     };
 };
 

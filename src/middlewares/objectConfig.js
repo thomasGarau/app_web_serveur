@@ -134,6 +134,7 @@ const userConfig = {
 
 const noteQuizzConfig = {
     generateOwnerQuery: (userId, objectId) => {
+        console.log(userId, objectId)
         return {
             query: `SELECT COUNT(*) AS count
                     FROM note_quizz
