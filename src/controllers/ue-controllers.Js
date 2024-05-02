@@ -131,7 +131,7 @@ exports.deletechapitre = (async (req,res) => {
 exports.deleteue = (async (req,res) => {
     try {
         const {id_ue} = req.body;
-        await ueService.deleteue(id_ue,role);
+        await ueService.deleteue(id_ue);
         res.status(200).send('Suppression réussie');
     } catch (err) {
         console.error(err);

@@ -8,13 +8,13 @@ const { forumListCours,forumListQuizz,messageList,messageListQuizz,messageListCo
 
 router.post('/chat-quizz', [validateField('id_forum'),verifyAuthorisation, verifyTokenBlacklist,validate], messageListQuizz);
 router.post('/chat-cours', [validateField('id_forum'),verifyAuthorisation, verifyTokenBlacklist,validate], messageListCours);
-router.get('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'),validate], messageListCoursChapitre);
-router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
-router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','date','id_forum') ,validate], addMessage);
-router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','date','id_forum','token'),validate, verifyOwnerOrAdmin], updateMessage);
-router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message','token'),validate,verifyOwnerOrAdmin], deleteMessage);
-router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_cours'),validate], forumListCours);
-router.post('/forum-quizz', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_quizz'),validate], forumListQuizz);
+// router.post('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'),validate], messageListCoursChapitre);
+// router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
+router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','date','id_forum')], addMessage);
+router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','date','id_forum'), verifyOwnerOrAdmin], updateMessage);
+router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message'),validate,verifyOwnerOrAdmin], deleteMessage);
+router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_cours')], forumListCours);
+router.post('/forum-quizz', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_quizz')], forumListQuizz);
 
 
 module.exports = router;
