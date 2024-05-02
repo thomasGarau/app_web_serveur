@@ -60,7 +60,22 @@ const messageList = async () => {
 const messageListQuizz = async (id_forum) => {
     const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_quizz) AND id_forum = ?', [id_forum]);
     if (rows.length > 0){
+            rows.forEach(row => {
+            if (row.date) {
+                
+                row.date = new Date(row.date).toISOString().slice(0, 19).replace('T', ' ');
+                row.heure = new Date(row.date).getHours() + ':' + new Date(row.date).getMinutes() + ':' + new Date(row.date).getSeconds();
+                row.date = new Date(row.date).toISOString().split('T')[0];
+                
+            }
+        });
+        for (let i=0; i<rows.length; i++){
+             const [rows2] = await db.query('SELECT * FROM utilisateur WHERE id_utilisateur = ?', [rows[i].id_utilisateur]);
+            const [rows3] = await db.query('SELECT nom, prenom FROM utilisateur_valide WHERE num_etudiant = ?', [rows2[0].num_etudiant]);
+            rows[i].etudiant = rows3;
+        }
         return rows;
+        
     }
     else {
         throw new Error('Aucun message disponible');
@@ -72,7 +87,22 @@ const messageListQuizz = async (id_forum) => {
 const messageListCours = async (id_forum) => {
     const [rows] = await db.query('SELECT * FROM message WHERE id_forum IN (SELECT id_forum FROM forum_cours) AND id_forum = ?', [id_forum]);
     if (rows.length > 0){
+            rows.forEach(row => {
+            if (row.date) {
+                
+                row.date = new Date(row.date).toISOString().slice(0, 19).replace('T', ' ');
+                row.heure = new Date(row.date).getHours() + ':' + new Date(row.date).getMinutes() + ':' + new Date(row.date).getSeconds();
+                row.date = new Date(row.date).toISOString().split('T')[0];
+                
+            }
+        });
+        for (let i=0; i<rows.length; i++){
+             const [rows2] = await db.query('SELECT * FROM utilisateur WHERE id_utilisateur = ?', [rows[i].id_utilisateur]);
+            const [rows3] = await db.query('SELECT nom, prenom FROM utilisateur_valide WHERE num_etudiant = ?', [rows2[0].num_etudiant]);
+            rows[i].etudiant = rows3;
+        }
         return rows;
+        
     }
     else {
         throw new Error('Aucun message disponible');

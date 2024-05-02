@@ -160,7 +160,7 @@ const deletechapitre = async (id_chapitre) => {
 }
 
 // supprimer une ue
-const deleteue = async (id_ue,role) => {
+const deleteue = async (id_ue) => {
     try{
         await db.query('DELETE FROM ue WHERE id_ue = ?', [id_ue]);
     } catch (err) {
