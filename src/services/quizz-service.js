@@ -272,7 +272,6 @@ const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponse
                 [reponse.idReponse, idUtilisateur, idNoteQuizz]
             );
         }
-
         await connection.commit();
 
         return idNoteQuizz;
@@ -284,25 +283,33 @@ const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponse
     }
 };
 
-const createResultatQuizz =  async (idQuizz, idNoteQuizz, reponsesData) => {
+const createResultatQuizz =  async (idQuizz, idNoteQuizz) => {
     const quizzType = await getTypeQuizz(idQuizz);
-    const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idNoteQuizz, reponsesData);
+    const { questionsQuizz, reponsesUtilisateur, bonnesReponses } = await preparerDetailsQuizz(idNoteQuizz);
     let resultat;
     if (quizzType === "normal") {
         resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     } else if (quizzType === "negatif") {
         resultat = calculScoreNegatif(questionsQuizz, reponsesUtilisateur, bonnesReponses);
     }
-    await db.query(
-        `UPDATE note_quizz set note = ? WHERE id_note_quizz = ?`,
-        [resultat.noteFinale, idNoteQuizz]
-    );
 
     return {
         idNoteQuizz,
         noteFinale: resultat.noteFinale,
         details: resultat.details
     };
+};
+
+const enregistrerResultatQuizz = async (idNoteQuizz, noteFinale) => {
+    try{
+        await db.query(
+            `UPDATE note_quizz set note = ? WHERE id_note_quizz = ?`,
+            [noteFinale, idNoteQuizz]
+        );
+        return true;
+    }catch(error){
+        throw new Error("Impossible d'enregistrer le résultat du quizz");
+    }
 };
 
 async function getTypeQuizz(idQuizz) {
@@ -402,14 +409,8 @@ const getResultatQuizz = async (note_quizz) => {
             `SELECT * FROM note_quizz JOIN quizz on note_quizz.id_quizz = quizz.id_quizz WHERE id_note_quizz = ?`,
             [note_quizz]
         );
-
         if (rows.length > 0) {
-            if (rows[0].type === "normal") {
-                resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
-            } else if (rows[0].type === "negatif") {
-                resultat = calculScoreNormal(questionsQuizz, reponsesUtilisateur, bonnesReponses);
-            }
-            return resultat;
+            return rows[0];
         } else {
             throw new Error("Aucun résultat pour ce quizz");
         }
@@ -621,11 +622,32 @@ const buildUpdateQuery = (tableName, data, id, primaryKeyColumn) => {
     };
 };
 
+async function getQuizzId(note_quizz) {
+    const [rows] = await db.query(
+        `SELECT id_quizz FROM note_quizz WHERE id_note_quizz = ?`,
+        [note_quizz]
+    );
+    return rows[0].id_quizz;
+}
+
+const getNoteQuizzInfo = async (note_quizz) => {
+    try{
+        const quizz = await getQuizzId(note_quizz);
+        const {details} = await createResultatQuizz(quizz, note_quizz);
+        const resultat = await getResultatQuizz(note_quizz);
+        return { details, resultat };
+
+    }catch(error){
+        throw error;
+    }
+};
+
 
 module.exports = {
     listQuizzPasser,
     listQuizzCreer,
     getQuizzInfo,
+    getNoteQuizzInfo,
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
     getQuizzProfesseurForChapitre,
@@ -638,7 +660,8 @@ module.exports = {
     getReponsesUtilisateurPourQuestion,
     getAnnotationsPourQuestion,
     ajouterReponsesUtilisateurAuQuizz,
-    getResultatQuizz, 
+    getResultatQuizz,
+    enregistrerResultatQuizz,
     createResultatQuizz,
     createQuizz,
     deleteQuizz,
