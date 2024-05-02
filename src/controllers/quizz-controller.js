@@ -320,3 +320,15 @@ exports.getLastNoteForQuizz = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
+exports.getNoteUtilisateurDonneeAuQuizz = async (req, res) => {
+    try{
+        const { quizz } = req.body;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const note = await quizzService.getNoteUtilisateurDonneeAuQuizz(quizz, utilisateur);
+        res.status(200).send({note: note});
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};

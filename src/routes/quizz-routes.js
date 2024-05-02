@@ -5,6 +5,7 @@ const {
     listQuizzPasser,
     getQuizzInfo,
     getNoteQuizzInfo,
+    getNoteUtilisateurDonneeAuQuizz,
     getQuizzForUe,
     getQuizzForChapter,
     getMeilleureNoteUtilisateurPourQuizz,
@@ -41,6 +42,7 @@ const { validateQuizzType, validateReponseQuizzType, validateQuestionType, valid
 router.get('/listQuizzCreer', [verifyAuthorisation, verifyTokenBlacklist], listQuizzCreer);
 router.get('/listQuizzPasser', [verifyAuthorisation, verifyTokenBlacklist], listQuizzPasser);
 
+router.post('/getNoteUtilisateurDonneeAuQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteUtilisateurDonneeAuQuizz);
 router.post('/getNoteQuizzInfo', [validateField("note_quizz"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(noteQuizzConfig, "note_quizz")], getNoteQuizzInfo);
 router.post('/getQuizzInfo', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuizzInfo);
 router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);

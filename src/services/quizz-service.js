@@ -651,7 +651,7 @@ const getLastNoteForQuizz = async (id_quizz, id_utilisateur) => {
         WHERE id_quizz = ? AND id_utilisateur = ?
         ORDER BY date DESC
         LIMIT 1`;
-        
+
         const [rows] = await db.query(query, [id_quizz, id_utilisateur]);
         if (rows.length > 0) {
             return rows[0];
@@ -663,11 +663,30 @@ const getLastNoteForQuizz = async (id_quizz, id_utilisateur) => {
     }
 };
 
+const getNoteUtilisateurDonneeAuQuizz = async (id_quizz, id_utilisateur) => {
+    try{
+        const query = `
+        SELECT note
+        FROM note_du_quizz
+        WHERE id_quizz = ? AND id_utilisateur = ?`;
+
+        const [rows] = await db.query(query, [id_quizz, id_utilisateur]);
+        if (rows.length > 0) {
+            return rows[0].note;
+        } else {
+            return "aucune note pour ce quizz de la part de l'utilisateur";
+        }
+    }catch(error) {
+        throw error;
+    }
+};
+
 module.exports = {
     listQuizzPasser,
     listQuizzCreer,
     getQuizzInfo,
     getNoteQuizzInfo,
+    getNoteUtilisateurDonneeAuQuizz,
     getQuizzProfesseurForUe,
     getQuizzEleveForUe,
     getQuizzProfesseurForChapitre,
