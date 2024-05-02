@@ -258,6 +258,7 @@ exports.updateQuizz = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
 exports.updateQuestion = async (req, res) => {
     try {
         const { question, data } = req.body;
@@ -268,6 +269,7 @@ exports.updateQuestion = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
 exports.updateReponse = async (req, res) => {
     try {
         const { reponse, data } = req.body;

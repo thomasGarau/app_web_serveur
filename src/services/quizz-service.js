@@ -629,16 +629,46 @@ const updateQuizz = async (id, data) => {
     await db.query(query, params);
 };
 
-const updateQuestion = async (id, data) => {
-    const { query, params } = buildUpdateQuery('question', data, id, 'id_question');
-    await db.query(query, params);
+const updateQuestionAndReponses = async (questionId, data) => {
+    await updateQuestion(questionId, data);
+    if (data.reponses) {
+        await updateReponses(questionId, data.reponses);
+    }
 };
 
-const updateReponse = async (id, data) => {
-    const { query, params } = buildUpdateQuery('reponse', data, id, 'id_reponse');
-    await db.query(query, params);
+async function updateQuestion(questionId, { label, nombre_bonne_reponse, type }) {
+    const updates = {};
+    if (label) updates.label = label;
+    if (nombre_bonne_reponse) updates.nombre_bonne_reponse = nombre_bonne_reponse;
+    if (type) updates.type = type;
+
+    const keys = Object.keys(updates);
+    const values = Object.values(updates);
+    
+    if (keys.length > 0) {
+        let sql = `UPDATE question SET ${keys.map(key => `${key} = ?`).join(', ')} WHERE id_question = ?`;
+        await db.query(sql, [...values, questionId]);
+    }
 };
 
+async function updateReponses(questionId, reponses) {
+    for (let reponse of reponses) {
+        if (reponse.delete && reponse.reponse) {
+            await deleteReponse(reponse.reponse);
+        } else if (reponse.reponse) {
+            await updateReponse(reponse.reponse, reponse.data);
+        } else {
+            await ajouterReponseAQuestion(questionId, reponse.data);
+        }
+    }
+};
+
+async function updateReponse(reponseId, data) {
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+    let sql = `UPDATE reponse SET ${keys.map(key => `${key} = ?`).join(', ')} WHERE id_reponse = ?`;
+    await db.query(sql, [...values, reponseId]);
+};
 
 const getNoteQuizzInfo = async (note_quizz) => {
     try{
@@ -720,6 +750,6 @@ module.exports = {
     deleteQuestion,
     deleteReponse,
     updateQuizz,
-    updateQuestion,
+    updateQuestionAndReponses,
     updateReponse,
 };
