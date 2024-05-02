@@ -4,9 +4,12 @@ const {
     listQuizzCreer,
     listQuizzPasser,
     getQuizzInfo,
+    getNoteQuizzInfo,
+    getNoteUtilisateurDonneeAuQuizz,
     getQuizzForUe,
     getQuizzForChapter,
     getMeilleureNoteUtilisateurPourQuizz,
+    getLastNoteForQuizz,
     getNoteMoyennePourQuizz,
     getAnnotationsPourQuestion,
     getQuestionsPourQuizz,
@@ -30,6 +33,7 @@ const {quizzConfig} = require('../middlewares/objectConfig.js');
 const {questionConfig} = require('../middlewares/objectConfig.js');
 const {responseConfig} = require('../middlewares/objectConfig.js');
 const {responseForDelConfig} = require('../middlewares/objectConfig.js');
+const {noteQuizzConfig} = require('../middlewares/objectConfig.js');
 const {verifyAuthorisation, verifyTokenBlacklist, verifyOwner} = require('../middlewares/verifyAuthorisation.js');
 const { validateField } = require('../middlewares/sanitizeInput.js');
 const { quizzValidation } = require('../middlewares/sanitizeInput.js');
@@ -38,10 +42,13 @@ const { validateQuizzType, validateReponseQuizzType, validateQuestionType, valid
 router.get('/listQuizzCreer', [verifyAuthorisation, verifyTokenBlacklist], listQuizzCreer);
 router.get('/listQuizzPasser', [verifyAuthorisation, verifyTokenBlacklist], listQuizzPasser);
 
+router.post('/getNoteUtilisateurDonneeAuQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteUtilisateurDonneeAuQuizz);
+router.post('/getNoteQuizzInfo', [validateField("note_quizz"), verifyAuthorisation, verifyTokenBlacklist, verifyOwner(noteQuizzConfig, "note_quizz")], getNoteQuizzInfo);
 router.post('/getQuizzInfo', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuizzInfo);
 router.post('/quizzForUe', [validateField("ue"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForUe);
 router.post('/quizzForChapter', [validateField("chapitre"), verifyAuthorisation, verifyTokenBlacklist], getQuizzForChapter);
 router.post('/meilleureNoteUtilisateurPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getMeilleureNoteUtilisateurPourQuizz);
+router.post('/getLastNoteForQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getLastNoteForQuizz);
 router.post('/noteMoyennePourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getNoteMoyennePourQuizz);
 router.post('/questionsPourQuizz', [validateField("quizz"), verifyAuthorisation, verifyTokenBlacklist], getQuestionsPourQuizz);
 router.post('/reponsesPourQuestion', [validateField("question"), verifyAuthorisation, verifyTokenBlacklist], getReponsesPourQuestion);

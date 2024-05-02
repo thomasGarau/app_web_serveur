@@ -209,8 +209,9 @@ exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
         const { quizz, data } = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const note_quizz = await quizzService.ajouterReponsesUtilisateurAuQuizz(quizz, utilisateur, data);
-        const result = await quizzService.createResultatQuizz(quizz, note_quizz, data)
-        return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: result });
+        const {idNoteQuizz, noteFinale, details} = await quizzService.createResultatQuizz(quizz, note_quizz, data)
+        await quizzService.enregistrerResultatQuizz(idNoteQuizz, noteFinale);
+        return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: details });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });
@@ -257,6 +258,7 @@ exports.updateQuizz = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
 exports.updateQuestion = async (req, res) => {
     try {
         const { question, data } = req.body;
@@ -267,6 +269,7 @@ exports.updateQuestion = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
 exports.updateReponse = async (req, res) => {
     try {
         const { reponse, data } = req.body;
@@ -296,3 +299,38 @@ exports.listQuizzPasser = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+exports.getNoteQuizzInfo = async (req, res) => {
+    try{
+        const note_quizz = req.body.note_quizz;
+        const {details, resultat} = await quizzService.getNoteQuizzInfo(note_quizz);
+        res.status(200).send({details, resultat});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
+exports.getLastNoteForQuizz = async (req, res) => {
+    try{
+        const quizz = req.body.quizz;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const note = await quizzService.getLastNoteForQuizz(quizz, utilisateur);
+        res.status(200).send(note);
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};
+
+exports.getNoteUtilisateurDonneeAuQuizz = async (req, res) => {
+    try{
+        const { quizz } = req.body;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const note = await quizzService.getNoteUtilisateurDonneeAuQuizz(quizz, utilisateur);
+        res.status(200).send({note: note});
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+};

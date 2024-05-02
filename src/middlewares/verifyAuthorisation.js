@@ -72,7 +72,6 @@ const verifyOwnerOrAdmin = (config, idParamName) => async (req, res, next) => {
 };
 
 
-
 const verifyOwner = (config, idParamName) => async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -81,7 +80,8 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const { query, params } = config.generateOwnerQuery(userId, objectId);
 
         let [rows] = await db.query(query, params);
-        if (rows.length > 0) {
+
+        if (rows[0].count > 0) {
             next();
         } else {
             return res.status(403).send('Accès non autorisé.');

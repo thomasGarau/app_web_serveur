@@ -113,9 +113,47 @@ async function getUserInfo(id_utilisateur){
     }
 }
 
+const updateUser = async (id_utilisateur, nom, prenom, date_naissance, mdp, mail_utilisateur) => {
+    try {
+        const fieldsToUpdate = {
+            nom,
+            prenom,
+            date_naissance,
+            mail_utilisateur
+        };
+
+        const queryParams = [];
+        const updates = [];
+
+        for (const [key, value] of Object.entries(fieldsToUpdate)) {
+            if (value !== null && value !== undefined) {
+                updates.push(`${key} = ?`);
+                queryParams.push(value);
+            }
+        }
+
+        if (updates.length > 0) {
+            queryParams.push(id_utilisateur);
+            const query = `UPDATE utilisateur_valide SET ${updates.join(', ')} WHERE num_etudiant = (SELECT num_etudiant FROM utilisateur WHERE id_utilisateur = ?)`;
+            const [result] = await db.query(query, queryParams);
+            console.log('Mise à jour de utilisateur_valide réussie:', result);
+        }
+
+        if (mdp !== null && mdp !== undefined) {
+            const mdpQuery = 'UPDATE utilisateur SET mdp = ? WHERE id_utilisateur = ?';
+            const [mdpResult] = await db.query(mdpQuery, [mdp, id_utilisateur]);
+            console.log('Mise à jour du mot de passe réussie:', mdpResult);
+        }
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     authenticateUser,
     registerUser,
+    updateUser,
     userExist,
     verifyToken,
     isTokenBlacklisted,
