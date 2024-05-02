@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 
 const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
 const { schemaInteraction } = require('../models_JSON/trackingDataValidation.js')
+const { updateUserSchema } = require('../models_JSON/userValidation.js');
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
@@ -48,9 +49,14 @@ const validatePassword = () => {
 };
 
 const hashPassword = () => {
-    return body('password').customSanitizer(async (password) => {
-        return await bcrypt.hash(password, 10);
-    })
+    return [
+        body('password').if((value, { req }) => value !== undefined).customSanitizer(async (password) => {
+            if (password) {
+                return await bcrypt.hash(password, 10);
+            }
+            return password;
+        })
+    ];
 };
 
 const validate = (req, res, next) => {
@@ -118,6 +124,14 @@ const validateJtrackingType = (req, res, next) => {
     next();
 };
 
+const updateUserType = (req, res, next) => {
+    const { error } = updateUserSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
     validateRegistrationFields,
@@ -139,3 +153,7 @@ module.exports.quizzValidation = {
 module.exports.jMethode = {
     validateJtrackingType
 }
+
+module.exports.userValidation = {
+    updateUserType
+};
