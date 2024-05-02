@@ -5,7 +5,7 @@ const upload = multer({ storage: storage });
 
 // Fonction pour gérer le téléchargement d'image
 async function uploadImage(req, res, next) {
-    const uploadSingle = upload.single('url');
+    const uploadSingle = upload.single('path');
 
     uploadSingle(req, res, function (error) {
         if (error) {
