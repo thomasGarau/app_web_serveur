@@ -14,13 +14,24 @@ const validateField = (...fieldNames) => {
 
 // Validation pour l'email
 const validateEmail = () => {
-    return body('email').isEmail().normalizeEmail({gmail_remove_dots: false});
+    return body('email').optional().isEmail().normalizeEmail({gmail_remove_dots: false});
+};
+
+const validateRegistrationFields = (req, res, next) => {
+    // Vérifie si les champs email et password sont présents
+    if (!req.body.email || !req.body.password) {
+        return res.status(400).json({ message: "Les champs email et password sont obligatoires." });
+    }
+    // Si les champs sont présents, passe au middleware suivant
+    //car les autres middleware prennent les champs en optional pour la route d'update
+    next();
 };
 
 // Validation pour le mot de passe
 const validatePassword = () => {
     return [
         body('password')
+            .optional()
             .isLength({ min: 12, max: 50 })
             .withMessage('Le mot de passe doit contenir entre 12 et 50 caractères.')
             .matches(/[A-Z]/)
@@ -109,6 +120,7 @@ const validateJtrackingType = (req, res, next) => {
 
 module.exports = {
     validate,
+    validateRegistrationFields,
     validateField,
     validateEmail,
     validatePassword,

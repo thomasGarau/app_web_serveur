@@ -67,3 +67,12 @@ exports.getUserInfo = async (req,res) => {
     }
 };
 
+exports.updateUser = async (req,res) => {
+    try{
+        res.status(200).send('Utilisateur mis à jour');
+    }catch(err){
+        console.error(err);
+        res.send(500).send(err);
+    }
+};
+

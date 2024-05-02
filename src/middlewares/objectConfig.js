@@ -132,7 +132,19 @@ const userConfig = {
     }
 };
 
+const noteQuizzConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT COUNT(*) AS count
+                    FROM note_quizz
+                    WHERE id_note_quizz = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        };
+    }
+};
+
 module.exports.quizzConfig = quizzConfig,
+module.exports.noteQuizzConfig = noteQuizzConfig;
 module.exports.questionConfig = questionConfig;
 module.exports.responseConfig = responseConfig;
 module.exports.responseForDelConfig = responseForDelConfig;
