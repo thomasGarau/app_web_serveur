@@ -45,7 +45,7 @@ const updateReponseSchema = Joi.object({
     delete: Joi.boolean().optional(),
     data: Joi.object({
         contenu: Joi.string().min(1).max(255).optional(),
-        est_bonne_reponse: Joi.boolean().optional()
+        est_bonne_reponse: Joi.number().integer(0,2).optional()
     }).required().min(1)
 });
 

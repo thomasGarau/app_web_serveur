@@ -290,12 +290,12 @@ const getNoteUtilisateurQuizz = async (id_quizz, id_utilisateur) => {
 };
 
 const addNoteUtilisateurPourQuizz = async (id_quizz, id_utilisateur, note) => {
-    const query = `
+    try {
+        const query = `
         INSERT INTO note_du_quizz (note, id_quizz, id_utilisateur)
         VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE note = VALUES(note)
-    `;
-    try {
+        `;
         await db.query(query, [note, id_quizz, id_utilisateur]);
         return { success: true, message: 'Note ajoutée avec succès.' };
     } catch (error) {

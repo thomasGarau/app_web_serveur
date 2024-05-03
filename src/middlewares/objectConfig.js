@@ -78,7 +78,7 @@ const responseForDelConfig = {
 const messageConfig = {
     generateOwnerQuery: (userId, objectId) => {
         return {
-            query: `SELECT COUNT(*) AS count
+            query: `SELECT *
                     FROM message
                     WHERE id_message = ? AND id_utilisateur = ?`,
             params: [objectId, userId]
@@ -104,7 +104,7 @@ const ueUserConfig = {
 const ueConfig = {
     generateOwnerQuery: (userId, objectId) => {
         return {
-          query : `SELECT COUNT(*) AS count
+          query : `SELECT *
             FROM utilisateur u
             JOIN enseignants_ue eu ON u.id_utilisateur = eu.id_utilisateur
             JOIN chapitre c ON eu.id_ue = c.id_ue
@@ -124,7 +124,7 @@ const coursConfig = {
 const userConfig = {
     generateOwnerQuery: (userId) => {
         return {
-            query: `SELECT COUNT(*) AS count
+            query: `SELECT *
                     FROM utilisateur
                     WHERE id_utilisateur = ?`,
             params: [userId]
@@ -134,9 +134,8 @@ const userConfig = {
 
 const noteQuizzConfig = {
     generateOwnerQuery: (userId, objectId) => {
-        console.log(userId, objectId)
         return {
-            query: `SELECT COUNT(*) AS count
+            query: `SELECT *
                     FROM note_quizz
                     WHERE id_note_quizz = ? AND id_utilisateur = ?`,
             params: [objectId, userId]

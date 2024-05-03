@@ -78,10 +78,8 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const userId = await getIdUtilisateurFromToken(token);
         const objectId = req.body[idParamName];
         const { query, params } = config.generateOwnerQuery(userId, objectId);
-
-        let [rows] = await db.query(query, params);
-
-        if (rows[0].count > 0) {
+        const [rows] = await db.query(query, params);
+        if (rows[0]) {
             next();
         } else {
             return res.status(403).send('Accès non autorisé.');

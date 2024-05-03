@@ -150,7 +150,6 @@ exports.ajouterNoteUtilisateurPourQuizz = async (req, res) => {
     try {
         const { quizz, note } = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-
         await quizzService.addNoteUtilisateurPourQuizz(quizz, utilisateur, note);
 
         res.status(201).send('Note ajoutée avec succès.');
@@ -262,7 +261,7 @@ exports.updateQuizz = async (req, res) => {
 exports.updateQuestion = async (req, res) => {
     try {
         const { question, data } = req.body;
-        await quizzService.updateQuestion(question, data);
+        await quizzService.updateQuestionAndReponses(question, data);
         return res.status(200).json({ message: "Question modifiée avec succès" });
     } catch (error) {
         console.error(error)
