@@ -713,7 +713,7 @@ const getNoteUtilisateurDonneeAuQuizz = async (id_quizz, id_utilisateur) => {
         if (rows.length > 0) {
             return rows[0].note;
         } else {
-            return "aucune note pour ce quizz de la part de l'utilisateur";
+            return [];
         }
     }catch(error) {
         throw error;
