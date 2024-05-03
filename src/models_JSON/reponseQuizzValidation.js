@@ -40,21 +40,22 @@ const updateQuizzSchema = Joi.object({
     }).required().min(1)
 });
 
+const updateReponseSchema = Joi.object({
+    reponse: Joi.number().integer().optional(),
+    delete: Joi.boolean().optional(),
+    data: Joi.object({
+        contenu: Joi.string().min(1).max(255).optional(),
+        est_bonne_reponse: Joi.number().integer(0,2).optional()
+    }).required().min(1)
+});
+
 const updateQuestionSchema = Joi.object({
     question: Joi.number().integer().required(),
     data: Joi.object({
         label: Joi.string().min(1).max(255).optional(),
         nombre_bonne_reponse: Joi.number().integer().optional(),
         type: Joi.string().min(1).max(255).optional(),
-        reponses: Joi.array().items(reponseSchema).min(2).optional()
-    }).required().min(1)
-});
-
-const updateReponseSchema = Joi.object({
-    reponse: Joi.number().integer().required(),
-    data: Joi.object({
-        contenu: Joi.string().min(1).max(255).optional(),
-        est_bonne_reponse: Joi.boolean().optional()
+        reponses: Joi.array().items(updateReponseSchema).min(2).optional()
     }).required().min(1)
 });
 

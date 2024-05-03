@@ -6,81 +6,98 @@ const bcrypt = require('bcrypt');
 // liste d'ue d'un utilisateur
 
 const useruelist = async (id_etudiant) => {
-    const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
-            FROM promotion
-            JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
-            JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
-            WHERE promotion.id_utilisateur = ?`;
-    const [rows] = await db.query(query, [id_etudiant] );
-    //nom du professeur associé à chaque ue de la liste des ue
-    for (let i = 0; i < rows.length; i++) {
-        const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
-                FROM utilisateur_valide
-                JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
-                WHERE enseignants_ue.id_ue = ?`;
-        const [rows2] = await db.query(query, [rows[i].id_ue] );
-        rows[i].enseignant = rows2;
-    }
+    try{
+        const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
+                FROM promotion
+                JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
+                JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
+                WHERE promotion.id_utilisateur = ?`;
+        const [rows] = await db.query(query, [id_etudiant] );
+        //nom du professeur associé à chaque ue de la liste des ue
+        for (let i = 0; i < rows.length; i++) {
+            const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
+                    FROM utilisateur_valide
+                    JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
+                    JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                    WHERE enseignants_ue.id_ue = ?`;
+            const [rows2] = await db.query(query, [rows[i].id_ue] );
+            rows[i].enseignant = rows2;
+        }
 
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucune ue pour cet utilisateur');
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucune ue pour cet utilisateur';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
+    
     }
 }
 
 // liste des ue ainsi que le nom de chaque enseignant associé
 const uelist = async () => {
-    const [rows] = await db.query('SELECT * FROM ue');
-    //nom du professeur associé à chaque ue de la liste des ue
-    for (let i = 0; i < rows.length; i++) {
-        const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
-                FROM utilisateur_valide
-                JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
-                WHERE enseignants_ue.id_ue = ?`;
-        const [rows2] = await db.query(query, [rows[i].id_ue] );
-        rows[i].enseignant = rows2;
-    }
-    
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucune ue');
+    try {
+        const [rows] = await db.query('SELECT * FROM ue');
+        //nom du professeur associé à chaque ue de la liste des ue
+        for (let i = 0; i < rows.length; i++) {
+            const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
+                    FROM utilisateur_valide
+                    JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
+                    JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                    WHERE enseignants_ue.id_ue = ?`;
+            const [rows2] = await db.query(query, [rows[i].id_ue] );
+            rows[i].enseignant = rows2;
+        }
+        
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucune ue';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
     }
 }
 
 // liste des ue d'une formation
 
 const formationuelist = async (id_formation) => {
-    const query =`SELECT ue.id_ue, ue.label ,ue.path
-                    FROM formation JOIN formation_ue 
-                    ON formation.id_formation = formation_ue.formation_id_formation 
-                    JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE formation.id_formation = ?`;
-    const [rows] = await db.query(query, [id_formation] );
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucune ue pour cette formation');
+    try{
+        const query =`SELECT ue.id_ue, ue.label ,ue.path
+                        FROM formation JOIN formation_ue 
+                        ON formation.id_formation = formation_ue.formation_id_formation 
+                        JOIN ue ON formation_ue.ue_id_ue = ue.id_ue WHERE formation.id_formation = ?`;
+        const [rows] = await db.query(query, [id_formation] );
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucune ue pour cette formation';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
     }
 }
 
 // liste des chapitres d'une ue
 const chapitreuelist = async (id_ue) => {
-    const query =`SELECT chapitre.id_chapitre, chapitre.label
-                    FROM chapitre
-                    JOIN ue ON chapitre.id_ue = ue.id_ue
-                    WHERE ue.id_ue = ?`;
-    const [rows] = await db.query(query, [id_ue] );
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucun chapitre pour cette ue');
+    try{
+        const query =`SELECT chapitre.id_chapitre, chapitre.label
+                        FROM chapitre
+                        JOIN ue ON chapitre.id_ue = ue.id_ue
+                        WHERE ue.id_ue = ?`;
+        const [rows] = await db.query(query, [id_ue] );
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucun chapitre pour cette ue';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des chapitres');
     }
 }
 

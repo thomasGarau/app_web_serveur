@@ -5,23 +5,31 @@ const bcrypt = require('bcrypt');
 
 //liste des cours d'un chapitre
 const courlist = async (id_chapitre) => {
-    const [rows] = await db.query('SELECT * FROM cours WHERE id_chapitre = ?' , [id_chapitre]);
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucun cours pour ce chapitre');
+    try{
+        const [rows] = await db.query('SELECT * FROM cours WHERE id_chapitre = ?' , [id_chapitre]);
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+           return 'Aucun cours pour ce chapitre';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des cours');
     }
 }
 
 // cours par id 
 const courById = async (id_study) => {
-    const [rows] = await db.query('SELECT * FROM cours WHERE id_cours = ?' , [id_study]);
-    if (rows.length > 0){
-        return rows;
-    }
-    else {
-        throw new Error('Aucun cours avec cet id');
+    try{
+        const [rows] = await db.query('SELECT * FROM cours WHERE id_cours = ?' , [id_study]);
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucun cours avec cet id';
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération du cours');
     }
 }
 
@@ -39,8 +47,7 @@ const addcour = async (id_study,label,contenu,id_chapitre) => {
 // supprimer un cours
 const deletecour = async (id_study,role) => {
     try{
-            await db.query('DELETE FROM cours WHERE id_cours = ?', [id_study]);
-        
+        await db.query('DELETE FROM cours WHERE id_cours = ?', [id_study]);
     }
     catch (err) {
         console.error(err);
@@ -51,8 +58,7 @@ const deletecour = async (id_study,role) => {
 // modifier un cours
 const updatecour = async (id_study, label, contenu, id_chapitre) => {
     try {
-       
-            await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ? AND id_chapitre = ?', [contenu, label, id_study, id_chapitre]);
+        await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ? AND id_chapitre = ?', [contenu, label, id_study, id_chapitre]);
     } catch (err) {
         console.error(err);
         throw new Error('Erreur durant la modification');

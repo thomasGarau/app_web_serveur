@@ -3,24 +3,49 @@ const bcrypt = require('bcrypt');
 
 const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
 const { schemaInteraction } = require('../models_JSON/trackingDataValidation.js')
+const { updateUserSchema } = require('../models_JSON/userValidation.js');
+
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)
-            .isLength({ min: 1, max: 500 })
-            .trim();
+            .if(body(fieldName).isString()) // Condition pour appliquer la validation seulement si c'est une chaîne
+            .matches(/^[a-zA-Z0-9 ]*$/).withMessage(`${fieldName} must contain only alphanumeric characters and spaces.`)
+            .isLength({ min: 1, max: 500 }).withMessage(`${fieldName} must be between 1 and 500 characters.`)
+            .bail() // Arrête les validations si une des précédentes échoue
+            .if(body(fieldName).isNumeric()) // Condition pour appliquer la validation seulement si c'est numérique
+            .isInt({ min: -2147483648, max: 2147483647 }).withMessage(`${fieldName} must be a 32-bit integer.`)
     });
+};
+
+const handleValidationErrors = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    next();
 };
 
 // Validation pour l'email
 const validateEmail = () => {
-    return body('email').isEmail().normalizeEmail({gmail_remove_dots: false});
+    return body('email').optional().isEmail().normalizeEmail({gmail_remove_dots: false});
+};
+
+const validateRegistrationFields = (req, res, next) => {
+    // Vérifie si les champs email et password sont présents
+    if (!req.body.email || !req.body.password) {
+        return res.status(400).json({ message: "Les champs email et password sont obligatoires." });
+    }
+    // Si les champs sont présents, passe au middleware suivant
+    //car les autres middleware prennent les champs en optional pour la route d'update
+    next();
 };
 
 // Validation pour le mot de passe
 const validatePassword = () => {
     return [
         body('password')
+            .optional()
             .isLength({ min: 12, max: 50 })
             .withMessage('Le mot de passe doit contenir entre 12 et 50 caractères.')
             .matches(/[A-Z]/)
@@ -37,9 +62,14 @@ const validatePassword = () => {
 };
 
 const hashPassword = () => {
-    return body('password').customSanitizer(async (password) => {
-        return await bcrypt.hash(password, 10);
-    })
+    return [
+        body('password').if((value, { req }) => value !== undefined).customSanitizer(async (password) => {
+            if (password) {
+                return await bcrypt.hash(password, 10);
+            }
+            return password;
+        })
+    ];
 };
 
 const validate = (req, res, next) => {
@@ -107,8 +137,18 @@ const validateJtrackingType = (req, res, next) => {
     next();
 };
 
+const updateUserType = (req, res, next) => {
+    const { error } = updateUserSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
 module.exports = {
     validate,
+    validateRegistrationFields,
+    handleValidationErrors,
     validateField,
     validateEmail,
     validatePassword,
@@ -127,3 +167,7 @@ module.exports.quizzValidation = {
 module.exports.jMethode = {
     validateJtrackingType
 }
+
+module.exports.userValidation = {
+    updateUserType
+};

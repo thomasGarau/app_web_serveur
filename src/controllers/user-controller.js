@@ -67,3 +67,15 @@ exports.getUserInfo = async (req,res) => {
     }
 };
 
+exports.updateUser = async (req,res) => {
+    try{
+        const {nom, prenom, date_naissance, password, email} = req.body;
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        await userService.updateUser(userId, nom, prenom, date_naissance, password, email);
+        res.status(200).send('Utilisateur mis à jour');
+    }catch(err){
+        console.error(err);
+        res.send(500).send(err);
+    }
+};
+
