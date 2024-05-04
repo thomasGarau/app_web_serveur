@@ -106,7 +106,7 @@ const messageListQuizz = async (id_quizz) => {
         else {
             throw new Error('Aucun message disponible');
         }
-        }
+    }
     catch (err) {
         console.error(err);
         throw new Error('erreur durant la récupération des messages');
@@ -116,11 +116,13 @@ const messageListQuizz = async (id_quizz) => {
 
 // liste des messages forums cours
 
-const messageListCours = async (id_forum) => {
+const messageListCours = async (id_cours) => {
     try{
         //Faire une jointure pour obtenir le nom, le prenom de l'utilisateur et la date de creation du forum_cours
-        const query = `SELECT nom,prenom,date 
-                        FROM forum_cours fc INNER JOIN forum f ON fc.id_forum = f.id_forum 
+        const query = `SELECT nom,prenom,date,id_forum_cours, ch.id_chapitre,ch.label
+                        FROM forum_cours fc INNER JOIN cours c ON c.id_cours = fc.id_cours 
+                        INNER JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre 
+                        INNER JOIN forum f ON fc.id_forum = f.id_forum 
                         INNER JOIN utilisateur u ON f.id_utilisateur = u.id_utilisateur 
                         INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
                         WHERE fc.id_cours = ?`;
@@ -130,9 +132,11 @@ const messageListCours = async (id_forum) => {
             throw new Error('Aucun responsable disponible');
         }
         else {
-            const rows1date = convertDate(forum[0].date);
-            forum[0].date = rows1date.thedate;
-            forum[0].heure = rows1date.heure;
+            for (let i=0; i<forum.length; i++){
+                const rows1date = convertDate(forum[i].date);
+                forum[i].date = rows1date.thedate;
+                forum[i].heure = rows1date.heure;
+            }
         }
         // selectionner tous les messages d'un forum cours specifique
         const query2 = 'SELECT * FROM message m JOIN forum_cours fc ON m.id_forum = fc.id_forum JOIN cours c ON fc.id_cours = c.id_cours WHERE c.id_cours = ?'
@@ -196,13 +200,12 @@ const messageListCoursChapitre = async (id_chapitre) => {
     }
 }
 
-// forum pour un quizz et forum pour cours
 
 // liste des forums pour un cours donné
 
-const forumListCours = async (id_cours) => {
+const forumListCours = async (id_chapitre) => {
     try{
-        const [rows] = await db.query('SELECT * FROM forum_cours WHERE id_cours = ?', [id_cours]);
+        const [rows] = await db.query('SELECT * FROM forum_cours fc JOIN cours c ON fc.id_cours = c.id_cours JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre WHERE ch.id_chapitre = ?', [id_chapitre]);
         
         for (let i=0; i<rows.length; i++){
             const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[i].id_forum);
@@ -218,6 +221,21 @@ const forumListCours = async (id_cours) => {
     }catch(error) {
         throw new Error('erreur dans la récupération des forums');
     
+    }
+}
+
+const forumListChapitre = async () => {
+    try{
+        const [rows] = await db.query('SELECT id_forum_cours, id_forum, fc.id_cours,ch.id_chapitre,ch.label FROM forum_cours fc INNER JOIN cours c ON fc.id_cours = c.id_cours INNER JOIN chapitre ch ON ch.id_chapitre = c.id_chapitre');
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucun forum disponible';
+        }
+    }
+    catch(error){
+        throw new Error('erreur dans la récupération des forums');
     }
 }
 
@@ -254,6 +272,7 @@ module.exports = {
     messageListCours,
     messageListCoursChapitre,
     forumListCours,
-    forumListQuizz
+    forumListQuizz,
+    forumListChapitre
 }
 

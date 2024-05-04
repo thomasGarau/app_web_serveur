@@ -120,8 +120,20 @@ exports.messageListCoursChapitre = (async (req,res) => {
 
 exports.forumListCours = (async (req,res) => {
     try {
-        const {id_cours} = req.body;
-        const forums = await chatService.forumListCours(id_cours);
+        const {id_chapitre} = req.body;
+        const forums = await chatService.forumListCours(id_chapitre);
+        res.status(200).send(forums);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la récupération des forums');
+    }
+})
+
+//liste des forums pour tous les chapitres
+
+exports.forumListChapitre = (async (req,res) => {
+    try {
+        const forums = await chatService.forumListChapitre();
         res.status(200).send(forums);
     } catch (err) {
         console.error(err);
