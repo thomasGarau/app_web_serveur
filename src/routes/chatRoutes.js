@@ -11,8 +11,8 @@ router.post('/chat-cours', [validateField('id_cours'), handleValidationErrors, v
 router.post('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre')], messageListCoursChapitre);
 
 // router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
-router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','id_forum','heure'), handleValidationErrors], addMessage);
-router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','heure','id_forum'), handleValidationErrors,  verifyOwnerOrAdmin], updateMessage);
+router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','id_forum'), handleValidationErrors], addMessage);
+router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','id_forum'), handleValidationErrors,  verifyOwnerOrAdmin], updateMessage);
 router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message'), handleValidationErrors ,verifyOwnerOrAdmin], deleteMessage);
 router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], forumListCours);
 router.get('/forum-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist], forumListChapitre);

@@ -4,9 +4,10 @@ const db = require('../../config/database.js');
 
 // sauvegarder un message 
 
-const saveMessage = async (contenu,id_forum,heure,id_etudiant) => {
+const saveMessage = async (contenu,id_forum,id_etudiant) => {
     try{
         const date = new Date();
+        const heure = date.getHours() + ':' + date.getMinutes();
         await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?)', [contenu,date,id_forum,heure,id_etudiant]);
     }
     catch (err) {
@@ -35,10 +36,11 @@ const deleteMessage = async (id_message,role,id_etudiant) => {
 
 // modifier un message
 
-const updateMessage = async (id_message,contenu,heure,id_forum,id_etudiant) => {
+const updateMessage = async (id_message,contenu,id_forum,id_etudiant) => {
     
     try{
         const date = new Date();
+        const heure = date.getHours() + ':' + date.getMinutes();
         await db.query('UPDATE message SET contenu = ?, date = ?, heure = ?, id_forum = ?, id_utilisateur = ? WHERE id_message = ?', [contenu,date,heure,id_forum,id_etudiant,id_message]);
     }
     catch (err) {
