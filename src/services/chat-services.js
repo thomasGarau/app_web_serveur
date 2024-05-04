@@ -190,7 +190,7 @@ const convertDate = (date) => {
     const theDate = new Date(date);
     console.log("vuy",theDate);
     const heure = dateStrings.split('T')[1].split('.')[0];
-    const thedate = theDate.toISOString().split('T')[0];
+    const thedate = theDate.toLocaleDateString()
 
     return { thedate, heure };
 }
@@ -283,8 +283,9 @@ const forumListQuizz = async (id_quizz) => {
 
 const forumList = async (id_forum) => {
     try{
+        
         const query = `SELECT f.id_forum AS forum_id_forum, m.id_message, 
-                        m.id_utilisateur AS message_id_utilisateur,m.date as message_date, 
+                        m.id_utilisateur AS message_id_utilisateur,m.date as message_date, m.heure as message_heure,
                         m.contenu AS message_contenu, uv.num_etudiant, uv.nom, uv.prenom, uv.role, uv.id_universite 
                         FROM forum f INNER JOIN message m ON f.id_forum = m.id_forum 
                         INNER JOIN utilisateur u ON m.id_utilisateur = u.id_utilisateur 
@@ -299,15 +300,20 @@ const forumList = async (id_forum) => {
                         INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
                         WHERE f.id_forum = ?`;
         const [rows] = await db.query(query, [id_forum]);
+        console.log(rows,"test");
+        console.log(rows[0].message_date, rows[0].message_heure, "test1")
         const [forum_informations] = await db.query(query2, [id_forum]);
         
         if (rows.length > 0){
             rows.forEach(row => {
                 if (row.message_date) {
+                    console.log(row.message_date, row.message_heure, "test2")
                     const date = convertDate(row.message_date);
                     row.message_date = date.thedate;
-                    row.message_heure = date.heure;
+                    if(row.message_heure === null){
+                        row.message_heure = date.heure;
                 }
+            }
             });
             forum_informations.forEach(row => {
                 if (row.forum_date) {
@@ -384,6 +390,16 @@ const deleteForum = async (id_forum) => {
     }
 }
 
+const forumClose = async (id_forum) => {
+    try{
+        await db.query('UPDATE forum SET etat = 0 WHERE id_forum = ?', [id_forum]);
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant la fermeture');
+    }
+}
+
 
 
 module.exports = {
@@ -401,6 +417,7 @@ module.exports = {
     addForumCours,
     addForumQuizz,
     updateForum,
-    deleteForum
+    deleteForum,
+    forumClose
 }
 

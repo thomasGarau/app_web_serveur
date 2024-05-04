@@ -217,3 +217,16 @@ exports.deleteForum = (async (req,res) => {
         res.status(500).send('Echec de la suppression');
     }
 })
+
+exports.forumClose = (async (req,res) => {
+    try{
+        const {id_forum} = req.body;
+        await chatService.forumClose(id_forum);
+        res.status(200).send('Fermeture réussie');
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la fermeture');
+    }
+})
+
