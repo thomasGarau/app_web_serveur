@@ -400,6 +400,16 @@ const forumClose = async (id_forum) => {
     }
 }
 
+const forumOpen = async (id_forum) => {
+    try{
+        await db.query('UPDATE forum SET etat = 1 WHERE id_forum = ?', [id_forum]);
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant l ouverture');
+    }
+}
+
 
 
 module.exports = {
@@ -418,6 +428,7 @@ module.exports = {
     addForumQuizz,
     updateForum,
     deleteForum,
-    forumClose
+    forumClose,
+    forumOpen
 }
 
