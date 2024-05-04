@@ -8,7 +8,7 @@ const saveMessage = async (contenu,id_forum,id_etudiant) => {
     try{
         const date = new Date();
         const heure = date.getHours() + ':' + date.getMinutes();
-        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?)', [contenu,date,id_forum,heure,id_etudiant]);
+        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_etudiant, heure]);
     }
     catch (err) {
         console.error(err);
