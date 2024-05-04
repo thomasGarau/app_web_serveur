@@ -328,10 +328,32 @@ const forumList = async (id_forum) => {
     }
 }
 
-const addForum = async (label,etat,id_utilisateur) => {
+const addForumCours = async (label,etat,id_cours,contenu,id_utilisateur) => {
+    try{
+        const date = new Date(); 
+        const heure = date.getHours() + ':' + date.getMinutes();   
+        const [rows] =  await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
+        const id_forum = rows.insertId;
+        console.log(id_forum);
+        await db.query('INSERT INTO forum_cours(id_forum,id_cours) VALUES(?,?)', [id_forum,id_cours]);
+        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_utilisateur,heure]);
+        
+
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant l ajout');
+    }
+}
+
+const addForumQuizz = async (label,etat,id_quizz,contenu,id_utilisateur) => {
     try{
         const date = new Date();    
+        const heure = date.getHours() + ':' + date.getMinutes();
         await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
+        const id_forum = rows.insertId;
+        await db.query('INSERT INTO forum_quizz(id_forum,id_quizz) VALUES(?,?)', [id_forum,id_quizz]);
+        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_utilisateur,heure]);
     }
     catch (err) {
         console.error(err);
@@ -374,7 +396,8 @@ module.exports = {
     forumListQuizz,
     forumListChapitre,
     forumList,
-    addForum,
+    addForumCours,
+    addForumQuizz,
     updateForum,
     deleteForum
 }

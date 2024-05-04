@@ -1,5 +1,6 @@
 const chatService = require('../services/chat-services');
 const jwt = require('jsonwebtoken');
+const {getIdUtilisateurFromToken} = require('../services/user-service');
 
 
 
@@ -167,10 +168,25 @@ exports.forumList = (async (req,res) => {
     }
 })
 
-exports.addForum = (async (req,res) => {
+exports.addForumCours = (async (req,res) => {
     try {
-        const {label,etat,id_utilisateur} = req.body;
-        await chatService.addForum(label,etat,id_utilisateur);
+        const token = req.headers.authorization.split(' ')[1];
+        const id_utilisateur = await getIdUtilisateurFromToken(token);
+        const {label,etat,id_cours,contenu} = req.body;
+        await chatService.addForumCours(label,etat,id_cours,contenu,id_utilisateur);
+        res.status(200).send('Ajout réussi');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de l ajout');
+    }
+})
+
+exports.addForumQuizz = (async (req,res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const id_utilisateur = await getIdUtilisateurFromToken(token);
+        const {label,etat,id_quizz,contenu} = req.body;
+        await chatService.addForumQuizz(label,etat,id_quizz,contenu,id_utilisateur);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);
@@ -180,7 +196,9 @@ exports.addForum = (async (req,res) => {
 
 exports.updateForum = (async (req,res) => {
     try {
-        const {id_forum,label,etat,id_utilisateur} = req.body;
+        const token = req.headers.authorization.split(' ')[1];
+        const id_utilisateur = await getIdUtilisateurFromToken(token);
+        const {id_forum,label,etat} = req.body;
         await chatService.updateForum(id_forum,label,etat,id_utilisateur);
         res.status(200).send('Modification réussie');
     } catch (err) {
