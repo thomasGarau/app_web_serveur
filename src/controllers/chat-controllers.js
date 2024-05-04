@@ -230,3 +230,14 @@ exports.forumClose = (async (req,res) => {
     }
 })
 
+exports.forumOpen = (async (req,res) => {
+    try{
+        const {id_forum} = req.body;
+        await chatService.forumOpen(id_forum);
+        res.status(200).send('Ouverture réussie');
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de l ouverture');
+    }
+})

@@ -18,6 +18,13 @@ const validateField = (...fieldNames) => {
     });
 };
 
+const exceptionField = (...fieldNames) => {
+    return fieldNames.map(fieldName => {
+        return body(fieldName)
+            .if(body(fieldName).isString()) // Condition pour appliquer la validation seulement si c'est une chaîne
+    });
+};
+
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -150,6 +157,7 @@ module.exports = {
     validateRegistrationFields,
     handleValidationErrors,
     validateField,
+    exceptionField,
     validateEmail,
     validatePassword,
     hashPassword

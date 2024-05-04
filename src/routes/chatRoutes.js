@@ -1,6 +1,6 @@
 const express = require('express');
 const { verifyTokenBlacklist, verifyAuthorisation } = require('../middlewares/verifyAuthorisation');
-const { handleValidationErrors, validateField } = require('../middlewares/sanitizeInput');
+const { handleValidationErrors, validateField,exceptionField } = require('../middlewares/sanitizeInput');
 const router = express.Router();
 const { verifyOwnerOrAdmin } = require('../middlewares/verifyAuthorisation');
 const { forumListCours,forumListQuizz,messageList,messageListQuizz,messageListCours,messageListCoursChapitre, addMessage, updateMessage, deleteMessage,forumListChapitre,forumList,addForumCours,addForumQuizz,updateForum,deleteForum,forumClose,forumOpen } = require('../controllers/chat-controllers');
@@ -11,8 +11,8 @@ router.post('/chat-cours', [validateField('id_cours'), handleValidationErrors, v
 router.post('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre')], messageListCoursChapitre);
 
 // router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
-router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','id_forum'), handleValidationErrors], addMessage);
-router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','id_forum'), handleValidationErrors,  verifyOwnerOrAdmin], updateMessage);
+router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('id_forum'), handleValidationErrors], addMessage);
+router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'),validateField('id_message','id_forum'), handleValidationErrors,  verifyOwnerOrAdmin], updateMessage);
 router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message'), handleValidationErrors ,verifyOwnerOrAdmin], deleteMessage);
 router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], forumListCours);
 router.get('/forum-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist], forumListChapitre);
@@ -21,8 +21,8 @@ router.post('/forum', [verifyAuthorisation, verifyTokenBlacklist,validateField('
 router.post('/forum-close', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin], forumClose);
 router.post('/forum-open', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin], forumOpen);
 
-router.post('/add-forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('label','id_cours','contenu'), handleValidationErrors], addForumCours);
-router.post('/add-forum-quizz', [verifyAuthorisation, verifyTokenBlacklist, validateField('label','id_quizz','contenu'), handleValidationErrors], addForumQuizz);
+router.post('/add-forum-cours', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('label','id_cours'), handleValidationErrors], addForumCours);
+router.post('/add-forum-quizz', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('label','id_quizz'), handleValidationErrors], addForumQuizz);
 router.post('/update-forum', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_forum','label','etat'), handleValidationErrors, verifyOwnerOrAdmin], updateForum);
 router.post('/delete-forum', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin], deleteForum);
 
