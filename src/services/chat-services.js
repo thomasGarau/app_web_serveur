@@ -213,12 +213,16 @@ const messageListCoursChapitre = async (id_chapitre) => {
 
 const forumListCours = async (id_chapitre) => {
     try{
-        const [rows] = await db.query('SELECT * FROM forum_cours fc JOIN cours c ON fc.id_cours = c.id_cours JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre WHERE ch.id_chapitre = ?', [id_chapitre]);
-        
-        for (let i=0; i<rows.length; i++){
-            const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[i].id_forum);
-            rows[i].forum = rows3;
-        }
+        const query = `
+        SELECT fc.*, uv.nom, uv.prenom, f.*
+        FROM forum_cours fc
+        JOIN cours c ON fc.id_cours = c.id_cours
+        JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre
+        JOIN forum f ON fc.id_forum = f.id_forum
+        JOIN utilisateur u ON f.id_utilisateur = u.id_utilisateur 
+        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        WHERE ch.id_chapitre = ?;`;
+        const [rows] = await db.query(query, [id_chapitre]);
         
         if (rows.length > 0){
             return rows;
@@ -251,12 +255,16 @@ const forumListChapitre = async () => {
 
 const forumListQuizz = async (id_quizz) => {
     try{
-        const [rows] = await db.query('SELECT * FROM forum_quizz WHERE id_quizz = ?', [id_quizz]);
+        const query = `
+        SELECT fq.*, uv.nom, uv.prenom, f.*
+        FROM forum_quizz fq
+        JOIN quizz q ON fq.id_quizz = q.id_quizz
+        JOIN forum f ON fq.id_forum = f.id_forum
+        JOIN utilisateur u ON f.id_utilisateur = u.id_utilisateur 
+        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        WHERE fq.id_quizz = ?;`;
 
-        for (let i=0; i<rows.length; i++){
-            const [rows3] = await db.query('SELECT * FROM forum where id_forum = ?', rows[i].id_forum);
-            rows[i].forum = rows3;
-        }
+        const [rows] = await db.query(query, [id_quizz]);
 
         if (rows.length > 0){
             return rows;
