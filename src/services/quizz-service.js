@@ -374,13 +374,13 @@ const getAnnotationsPourQuestion = async (id_question) => {
 };
 
 
-const ajouterReponsesUtilisateurAuQuizz = async (idQuizz, idUtilisateur, reponses) => {
+const ajouterReponsesUtilisateurAuQuizz = async (date, idQuizz, idUtilisateur, reponses) => {
     const connection = await db.getConnection()
     try {
         await connection.beginTransaction();
         const [noteQuizz] = await connection.query(
-            `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (CURDATE(), 0, ?, ?)`,
-            [idQuizz, idUtilisateur]
+            `INSERT INTO note_quizz (date, note, id_quizz, id_utilisateur) VALUES (?, 0, ?, ?)`,
+            [date, idQuizz, idUtilisateur]
         );
         const idNoteQuizz = noteQuizz.insertId;
 

@@ -207,7 +207,8 @@ exports.ajouterReponseUtilisateurAuQuizz = async (req, res) => {
     try {
         const { quizz, data } = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const note_quizz = await quizzService.ajouterReponsesUtilisateurAuQuizz(quizz, utilisateur, data);
+        const date = new Date();
+        const note_quizz = await quizzService.ajouterReponsesUtilisateurAuQuizz(date, quizz, utilisateur, data);
         const {idNoteQuizz, noteFinale, details} = await quizzService.createResultatQuizz(quizz, note_quizz, data)
         await quizzService.enregistrerResultatQuizz(idNoteQuizz, noteFinale);
         return res.status(200).json({ message: "Réponses ajoutées avec succès", resultat: details });
