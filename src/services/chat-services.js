@@ -78,9 +78,11 @@ const messageListQuizz = async (id_quizz) => {
             throw new Error('Aucun responsable disponible');
         }
         else {
-            const rows1date = convertDate(forum[0].date);
-            forum[0].date = rows1date.thedate;
-            forum[0].heure = rows1date.heure;
+            for (let i=0; i<forum.length; i++){
+                const rows1date = convertDate(forum[i].date);
+                forum[i].date = rows1date.thedate;
+                forum[i].heure = rows1date.heure;
+        }
         }
         // selectionner tous les messages d'un forum quizz specifique
         const query2 = 'SELECT * FROM message m JOIN forum_quizz fq ON m.id_forum = fq.id_forum JOIN quizz q ON fq.id_quizz = q.id_quizz WHERE q.id_quizz = ?'
@@ -309,7 +311,9 @@ const forumList = async (id_forum) => {
                 if (row.forum_date) {
                     const date = convertDate(row.forum_date);
                     row.forum_date = date.thedate;
-                    row.forum_heure = date.heure;
+                    if(row.forum_heure === null){
+                        row.forum_heure = date.heure;
+                     }
                 }
             });
             return {messages : rows, forum_information: forum_informations[0]};
@@ -322,8 +326,9 @@ const forumList = async (id_forum) => {
     }
 }
 
-const addForum = async (label,date,etat,id_utilisateur) => {
+const addForum = async (label,etat,id_utilisateur) => {
     try{
+        const date = new Date();    
         await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
     }
     catch (err) {
@@ -334,6 +339,7 @@ const addForum = async (label,date,etat,id_utilisateur) => {
 
 const updateForum = async (id_forum,label,date,etat,id_utilisateur) => {
     try{
+        const date = new Date();
         await db.query('UPDATE forum SET label = ?, date = ?, etat = ?, id_utilisateur = ? WHERE id_forum = ?', [label,date,etat,id_utilisateur,id_forum]);
     }
     catch (err) {

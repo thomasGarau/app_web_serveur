@@ -169,8 +169,8 @@ exports.forumList = (async (req,res) => {
 
 exports.addForum = (async (req,res) => {
     try {
-        const {label,date,etat,id_utilisateur} = req.body;
-        await chatService.addForum(label,date,etat,id_utilisateur);
+        const {label,etat,id_utilisateur} = req.body;
+        await chatService.addForum(label,etat,id_utilisateur);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);
@@ -180,8 +180,8 @@ exports.addForum = (async (req,res) => {
 
 exports.updateForum = (async (req,res) => {
     try {
-        const {id_forum,label,date,etat,id_utilisateur} = req.body;
-        await chatService.updateForum(id_forum,label,date,etat,id_utilisateur);
+        const {id_forum,label,etat,id_utilisateur} = req.body;
+        await chatService.updateForum(id_forum,label,etat,id_utilisateur);
         res.status(200).send('Modification réussie');
     } catch (err) {
         console.error(err);
