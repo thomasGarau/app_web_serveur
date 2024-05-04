@@ -3,6 +3,21 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 
+const ChapitreById = async (id_chapitre) => {
+    try{
+        const [rows] = await db.query('SELECT * FROM chapitre WHERE id_chapitre = ?', [id_chapitre]);
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return 'Aucun chapitre disponible';
+        }
+    }
+    catch(error){
+        throw new Error('erreur dans la récupération des chapitres');
+    }
+}
+
 //liste des cours d'un chapitre
 const courlist = async (id_chapitre) => {
     try{
@@ -71,5 +86,6 @@ module.exports = {
     courById,
     addcour,
     deletecour,
-    updatecour
+    updatecour,
+    ChapitreById
 }

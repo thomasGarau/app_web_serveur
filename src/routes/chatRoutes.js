@@ -9,6 +9,7 @@ const { forumListCours,forumListQuizz,messageList,messageListQuizz,messageListCo
 router.post('/chat-quizz', [validateField('id_quizz'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], messageListQuizz);
 router.post('/chat-cours', [validateField('id_cours'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], messageListCours);
 router.post('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre')], messageListCoursChapitre);
+
 // router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
 router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('contenu','date','id_forum'), handleValidationErrors], addMessage);
 router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_message','contenu','date','id_forum'), handleValidationErrors,  verifyOwnerOrAdmin], updateMessage);

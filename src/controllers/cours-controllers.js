@@ -1,6 +1,18 @@
 const coursService = require('../services/cours-services');
 const jwt = require('jsonwebtoken');
 
+exports.ChapitreById = (async (req,res) => {
+    try{
+        const {id_chapitre} = req.body;
+        const chapitre = await coursService.ChapitreById(id_chapitre);
+        res.status(200).send(chapitre);
+    }
+    catch (err){
+        console.error(err);
+        res.status(500).send('Echec de la récupération du chapitre');
+    }
+})
+
 // liste des cours d'un chapitre
 
 exports.courlist = (async (req,res) => {

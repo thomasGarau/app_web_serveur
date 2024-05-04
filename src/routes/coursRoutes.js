@@ -6,10 +6,11 @@ const {verifyIsAdministration} = require('../middlewares/verifyAuthorisation');
 const {verifyOwner} = require('../middlewares/verifyAuthorisation');
 const {coursConfig} = require('../middlewares/objectConfig.js');
 const {ueConfig} = require('../middlewares/objectConfig.js');
-const { courlist, courById, addcours, updatecours, deletecours } = require('../controllers/cours-controllers');
+const { courlist, courById, addcours, updatecours, deletecours,ChapitreById } = require('../controllers/cours-controllers');
 
 router.post('/allcours-chapitre',[validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist] , courlist); // les etudiants peuvent voir les cours
 router.post('/cours-id',[validateField('id_study'), handleValidationErrors, verifyAuthorisation], courById);
+router.post('/getChapitreById', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], ChapitreById);
 
 router.post('/add-cours', [validateField('id_study','label','contenu','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist], addcours);
 router.post('/update-cours',[validateField('id_study','label','contenu','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
