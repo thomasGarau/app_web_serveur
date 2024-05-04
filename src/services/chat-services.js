@@ -4,9 +4,10 @@ const db = require('../../config/database.js');
 
 // sauvegarder un message 
 
-const saveMessage = async (contenu,date,id_forum,id_etudiant) => {
+const saveMessage = async (contenu,id_forum,heure,id_etudiant) => {
     try{
-        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur) VALUES(?,?,?,?)', [contenu,date,id_forum,id_etudiant]);
+        const date = new Date();
+        await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?)', [contenu,date,id_forum,heure,id_etudiant]);
     }
     catch (err) {
         console.error(err);
@@ -34,9 +35,11 @@ const deleteMessage = async (id_message,role,id_etudiant) => {
 
 // modifier un message
 
-const updateMessage = async (id_message,contenu,date,id_forum,id_etudiant) => {
+const updateMessage = async (id_message,contenu,heure,id_forum,id_etudiant) => {
+    
     try{
-        await db.query('UPDATE message SET contenu = ?, date = ?, id_forum = ?, id_utilisateur = ? WHERE id_message = ?', [contenu,date,id_forum,id_etudiant,id_message]);
+        const date = new Date();
+        await db.query('UPDATE message SET contenu = ?, date = ?, heure = ?, id_forum = ?, id_utilisateur = ? WHERE id_message = ?', [contenu,date,heure,id_forum,id_etudiant,id_message]);
     }
     catch (err) {
         console.error(err);
@@ -91,7 +94,10 @@ const messageListQuizz = async (id_quizz) => {
                     
                     const date = convertDate(row.date);
                     row.date = date.thedate;
-                    row.heure = date.heure;
+                    if(row.heure === null){
+                        row.heure = date.heure;
+                    }
+                   
                 }
             });
             for (let i=0; i<rows.length; i++){
@@ -150,7 +156,9 @@ const messageListCours = async (id_cours) => {
                     
                     const date = convertDate(row.date);
                     row.date = date.thedate;
-                    row.heure = date.heure;
+                    if(row.heure === null){
+                        row.heure = date.heure;
+                    }
                 }
             });
             for (let i=0; i<rows.length; i++){
@@ -261,6 +269,81 @@ const forumListQuizz = async (id_quizz) => {
     }
 }
 
+const forumList = async (id_forum) => {
+    try{
+        const query = `SELECT f.id_forum AS forum_id_forum, m.id_message, 
+                        m.id_utilisateur AS message_id_utilisateur,m.date as message_date, 
+                        m.contenu AS message_contenu, uv.num_etudiant, uv.nom, uv.prenom, uv.role, uv.id_universite 
+                        FROM forum f INNER JOIN message m ON f.id_forum = m.id_forum 
+                        INNER JOIN utilisateur u ON m.id_utilisateur = u.id_utilisateur 
+                        INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
+                        WHERE f.id_forum = ?`;
+
+        const query2 = `SELECT f.id_forum AS forum_id_forum, f.label AS forum_label, 
+                        f.date AS forum_date, f.etat AS forum_etat, f.id_utilisateur AS forum_id_utilisateur,
+                        uv.num_etudiant, uv.nom, uv.prenom,uv.id_universite,uv.role 
+                        FROM forum f INNER JOIN message m ON f.id_forum = m.id_forum 
+                        INNER JOIN utilisateur u ON f.id_utilisateur = u.id_utilisateur 
+                        INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
+                        WHERE f.id_forum = ?`;
+        const [rows] = await db.query(query, [id_forum]);
+        const [forum_informations] = await db.query(query2, [id_forum]);
+        
+        if (rows.length > 0){
+            rows.forEach(row => {
+                if (row.message_date) {
+                    const date = convertDate(row.message_date);
+                    row.message_date = date.thedate;
+                    row.message_heure = date.heure;
+                }
+            });
+            forum_informations.forEach(row => {
+                if (row.forum_date) {
+                    const date = convertDate(row.forum_date);
+                    row.forum_date = date.thedate;
+                    row.forum_heure = date.heure;
+                }
+            });
+            return {messages : rows, forum_information: forum_informations[0]};
+        }   
+        else {
+            return 'Aucun forum disponible';
+        }
+    }catch(error){
+        throw new Error('erreur dans la récupération des forums');
+    }
+}
+
+const addForum = async (label,date,etat,id_utilisateur) => {
+    try{
+        await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant l ajout');
+    }
+}
+
+const updateForum = async (id_forum,label,date,etat,id_utilisateur) => {
+    try{
+        await db.query('UPDATE forum SET label = ?, date = ?, etat = ?, id_utilisateur = ? WHERE id_forum = ?', [label,date,etat,id_utilisateur,id_forum]);
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant la modification');
+    }
+}
+
+const deleteForum = async (id_forum) => {
+    try{
+        await db.query('DELETE FROM forum WHERE id_forum = ?', [id_forum]);
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('erreur durant la suppression');
+    }
+}
+
 
 
 module.exports = {
@@ -273,6 +356,10 @@ module.exports = {
     messageListCoursChapitre,
     forumListCours,
     forumListQuizz,
-    forumListChapitre
+    forumListChapitre,
+    forumList,
+    addForum,
+    updateForum,
+    deleteForum
 }
 

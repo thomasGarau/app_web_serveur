@@ -33,11 +33,11 @@ exports.messageByForum = (async (req,res) => {
 
 exports.addMessage = (async (req,res) => {
     try{
-        const {contenu,date,id_forum} = req.body;
+        const {contenu,id_forum,heure} = req.body;
         const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id_etudiant = token_decoded.id_etudiant;
-        await chatService.saveMessage(contenu,date,id_forum,id_etudiant);
+        await chatService.saveMessage(contenu,id_forum,heure,id_etudiant);
         res.status(200).send('Ajout réussi');
     }
     catch (err){
@@ -67,10 +67,10 @@ exports.deleteMessage = (async (req,res) => {
 
 exports.updateMessage = (async (req,res) => {
     try{
-        const {id_message,contenu,date,id_forum,token} = req.body;
+        const {id_message,contenu,heure,id_forum,token} = req.body;
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id_etudiant = token_decoded.id_etudiant;
-        await chatService.updateMessage(id_message,contenu,date,id_forum,id_etudiant);
+        await chatService.updateMessage(id_message,contenu,heure,id_forum,id_etudiant);
         res.status(200).send('Modification réussie');
     }
     catch (err) {
@@ -153,5 +153,49 @@ exports.forumListQuizz = (async (req,res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Echec de la récupération des forums');
+    }
+})
+
+exports.forumList = (async (req,res) => {
+    try {
+        const {id_forum} = req.body;
+        const forums = await chatService.forumList(id_forum);
+        res.status(200).send(forums);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la récupération des forums');
+    }
+})
+
+exports.addForum = (async (req,res) => {
+    try {
+        const {label,date,etat,id_utilisateur} = req.body;
+        await chatService.addForum(label,date,etat,id_utilisateur);
+        res.status(200).send('Ajout réussi');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de l ajout');
+    }
+})
+
+exports.updateForum = (async (req,res) => {
+    try {
+        const {id_forum,label,date,etat,id_utilisateur} = req.body;
+        await chatService.updateForum(id_forum,label,date,etat,id_utilisateur);
+        res.status(200).send('Modification réussie');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la modification');
+    }
+})
+
+exports.deleteForum = (async (req,res) => {
+    try {
+        const {id_forum} = req.body;
+        await chatService.deleteForum(id_forum);
+        res.status(200).send('Suppression réussie');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la suppression');
     }
 })
