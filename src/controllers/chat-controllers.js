@@ -172,8 +172,8 @@ exports.addForumCours = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const id_utilisateur = await getIdUtilisateurFromToken(token);
-        const {label,etat,id_cours,contenu} = req.body;
-        await chatService.addForumCours(label,etat,id_cours,contenu,id_utilisateur);
+        const {label,id_cours,contenu} = req.body;
+        await chatService.addForumCours(label,id_cours,contenu,id_utilisateur);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);
@@ -185,8 +185,8 @@ exports.addForumQuizz = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const id_utilisateur = await getIdUtilisateurFromToken(token);
-        const {label,etat,id_quizz,contenu} = req.body;
-        await chatService.addForumQuizz(label,etat,id_quizz,contenu,id_utilisateur);
+        const {label,id_quizz,contenu} = req.body;
+        await chatService.addForumQuizz(label,id_quizz,contenu,id_utilisateur);
         res.status(200).send('Ajout réussi');
     } catch (err) {
         console.error(err);
