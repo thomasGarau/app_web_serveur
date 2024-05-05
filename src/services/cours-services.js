@@ -26,7 +26,7 @@ const courlist = async (id_chapitre) => {
             return rows;
         }
         else {
-           return 'Aucun cours pour ce chapitre';
+           return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des cours');

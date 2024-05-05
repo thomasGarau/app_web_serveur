@@ -36,6 +36,41 @@ const useruelist = async (id_etudiant) => {
     }
 }
 
+const profUeList = async (id_prof) => {
+    try{
+        const query =`select *  from enseignants_ue
+        where id_utilisateur = ?`;
+        const [rows] = await db.query(query, [id_prof] );
+        console.log(id_prof);
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return [];
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
+    }
+}
+
+
+const ueInfo = async (id_ue) => {
+    try{
+        const query =`SELECT ue.id_ue, ue.label,ue.path
+                FROM ue
+                WHERE ue.id_ue = ?`;
+        const [rows] = await db.query(query, [id_ue] );
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return [];
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
+    }
+}
+
 // liste des ue ainsi que le nom de chaque enseignant associé
 const uelist = async () => {
     try {
@@ -240,6 +275,8 @@ const updatechapitre = async (id_chapitre,label) => {
 module.exports = {
     useruelist,
     uelist,
+    profUeList,
+    ueInfo,
     addue,
     deleteue,
     updateue,

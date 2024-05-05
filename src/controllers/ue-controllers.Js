@@ -29,6 +29,32 @@ exports.uelist = (async (req,res) => {
 }
 )
 
+exports.ueInfo = (async (req,res) => {
+    try {
+        const {id_ue} = req.body;
+        const ue = await ueService.ueInfo(id_ue);
+        res.status(200).send(ue)
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la récupération de l ue');
+    }
+}
+)
+
+exports.profUeList = (async (req,res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const id_prof = token_decoded.id_etudiant;
+        const ues = await ueService.profUeList(id_prof);
+        res.status(200).send(ues);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Echec de la récupération des ue');
+    }
+}
+)
+
 //liste des chapitre d'une ue
 exports.chapitreuelist = (async (req,res) => {
     try {
