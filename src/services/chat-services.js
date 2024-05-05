@@ -344,7 +344,7 @@ const addForumCours = async (label,id_cours,contenu,id_utilisateur) => {
         console.log(id_forum);
         await db.query('INSERT INTO forum_cours(id_forum,id_cours) VALUES(?,?)', [id_forum,id_cours]);
         await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_utilisateur,heure]);
-        
+        return {id_forum};
 
     }
     catch (err) {
@@ -358,10 +358,11 @@ const addForumQuizz = async (label,id_quizz,contenu,id_utilisateur) => {
         const etat = 1;
         const date = new Date();    
         const heure = date.getHours() + ':' + date.getMinutes();
-        await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
+        const [rows] = await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
         const id_forum = rows.insertId;
         await db.query('INSERT INTO forum_quizz(id_forum,id_quizz) VALUES(?,?)', [id_forum,id_quizz]);
         await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_utilisateur,heure]);
+        return {id_forum};
     }
     catch (err) {
         console.error(err);
