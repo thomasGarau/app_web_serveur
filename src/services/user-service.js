@@ -14,7 +14,7 @@ const authenticateUser = async (num_etudiant, password) => {
 
 const registerUser = async (email, mdp) => {
     const query = `
-    SELECT uv.num_etudiant
+    SELECT uv.num_etudiant, uv.role
     FROM utilisateur_valide uv
     WHERE uv.mail_utilisateur = ?
     AND uv.num_etudiant NOT IN (SELECT num_etudiant FROM utilisateur);
@@ -22,8 +22,8 @@ const registerUser = async (email, mdp) => {
     const [result] = await db.query(query, [email]);
 
     if (result.length > 0) {
-        await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
-        return genToken(result[0].num_etudiant, result[0].id_utilisateur, result[0].role);
+        const insert = await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
+        return genToken(result[0].num_etudiant, insert[0].insertId, result[0].role);
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
@@ -86,30 +86,44 @@ async function getRoleUtilisateurFromToken(token){
     return decoded.role;
 }
 
-async function getUserInfo(id_utilisateur){
-    try{
-        const query = `
-        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, f.label FROM utilisateur u
-        JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
-        JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
-        JOIN formation f ON p.id_formation = f.id_formation
+async function getUserInfo(id_utilisateur) {
+    try {
+        // Requête pour obtenir les informations de base et la formation
+        const userInfoQuery = `
+        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, f.label as formation
+        FROM utilisateur u
+        LEFT JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+        LEFT JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
+        LEFT JOIN formation f ON p.id_formation = f.id_formation
         WHERE u.id_utilisateur = ?;`;
 
-        const [rows] = await db.query(query, [id_utilisateur]);
-        if(rows.length > 0){
-            const anniversaire = formatDate(rows[0].date_naissance)
+        const [userRows] = await db.query(userInfoQuery, [id_utilisateur]);
+
+        // Requête pour obtenir les UEs associées à un enseignant
+        const ueQuery = `
+        SELECT ue.label
+        FROM enseignants_ue eu
+        JOIN ue ON eu.id_ue = ue.id_ue
+        WHERE eu.id_utilisateur = ?;`;
+
+        const [ueRows] = await db.query(ueQuery, [id_utilisateur]);
+
+        if (userRows.length > 0) {
+            const user = userRows[0];
+            const anniversaire = formatDate(user.date_naissance);
             const info = {
-                nom: rows[0].nom,
-                prenom: rows[0].prenom,
-                formation: rows[0].label,
+                nom: user.nom,
+                prenom: user.prenom,
                 anniversaire: anniversaire,
-                role : rows[0].role
+                role: user.role,
+                formation: user.formation, // uniquement élève
+                ue: ueRows.map(ue => ue.label) // tableau des UEs pour les enseignants
             };
             return info;
-        }else{
+        } else {
             throw new Error('Utilisateur non trouvé');
         }
-    }catch(err){
+    } catch (err) {
         throw new Error('Erreur lors de la récupération des informations de l\'utilisateur');
     }
 }

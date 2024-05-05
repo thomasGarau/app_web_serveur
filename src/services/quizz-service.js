@@ -136,7 +136,13 @@ const listQuizzPasser = async (id_utilisateur) => {
 
 const listQuizzCreer = async (id_utilisateur) => {
     try {
-        const query = `SELECT * FROM quizz WHERE id_utilisateur = ?`;
+        const query = `
+        SELECT q.*, COALESCE(AVG(n.note), 0) as moyenne_note
+        FROM quizz q
+        LEFT JOIN note_du_quizz n ON q.id_quizz = n.id_quizz
+        WHERE q.id_utilisateur = ?
+        GROUP BY q.id_quizz;
+        `;
         const [rows] = await db.query(query, [id_utilisateur]);
         return rows;
     } catch (error) {
