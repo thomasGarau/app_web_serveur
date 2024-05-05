@@ -18,6 +18,7 @@ const validateField = (...fieldNames) => {
     });
 };
 
+// Validation pour les champs qui ne doivent pas être sanitizés
 const exceptionField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
         return body(fieldName)

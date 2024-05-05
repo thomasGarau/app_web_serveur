@@ -143,6 +143,18 @@ const noteQuizzConfig = {
     }
 };
 
+const forumConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM forum
+                    WHERE id_forum = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        };
+    }
+};
+
+
 module.exports.quizzConfig = quizzConfig,
 module.exports.noteQuizzConfig = noteQuizzConfig;
 module.exports.questionConfig = questionConfig;
@@ -152,3 +164,5 @@ module.exports.coursConfig = coursConfig;
 module.exports.ueConfig = ueConfig;
 module.exports.ueUserConfig = ueUserConfig;
 module.exports.userConfig = userConfig;
+module.exports.forumConfig = forumConfig;
+module.exports.messageConfig = messageConfig;
