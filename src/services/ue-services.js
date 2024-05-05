@@ -28,7 +28,7 @@ const useruelist = async (id_etudiant) => {
             return rows;
         }
         else {
-            return 'Aucune ue pour cet utilisateur';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des ue');
@@ -75,7 +75,7 @@ const formationuelist = async (id_formation) => {
             return rows;
         }
         else {
-            return 'Aucune ue pour cette formation';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des ue');
@@ -94,7 +94,7 @@ const chapitreuelist = async (id_ue) => {
             return rows;
         }
         else {
-            return 'Aucun chapitre pour cette ue';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des chapitres');

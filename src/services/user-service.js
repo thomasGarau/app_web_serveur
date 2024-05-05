@@ -89,7 +89,7 @@ async function getRoleUtilisateurFromToken(token){
 async function getUserInfo(id_utilisateur){
     try{
         const query = `
-        SELECT uv.nom, uv.prenom, uv.date_naissance, f.label FROM utilisateur u
+        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, f.label FROM utilisateur u
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
         JOIN formation f ON p.id_formation = f.id_formation
@@ -102,7 +102,8 @@ async function getUserInfo(id_utilisateur){
                 nom: rows[0].nom,
                 prenom: rows[0].prenom,
                 formation: rows[0].label,
-                anniversaire: anniversaire
+                anniversaire: anniversaire,
+                role : rows[0].role
             };
             return info;
         }else{
