@@ -1,7 +1,9 @@
 const db = require('../../config/database.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const {formatDate} = require('../services/utils.js');
+const {formatDate, code} = require('../services/utils.js');
+const {sendPasswordResetEmail} = require('./mailer-service.js');
+const {generateResetCode, storeVerificationCode} = code;
 
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
@@ -169,6 +171,36 @@ const updateUser = async (id_utilisateur, nom, prenom, date_naissance, mdp, mail
     }
 };
 
+const sendResetEmail = async(num_etudiant) => {
+    try{
+        const query = `SELECT mail_utilisateur FROM utilisateur_valide WHERE num_etudiant = ?;`
+        const [rows] = await db.query(query, [num_etudiant]);
+        const email = rows[0].mail_utilisateur;
+        const resetCode = await generateResetCode();
+        await storeVerificationCode(num_etudiant, resetCode);
+        await sendPasswordResetEmail(email, resetCode);
+    }catch(error){
+        console.error('Erreur lors de l\'envoi du mail de réinitialisation:', error);
+        throw error;
+    }
+}
+
+const resetPassword = async(num_etudiant, code, newMdp) => {
+    try{
+        query = `SELECT code, date_expiration FROM verification_codes WHERE num_etudiant = ? AND code = ?;`
+        const [result] = await db.query(query, [num_etudiant, code]);
+        if(result.length > 0 && result[0].date_expiration > new Date()){
+            const updateQuery = `UPDATE utilisateur SET mdp = ? WHERE num_etudiant = ?;`
+            await db.query(updateQuery, [newMdp, num_etudiant]);
+        }else{
+            throw new Error('Code invalide ou expiré');
+        }
+    }catch(error){
+        console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     authenticateUser,
     registerUser,
@@ -177,7 +209,9 @@ module.exports = {
     verifyToken,
     isTokenBlacklisted,
     invalidateToken,
-    getUserInfo
+    getUserInfo,
+    sendResetEmail,
+    resetPassword
 };
 
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;

@@ -79,3 +79,23 @@ exports.updateUser = async (req,res) => {
     }
 };
 
+exports.sendResetEmail = async (req,res) => {
+    try{
+        const {num_etudiant} = req.body;
+        await userService.sendResetEmail(num_etudiant);
+        res.status(200).send('Email envoyé');
+    }catch(error){
+        console.error(error);
+    }
+};
+
+exports.updatePassword = async (req,res) => {
+    try{
+        const {num_etudiant, verif_code, password} = req.body;
+        await userService.resetPassword(num_etudiant, verif_code, password);
+        res.status(200).send('Mot de passe réinitialisé');
+    }catch(error){
+        console.error(error);
+        res.status(500).send(error);
+    }
+};
