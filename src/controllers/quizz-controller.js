@@ -25,7 +25,7 @@ exports.getQuizzForUe = async (req, res) => {
                 listQuizzCreesParLesEleves: quizzEleves
             });
         } else {
-            throw new Error('Aucun quizz trouvé pour cette UE');
+            return "aucun quizz trouvé";
         }
     } catch (error) {
         console.error(error);
@@ -59,12 +59,8 @@ exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
        
         const meilleureNote = await quizzService.getNoteUtilisateurQuizz(quizz, utilisateur);
+        res.status(200).send({ meilleureNote });
 
-        if (meilleureNote !== null) {
-            res.status(200).send({ meilleureNote });
-        } else {
-            res.status(404).send('Aucune note trouvée pour cet utilisateur et ce quizz.');
-        }
     } catch (error) {
         console.error(error);
         res.status(500).send(error.message);
@@ -75,14 +71,9 @@ exports.getMeilleureNoteUtilisateurPourQuizz = async (req, res) => {
 exports.getNoteMoyennePourQuizz = async (req, res) => {
     try {
         const { quizz } = req.body
-
         const noteMoyenne = await quizzService.getNoteMoyenneQuiz(quizz);
+        res.status(200).send({ noteMoyenne });
 
-        if (noteMoyenne !== null) {
-            res.status(200).send({ noteMoyenne });
-        } else {
-            res.status(404).send('Aucune note trouvée pour ce quizz.');
-        }
     } catch (error) {
         console.error(error);
         res.status(500).send(error.message);

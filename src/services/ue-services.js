@@ -28,11 +28,46 @@ const useruelist = async (id_etudiant) => {
             return rows;
         }
         else {
-            return 'Aucune ue pour cet utilisateur';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des ue');
     
+    }
+}
+
+const profUeList = async (id_prof) => {
+    try{
+        const query =`select *  from enseignants_ue
+        where id_utilisateur = ?`;
+        const [rows] = await db.query(query, [id_prof] );
+        console.log(id_prof);
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return [];
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
+    }
+}
+
+
+const ueInfo = async (id_ue) => {
+    try{
+        const query =`SELECT ue.id_ue, ue.label,ue.path
+                FROM ue
+                WHERE ue.id_ue = ?`;
+        const [rows] = await db.query(query, [id_ue] );
+        if (rows.length > 0){
+            return rows;
+        }
+        else {
+            return [];
+        }
+    }catch(error){
+        throw new Error('Erreur lors de la récupération des ue');
     }
 }
 
@@ -75,7 +110,7 @@ const formationuelist = async (id_formation) => {
             return rows;
         }
         else {
-            return 'Aucune ue pour cette formation';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des ue');
@@ -94,7 +129,7 @@ const chapitreuelist = async (id_ue) => {
             return rows;
         }
         else {
-            return 'Aucun chapitre pour cette ue';
+            return [];
         }
     }catch(error){
         throw new Error('Erreur lors de la récupération des chapitres');
@@ -240,6 +275,8 @@ const updatechapitre = async (id_chapitre,label) => {
 module.exports = {
     useruelist,
     uelist,
+    profUeList,
+    ueInfo,
     addue,
     deleteue,
     updateue,

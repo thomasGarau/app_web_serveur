@@ -136,9 +136,19 @@ const listQuizzPasser = async (id_utilisateur) => {
 
 const listQuizzCreer = async (id_utilisateur) => {
     try {
-        const query = `SELECT * FROM quizz WHERE id_utilisateur = ?`;
+        const query = `
+        SELECT q.*, COALESCE(AVG(n.note), 0) as moyenne_note
+        FROM quizz q
+        LEFT JOIN note_du_quizz n ON q.id_quizz = n.id_quizz
+        WHERE q.id_utilisateur = ?
+        GROUP BY q.id_quizz;
+        `;
         const [rows] = await db.query(query, [id_utilisateur]);
-        return rows;
+        if(rows.length > 0){
+            return rows;
+        }else {
+            return []
+        }
     } catch (error) {
         throw error;
     }
@@ -282,7 +292,7 @@ const getNoteUtilisateurQuizz = async (id_quizz, id_utilisateur) => {
         if (rows.length > 0 && rows[0].meilleure_note !== null) {
             return rows[0].meilleure_note;
         } else {
-            throw new Error("Aucune note pour cet utilisateur sur ce quizz");
+            return [];
         }
     } catch (error) {
         throw error;
@@ -314,7 +324,7 @@ const getNoteMoyenneQuiz = async (id_quizz) => {
         if (rows.length > 0 && rows[0].note_moyenne !== null) {
             return parseFloat(rows[0].note_moyenne);
         } else {
-            return null;
+            return [];
         }
     } catch (error) {
         throw new Error("Impossible de récupérer la note moyenne du quizz.");

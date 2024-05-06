@@ -4,7 +4,7 @@ const { validateField, handleValidationErrors } = require('../middlewares/saniti
 const { verifyTokenBlacklist, verifyAuthorisation, verifyIsAdministration } = require('../middlewares/verifyAuthorisation.js');
 const {verifyIsTeacher} = require('../middlewares/verifyAuthorisation.js');
 const {verifyIsTeacherOrAdmin} = require('../middlewares/verifyAuthorisation.js');
-const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deleteformation, updateformation,addformation,chapitreuelist,addchapitre,updatechapitre,deletechapitre,ue } = require('../controllers/ue-controllers.js') 
+const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deleteformation, updateformation,addformation,chapitreuelist,addchapitre,updatechapitre,deletechapitre,ueInfo, profUeList } = require('../controllers/ue-controllers.js') 
 const {uploadImage} = require('../middlewares/imageCloud');
 
 
@@ -12,6 +12,9 @@ router.get('/ue-user', [verifyAuthorisation,verifyTokenBlacklist], useruelist);
 router.get('/allue', [verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], uelist);
 router.get('/allue-formation', [validateField('id_formation'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacherOrAdmin], formationuelist);
 router.post('/allchapitre-ue', [validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], chapitreuelist);
+router.post('/ueInfo', [validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], ueInfo);
+router.get('/ue-enseignant', [verifyAuthorisation, verifyTokenBlacklist], profUeList);
+
 
 router.post('/add-formation', [validateField('id_formation', 'label', 'id_universite'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration], addformation);
 router.post('/add-ue', [validateField('label', 'id_formation'),handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration, uploadImage], addue);
