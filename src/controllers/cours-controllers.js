@@ -74,8 +74,8 @@ exports.deletecours = (async (req,res) => {
 
 exports.updatecours = (async (req,res)=>{
     try{
-        const {id_study,label,contenu,id_chapitre} = req.body;
-        await coursService.updatecour(id_study,label,contenu,id_chapitre);
+        const {id_study,label,contenu} = req.body;
+        await coursService.updatecour(id_study,label,contenu);
         res.status(200).send('Modification réussie');
     }
     catch(err){

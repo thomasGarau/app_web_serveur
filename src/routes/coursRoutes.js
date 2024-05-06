@@ -13,7 +13,7 @@ router.post('/cours-id',[validateField('id_study'), handleValidationErrors, veri
 router.post('/getChapitreById', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], ChapitreById);
 
 router.post('/add-cours', [validateField('id_study','label','contenu','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist], addcours);
-router.post('/update-cours',[validateField('id_study','label','contenu','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
+router.post('/update-cours',[validateField('id_study','label','contenu'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
 router.post('/delete-cours',[validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher,verifyOwner(ueConfig,"id_study")], deletecours);// reservé au créateur
 
 module.exports = router;

@@ -60,7 +60,7 @@ const addcour = async (id_study,label,contenu,id_chapitre) => {
 }
 
 // supprimer un cours
-const deletecour = async (id_study,role) => {
+const deletecour = async (id_study) => {
     try{
         await db.query('DELETE FROM cours WHERE id_cours = ?', [id_study]);
     }
@@ -71,9 +71,10 @@ const deletecour = async (id_study,role) => {
 }
 
 // modifier un cours
-const updatecour = async (id_study, label, contenu, id_chapitre) => {
+const updatecour = async (id_study, label, contenu) => {
     try {
-        await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ? AND id_chapitre = ?', [contenu, label, id_study, id_chapitre]);
+        const row = await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ?', [contenu, label, id_study]);
+        console.log(row, 'row');
     } catch (err) {
         console.error(err);
         throw new Error('Erreur durant la modification');
