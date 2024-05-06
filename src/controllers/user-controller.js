@@ -1,5 +1,6 @@
 const userService = require('../services/user-service');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
+const jwt = require('jsonwebtoken');
 
 exports.verifyToken = ((req,res) => {
     try {
@@ -97,5 +98,21 @@ exports.updatePassword = async (req,res) => {
     }catch(error){
         console.error(error);
         res.status(500).send(error);
+    }
+};
+
+
+exports.updateProfilPicture = async (req,res) => {
+    try{
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const imageUrl = req.file ? req.file.path : null;
+        if(!imageUrl){
+            throw new Error('Erreur lors de la récupération de l\'image de profil');
+        }
+        await userService.updateProfilPicture(id_utilisateur, imageUrl);
+        res.status(200).send('Image de profil mise à jour');
+    }catch(error){
+        console.error(error);
+        res.status(500).send('Erreur lors de la modification de l\'image');
     }
 };

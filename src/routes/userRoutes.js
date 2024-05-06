@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const {verifyToken,Authenticate,register, invalidateToken, getUserInfo, updateUser, sendResetEmail, updatePassword} = require('../controllers/user-controller.js')
+const {verifyToken,Authenticate,register, invalidateToken, getUserInfo, updateUser, sendResetEmail, updatePassword, updateProfilPicture} = require('../controllers/user-controller.js')
 const { validateField, validateEmail, validatePassword, handleValidationErrors, hashPassword, validateRegistrationFields } = require('../middlewares/sanitizeInput.js');
 const { verifyTokenBlacklist, verifyAuthorisation, verifyOwner } = require('../middlewares/verifyAuthorisation.js');
 const { userConfig } = require('../middlewares/objectConfig.js');
 const { userValidation } = require('../middlewares/sanitizeInput.js');
 const { updateUserType } = userValidation;
+const {uploadImage} = require('../middlewares/imageCloud');
 
 router.get('/getUserInfo', [verifyAuthorisation, verifyTokenBlacklist, verifyOwner(userConfig, "user")], getUserInfo);
 router.get('/verify-token',verifyTokenBlacklist ,verifyToken);
@@ -15,6 +16,8 @@ router.post('/register', [validateRegistrationFields, validatePassword(), valida
 router.post('/logout', invalidateToken)
 
 router.put('/updateUser', [updateUserType, verifyAuthorisation, verifyTokenBlacklist, validatePassword(), validateEmail(), hashPassword(), verifyOwner(userConfig, "user")], updateUser);
+router.put('/updateUserProfilePicture', [uploadImage, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(userConfig, "user")], updateProfilPicture)
+
 router.post('/forgetPassword', [validateField('num_etudiant'), handleValidationErrors], sendResetEmail)
 router.post('/updatePassword', [validateField('num_etudiant', 'verif_code'), handleValidationErrors, validatePassword(), hashPassword()], updatePassword)
 

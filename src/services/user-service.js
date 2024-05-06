@@ -88,6 +88,11 @@ async function getRoleUtilisateurFromToken(token){
     return decoded.role;
 }
 
+async function getNumetudiantFromToken(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.num_etudiant;
+}
+
 async function getUserInfo(id_utilisateur) {
     try {
         // Requête pour obtenir les informations de base et la formation
@@ -201,6 +206,17 @@ const resetPassword = async(num_etudiant, code, newMdp) => {
     }
 };
 
+const updateProfilPicture = async (id_utilisateur, imageUrl) => {
+    try{
+        const query = 'UPDATE utilisateur SET url = ? WHERE id_utilisateur = ?;';
+        await db.query(query, [imageUrl, id_utilisateur]);
+        return true;
+    }catch(error){
+        console.error('Erreur lors de la mise à jour de l\'image de profil:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     authenticateUser,
     registerUser,
@@ -211,8 +227,10 @@ module.exports = {
     invalidateToken,
     getUserInfo,
     sendResetEmail,
-    resetPassword
+    resetPassword,
+    updateProfilPicture
 };
 
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;
 module.exports.getRoleUtilisateurFromToken = getRoleUtilisateurFromToken;
+module.exports.getNumetudiantFromToken = getNumetudiantFromToken;

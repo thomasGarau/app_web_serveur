@@ -25,7 +25,6 @@ const sendPasswordResetEmail = async (toEmail, resetCode) => {
       console.log(error);
       throw new Error("Erreur lors de l'envoi du mail de réinitialisation");
     } else {
-      console.log(`Email sent to ${toEmail}: ${info.response}`);
       return true;
     }
   });
