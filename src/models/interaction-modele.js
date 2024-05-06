@@ -5,19 +5,22 @@ const interactionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    dureeSession: {
-        type: Number,
-        required: true
-    },
     timestamp: {
         type: Date,
         default: Date.now
     },
-    cours: {
-        type: String,
+    dureeSession: {
+        type: Number,
         required: true
     },
-
+    chapitre : {
+        type: Number,
+        required: true
+    },
+    cours: {
+        type: Number,
+        required: true
+    },
     clics: {
         type: Number,
         required: true,
