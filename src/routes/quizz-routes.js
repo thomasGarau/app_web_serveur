@@ -62,7 +62,7 @@ router.post('/ajouterReponseUtilisateurAuQuizz', [validateReponseQuizzType,  ver
 router.post('/ajouterQuizz', [validateQuizzType, verifyAuthorisation, verifyTokenBlacklist], ajouterQuizz);
 router.post('/ajouterQuestionAuQuizz', [validateField("quizz"), handleValidationErrors, validateQuestionType, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], ajouterQuestionAuQuizz);
 
-router.delete('/deleteQuizz', [validateField("quizz"), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], deleteQuizz);
+router.post('/deleteQuizz', [validateField("quizz"), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], deleteQuizz);
 router.delete('/deleteQuestion', [validateField("question"), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(questionConfig, "question")], deleteQuestion);
 
 router.put('/updateQuizz', [validateField("quizz"), handleValidationErrors, validateQuizzUpdateType,  verifyAuthorisation, verifyTokenBlacklist, verifyOwner(quizzConfig, "quizz")], updateQuizz);
