@@ -101,7 +101,7 @@ async function getUserInfo(id_utilisateur) {
 
         // Requête pour obtenir les UEs associées à un enseignant
         const ueQuery = `
-        SELECT ue.label
+        SELECT ue.label, ue.id_ue, ue.path
         FROM enseignants_ue eu
         JOIN ue ON eu.id_ue = ue.id_ue
         WHERE eu.id_utilisateur = ?;`;
@@ -117,7 +117,11 @@ async function getUserInfo(id_utilisateur) {
                 anniversaire: anniversaire,
                 role: user.role,
                 formation: user.formation, // uniquement élève
-                ue: ueRows.map(ue => ue.label) // tableau des UEs pour les enseignants
+                ue: ueRows.map(ue => ({
+                    id_ue: ue.id_ue,
+                    label: ue.label,
+                    path: ue.path
+                }))
             };
             return info;
         } else {
