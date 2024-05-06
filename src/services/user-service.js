@@ -97,7 +97,7 @@ async function getUserInfo(id_utilisateur) {
     try {
         // Requête pour obtenir les informations de base et la formation
         const userInfoQuery = `
-        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, f.label as formation
+        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, u.url, f.label as formation
         FROM utilisateur u
         LEFT JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
@@ -123,6 +123,7 @@ async function getUserInfo(id_utilisateur) {
                 prenom: user.prenom,
                 anniversaire: anniversaire,
                 role: user.role,
+                url: user.url,
                 formation: user.formation, // uniquement élève
                 ue: ueRows.map(ue => ({
                     id_ue: ue.id_ue,
