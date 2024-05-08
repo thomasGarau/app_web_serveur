@@ -6,6 +6,6 @@ const { handleValidationErrors, validateField, exceptionField } = require('../mi
 const {creerUtilisateur, creerFormation} = require('../controllers/administration-controller');
 
 router.post('/ajouter-utilisateur', [verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration, uploadCSVFile], creerUtilisateur);
-router.post('ajouter-formation', [verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], creerFormation);
+router.post('/ajouter-formation', [verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration, uploadCSVFile], creerFormation);
 
 module.exports = router;

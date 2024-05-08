@@ -19,7 +19,10 @@ exports.creerUtilisateur = async (req, res) => {
 exports.creerFormation = async (req, res) => {
     try {
         const path = req.file ? req.file.path : null;
-        await adminService.createFormation(path);
+        const token = req.headers.authorization.split(' ')[1];
+        const num_etudiant = await userService.getNumetudiantFromToken(token);
+        const universite = await adminService.getUniversiteFromUser(num_etudiant);
+        await adminService.createFormation(path, universite);
         res.status(200).send('Formation créée');
     }catch(error){
         console.error(error);
