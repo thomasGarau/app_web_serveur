@@ -35,8 +35,8 @@ exports.Authenticate = (async (req,res) => {
 
  exports.register = (async (req,res) => {
     try {
-        const { email, password } = req.body;
-        const token = await userService.registerUser(email, password);
+        const { email, password, consentement } = req.body;
+        const token = await userService.registerUser(email, password, consentement);
         res.status(200).send({token: token, days: 7});
         
     } catch (err) {

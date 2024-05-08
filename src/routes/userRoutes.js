@@ -12,7 +12,7 @@ router.get('/getUserInfo', [verifyAuthorisation, verifyTokenBlacklist, verifyOwn
 router.get('/verify-token',verifyTokenBlacklist ,verifyToken);
 
 router.post('/login', [validateField('num_etudiant'), handleValidationErrors, validatePassword()], Authenticate);
-router.post('/register', [validateRegistrationFields, validatePassword(), validateEmail(), hashPassword()], register);
+router.post('/register', [validateField("consentement"), validateRegistrationFields, validatePassword(), validateEmail(), hashPassword()], register);
 router.post('/logout', invalidateToken)
 
 router.put('/updateUser', [updateUserType, verifyAuthorisation, verifyTokenBlacklist, validatePassword(), validateEmail(), hashPassword(), verifyOwner(userConfig, "user")], updateUser);

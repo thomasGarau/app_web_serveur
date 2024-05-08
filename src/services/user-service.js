@@ -8,13 +8,13 @@ const {generateResetCode, storeVerificationCode} = code;
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
     if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
-        return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
+        return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role, rows[0].consentement);
     } else {
         throw new Error('Identifiants incorrects');
     }
 };
 
-const registerUser = async (email, mdp) => {
+const registerUser = async (email, mdp, consentement) => {
     const query = `
     SELECT uv.num_etudiant, uv.role
     FROM utilisateur_valide uv
@@ -24,8 +24,8 @@ const registerUser = async (email, mdp) => {
     const [result] = await db.query(query, [email]);
 
     if (result.length > 0) {
-        const insert = await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
-        return genToken(result[0].num_etudiant, insert[0].insertId, result[0].role);
+        const insert = await db.query('INSERT INTO utilisateur (num_etudiant, mdp, consentement) VALUES (?, ?, ?)', [result[0].num_etudiant, mdp, consentement]);
+        return genToken(result[0].num_etudiant, insert[0].insertId, result[0].role, consentement);
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
@@ -33,12 +33,13 @@ const registerUser = async (email, mdp) => {
 
 
 
-function genToken(num_etudiant, id_etudiant, role){
+function genToken(num_etudiant, id_etudiant, role, consentement){
     const token = jwt.sign(
         { 
             num_etudiant: num_etudiant,
             id_etudiant: id_etudiant,
-            role: role
+            role: role,
+            consentement: consentement
         },
 
         process.env.JWT_SECRET,
@@ -91,6 +92,11 @@ async function getRoleUtilisateurFromToken(token){
 async function getNumetudiantFromToken(token){
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return decoded.num_etudiant;
+}
+
+async function verifyUserConsentement(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.consentement == 1;
 }
 
 async function getUserInfo(id_utilisateur) {
@@ -235,3 +241,4 @@ module.exports = {
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;
 module.exports.getRoleUtilisateurFromToken = getRoleUtilisateurFromToken;
 module.exports.getNumetudiantFromToken = getNumetudiantFromToken;
+module.exports.verifyUserConsentement = verifyUserConsentement;
