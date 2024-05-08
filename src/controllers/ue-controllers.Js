@@ -1,14 +1,13 @@
 const ueService = require('../services/ue-services');
 const jwt = require('jsonwebtoken');
 const {GetToken} = require('../middlewares/verifyAuthorisation');
+const userService = require('../services/user-service');
  
 // liste des ue d'un utilisateur et le nom et prenoms de l'enseignant associé
 exports.useruelist = (async (req,res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id_etudiant = token_decoded.id_etudiant;
-        const ues = await ueService.useruelist(id_etudiant);
+        const num_etudiant = await userService.getNumetudiantFromToken(req.headers.authorization.split(' ')[1]);
+        const ues = await ueService.useruelist(num_etudiant);
             res.status(200).send(ues);
     } catch (err) {
         console.error(err);

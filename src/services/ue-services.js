@@ -5,14 +5,14 @@ const bcrypt = require('bcrypt');
 
 // liste d'ue d'un utilisateur
 
-const useruelist = async (id_etudiant) => {
+const useruelist = async (num_etudiant) => {
     try{
         const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
                 FROM promotion
                 JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
                 JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
-                WHERE promotion.id_utilisateur = ?`;
-        const [rows] = await db.query(query, [id_etudiant] );
+                WHERE promotion.num_etudiant = ?`;
+        const [rows] = await db.query(query, [num_etudiant] );
         //nom du professeur associé à chaque ue de la liste des ue
         for (let i = 0; i < rows.length; i++) {
             const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom

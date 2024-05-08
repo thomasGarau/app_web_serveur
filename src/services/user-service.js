@@ -106,12 +106,13 @@ async function getUserInfo(id_utilisateur) {
         SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, u.url, f.label as formation
         FROM utilisateur u
         LEFT JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
-        LEFT JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
+        LEFT JOIN promotion p ON u.num_etudiant = p.num_etudiant
         LEFT JOIN formation f ON p.id_formation = f.id_formation
         WHERE u.id_utilisateur = ?;`;
 
         const [userRows] = await db.query(userInfoQuery, [id_utilisateur]);
-
+        console.log(userRows);
+        
         // Requête pour obtenir les UEs associées à un enseignant
         const ueQuery = `
         SELECT ue.label, ue.id_ue, ue.path

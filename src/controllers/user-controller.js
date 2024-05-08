@@ -59,8 +59,8 @@ exports.invalidateToken = (async (req,res) => {
 
 exports.getUserInfo = async (req,res) => {
     try {
-        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const info = await userService.getUserInfo(userId);
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const info = await userService.getUserInfo(id_utilisateur);
         res.status(200).send(info);
     } catch (err) {
         console.error(err);
