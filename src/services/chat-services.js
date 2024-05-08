@@ -232,7 +232,7 @@ const forumListCours = async (id_chapitre) => {
             return rows;
         }
         else {
-            return "aucun forum trouvé"
+            return []
         }
     }catch(error) {
         throw new Error('erreur dans la récupération des forums');
@@ -274,7 +274,7 @@ const forumListQuizz = async (id_quizz) => {
             return rows;
         }
         else {
-            return 'Aucun forum disponible';
+            return [];
         }
     }catch(error){
         throw new Error('erreur dans la récupération des forums');
