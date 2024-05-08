@@ -91,7 +91,6 @@ const CreateUsersFromCSV = async (filePath, idUniversite) => {
     });
 };
 
-
 const createFormation = async (filePath) => {
     return true
 }
