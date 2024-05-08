@@ -99,7 +99,7 @@ async function verifyUserConsentement(token){
     return decoded.consentement == 1;
 }
 
-async function getUserInfo(id_utilisateur) {
+async function getUserInfo(id_utilisateur, num_etudiant) {
     try {
         // Requête pour obtenir les informations de base et la formation
         const userInfoQuery = `
@@ -118,9 +118,9 @@ async function getUserInfo(id_utilisateur) {
         SELECT ue.label, ue.id_ue, ue.path
         FROM enseignants_ue eu
         JOIN ue ON eu.id_ue = ue.id_ue
-        WHERE eu.id_utilisateur = ?;`;
+        WHERE eu.num_etudiant = ?;`;
 
-        const [ueRows] = await db.query(ueQuery, [id_utilisateur]);
+        const [ueRows] = await db.query(ueQuery, [num_etudiant]);
 
         if (userRows.length > 0) {
             const user = userRows[0];

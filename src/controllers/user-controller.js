@@ -60,7 +60,8 @@ exports.invalidateToken = (async (req,res) => {
 exports.getUserInfo = async (req,res) => {
     try {
         const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const info = await userService.getUserInfo(id_utilisateur);
+        const num_etudiant = await userService.getNumetudiantFromToken(req.headers.authorization.split(' ')[1]);
+        const info = await userService.getUserInfo(id_utilisateur, num_etudiant);
         res.status(200).send(info);
     } catch (err) {
         console.error(err);

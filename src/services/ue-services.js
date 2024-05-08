@@ -36,12 +36,11 @@ const useruelist = async (num_etudiant) => {
     }
 }
 
-const profUeList = async (id_prof) => {
+const profUeList = async (num_etudiant) => {
     try{
         const query =`select *  from enseignants_ue
-        where id_utilisateur = ?`;
-        const [rows] = await db.query(query, [id_prof] );
-        console.log(id_prof);
+        where num_etudiant = ?`;
+        const [rows] = await db.query(query, [num_etudiant] );
         if (rows.length > 0){
             return rows;
         }
