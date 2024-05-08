@@ -17,14 +17,8 @@ const validateField = (...fieldNames) => {
             .isInt({ min: -2147483648, max: 2147483647 }).withMessage(`${fieldName} must be a 32-bit integer.`)
     });
 };
-
 // Validation pour les champs qui ne doivent pas être sanitizés
-const exceptionField = (...fieldNames) => {
-    return fieldNames.map(fieldName => {
-        return body(fieldName)
-            .if(body(fieldName).isString()) // Condition pour appliquer la validation seulement si c'est une chaîne
-    });
-};
+
 
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
@@ -34,6 +28,18 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
+const exceptionField = (...fieldNames) => {
+    return fieldNames.map(fieldName => {
+      return body(fieldName)
+        .if(body(fieldName).isString())
+        .trim()  // Supprime les espaces de début et de fin
+        .escape()  // Encode les caractères HTML pour prévenir les attaques XSS
+        .matches(/^[a-zA-Z0-9 ,.!?'"ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñÇç;:()\[\]{}\/*\-+=%$#@\^`~&]*$/)
+        .withMessage(`${fieldName} must contain only approved characters including specific punctuation and accents.`)
+        .isLength({ min: 1, max: 1000 }).withMessage(`${fieldName} must be between 1 and 1000 characters.`); // Adaptez selon le besoin de votre application
+    });
+  };
+  
 // Validation pour l'email
 const validateEmail = () => {
     return body('email').optional().isEmail().normalizeEmail({gmail_remove_dots: false});
