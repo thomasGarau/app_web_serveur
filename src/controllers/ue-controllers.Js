@@ -7,8 +7,8 @@ exports.useruelist = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id_etudiant = token_decoded.id_etudiant;
-        const ues = await ueService.useruelist(id_etudiant);
+        const num_etudiant = token_decoded.num_etudiant;
+        const ues = await ueService.useruelist(num_etudiant);
             res.status(200).send(ues);
     } catch (err) {
         console.error(err);
@@ -45,8 +45,8 @@ exports.profUeList = (async (req,res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id_prof = token_decoded.id_etudiant;
-        const ues = await ueService.profUeList(id_prof);
+        const num_etudiant_prof = token_decoded.num_etudiant;
+        const ues = await ueService.profUeList(num_etudiant_prof);
         res.status(200).send(ues);
     } catch (err) {
         console.error(err);

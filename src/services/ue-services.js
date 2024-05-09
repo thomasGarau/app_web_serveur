@@ -5,20 +5,20 @@ const bcrypt = require('bcrypt');
 
 // liste d'ue d'un utilisateur
 
-const useruelist = async (id_etudiant) => {
+const useruelist = async (num_etudiant) => {
     try{
         const query =`SELECT DISTINCT ue.id_ue, ue.label,ue.path
                 FROM promotion
                 JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
                 JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
-                WHERE promotion.id_utilisateur = ?`;
-        const [rows] = await db.query(query, [id_etudiant] );
+                WHERE promotion.num_etudiant = ?`;
+        const [rows] = await db.query(query, [num_etudiant] );
         //nom du professeur associé à chaque ue de la liste des ue
         for (let i = 0; i < rows.length; i++) {
             const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
                     FROM utilisateur_valide
                     JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                    JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                    JOIN enseignants_ue ON utilisateur.num_etudiant = enseignants_ue.num_etudiant
                     WHERE enseignants_ue.id_ue = ?`;
             const [rows2] = await db.query(query, [rows[i].id_ue] );
             rows[i].enseignant = rows2;
@@ -36,12 +36,12 @@ const useruelist = async (id_etudiant) => {
     }
 }
 
-const profUeList = async (id_prof) => {
+const profUeList = async (num_etudiant_prof) => {
     try{
         const query =`select *  from enseignants_ue
-        where id_utilisateur = ?`;
-        const [rows] = await db.query(query, [id_prof] );
-        console.log(id_prof);
+        where num_etudiant = ?`;
+        const [rows] = await db.query(query, [num_etudiant_prof] );
+        console.log(num_etudiant_prof);
         if (rows.length > 0){
             return rows;
         }
@@ -80,7 +80,7 @@ const uelist = async () => {
             const query =`SELECT utilisateur_valide.nom, utilisateur_valide.prenom
                     FROM utilisateur_valide
                     JOIN utilisateur ON utilisateur_valide.num_etudiant = utilisateur.num_etudiant
-                    JOIN enseignants_ue ON utilisateur.id_utilisateur = enseignants_ue.id_utilisateur
+                    JOIN enseignants_ue ON utilisateur.num_etudiant= enseignants_ue.num_etudiant
                     WHERE enseignants_ue.id_ue = ?`;
             const [rows2] = await db.query(query, [rows[i].id_ue] );
             rows[i].enseignant = rows2;

@@ -370,7 +370,7 @@ const addForumQuizz = async (label,id_quizz,contenu,id_utilisateur) => {
     }
 }
 
-const updateForum = async (id_forum,label,date,etat,id_utilisateur) => {
+const updateForum = async (id_forum,label,etat,id_utilisateur) => {
     try{
         const date = new Date();
         await db.query('UPDATE forum SET label = ?, date = ?, etat = ?, id_utilisateur = ? WHERE id_forum = ?', [label,date,etat,id_utilisateur,id_forum]);
