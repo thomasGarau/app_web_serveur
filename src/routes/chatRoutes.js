@@ -13,7 +13,7 @@ router.post('/chat-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist, 
 
 // router.get('/chat', [verifyAuthorisation, verifyTokenBlacklist,validate], messageList);
 router.post('/add-message', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('id_forum'), handleValidationErrors], addMessage);
-router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'),validateField('id_message','id_forum'), handleValidationErrors,  verifyOwner], updateMessage);
+router.post('/update-message', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'),validateField('id_message','id_forum'), handleValidationErrors,  verifyOwner(messageConfig,"id_message")], updateMessage);
 router.post('/delete-message', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_message'), handleValidationErrors ,verifyOwnerOrAdmin(messageConfig,"id_message")], deleteMessage);
 router.post('/forum-cours', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], forumListCours);
 router.get('/forum-cours-chapitre', [verifyAuthorisation, verifyTokenBlacklist], forumListChapitre);
