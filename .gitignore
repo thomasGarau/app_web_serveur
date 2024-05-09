@@ -15,5 +15,5 @@ build/
 *.heapdump
 .DS_Store
 Thumbs.db
-uploads/
+uploads/*
 

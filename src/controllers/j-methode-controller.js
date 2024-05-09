@@ -20,3 +20,13 @@ exports.ajouterSuivisActivite = async (req, res) => {
         return res.status(500).send('Erreur serveur');
     }
 }
+
+exports.makePrediction = async (req, res) => {
+    try {
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const prediction = await jMethodeService.getPrediction(id_utilisateur);
+        res.status(200).json(prediction);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

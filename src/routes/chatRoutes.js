@@ -22,9 +22,9 @@ router.post('/forum', [verifyAuthorisation, verifyTokenBlacklist,validateField('
 router.post('/forum-close', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin(forumConfig,"id_forum")], forumClose);
 router.post('/forum-open', [verifyAuthorisation, verifyTokenBlacklist,validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin(forumConfig,"id_forum")], forumOpen);
 
-router.post('/add-forum-cours', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('label','id_cours'), handleValidationErrors], addForumCours);
-router.post('/add-forum-quizz', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu'), validateField('label','id_quizz'), handleValidationErrors], addForumQuizz);
-router.post('/update-forum', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_forum','label','etat'), handleValidationErrors, verifyOwnerOrAdmin(forumConfig,"id_forum")], updateForum);
+router.post('/add-forum-cours', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu', 'label'), validateField('id_cours'), handleValidationErrors], addForumCours);
+router.post('/add-forum-quizz', [verifyAuthorisation, verifyTokenBlacklist,exceptionField('contenu', 'label'), validateField('id_quizz'), handleValidationErrors], addForumQuizz);
+router.post('/update-forum', [exceptionField('label'), verifyAuthorisation, verifyTokenBlacklist, validateField('id_forum', 'etat'), handleValidationErrors, verifyOwnerOrAdmin(forumConfig,"id_forum")], updateForum);
 router.post('/delete-forum', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_forum'), handleValidationErrors, verifyOwnerOrAdmin(forumConfig,"id_forum")], deleteForum);
 
 

@@ -29,9 +29,9 @@ const verifyTokenBlacklist = async (req, res, next) => {
 
 const verifyOwnerOrTeacherOfStudent = (config, idParamName) => async (req, res, next) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id_utilisateur;
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const role = await getRoleUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+
         const objectId = req.body[idParamName]
         const studentId = await findOwnerOfResource(config, objectId);
 
@@ -41,9 +41,7 @@ const verifyOwnerOrTeacherOfStudent = (config, idParamName) => async (req, res, 
             return next();
         }
         
-        
-        const num_etudiant = parseInt(decoded.num_etudiant);
-        if (num_etudiant < 200000 && await verifyTeacherOfStudent(userId, studentId)) {
+        if (role === "enseignant" && await verifyTeacherOfStudent(userId, studentId)) {
             return next();
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être le propriétaire ou l’enseignant de l’étudiant.');
@@ -106,10 +104,8 @@ const verifyTeacherOfStudent = async (teacherId, studentId) => {
 
 const verifyIsTeacher = async (req, res, next) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const num_etudiant = parseInt(decoded.num_etudiant);
-        if (num_etudiant < 200000 ) {
+        const role = await getRoleUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        if (role === "enseignant" ) {
             return next();  
         } else {
             return res.status(403).send('Accès non autorisé. Vous devez être un enseignant.');
@@ -121,15 +117,15 @@ const verifyIsTeacher = async (req, res, next) => {
 
 const verifyIsStuddent = async (req, res, next) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const role = decoded.role;
+        const role = await getRoleUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         if (role === "etudiant") {
             return next();
         }
+        console.error('Accès non autorisé. Vous devez être un étudiant.');
         return res.status(403).send('Accès non autorisé. Vous devez être un étudiant.');
 
     }catch(error) {
+        console.error(error);
         return res.status(401).send('Token invalide ou problème d\'authentification.');
     }
 };
