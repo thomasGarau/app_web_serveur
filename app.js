@@ -25,6 +25,7 @@ const ueRoutes = require('./src/routes/ueRoutes')
 const coursRoutes = require('./src/routes/coursRoutes')
 const chatRoutes = require('./src/routes/chatRoutes')
 const jMethodeRoutes = require('./src/routes/j-methode-routes')
+const administrationRoutes = require('./src/routes/administration-routes')
 
 
 app.use('/api/secure-page', securePageRoutes)
@@ -34,4 +35,4 @@ app.use('/api/ue', ueRoutes)
 app.use('/api/cours', coursRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/jMethode', jMethodeRoutes)
-
+app.use('/api/administration', administrationRoutes)

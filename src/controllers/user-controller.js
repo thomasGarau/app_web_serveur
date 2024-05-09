@@ -1,5 +1,6 @@
 const userService = require('../services/user-service');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
+const jwt = require('jsonwebtoken');
 
 exports.verifyToken = ((req,res) => {
     try {
@@ -34,8 +35,8 @@ exports.Authenticate = (async (req,res) => {
 
  exports.register = (async (req,res) => {
     try {
-        const { email, password } = req.body;
-        const token = await userService.registerUser(email, password);
+        const { email, password, consentement } = req.body;
+        const token = await userService.registerUser(email, password, consentement);
         res.status(200).send({token: token, days: 7});
         
     } catch (err) {
@@ -58,8 +59,9 @@ exports.invalidateToken = (async (req,res) => {
 
 exports.getUserInfo = async (req,res) => {
     try {
-        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        const info = await userService.getUserInfo(userId);
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const num_etudiant = await userService.getNumetudiantFromToken(req.headers.authorization.split(' ')[1]);
+        const info = await userService.getUserInfo(id_utilisateur, num_etudiant);
         res.status(200).send(info);
     } catch (err) {
         console.error(err);
@@ -97,5 +99,21 @@ exports.updatePassword = async (req,res) => {
     }catch(error){
         console.error(error);
         res.status(500).send(error);
+    }
+};
+
+
+exports.updateProfilPicture = async (req,res) => {
+    try{
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const imageUrl = req.file ? req.file.path : null;
+        if(!imageUrl){
+            throw new Error('Erreur lors de la récupération de l\'image de profil');
+        }
+        await userService.updateProfilPicture(id_utilisateur, imageUrl);
+        res.status(200).send('Image de profil mise à jour');
+    }catch(error){
+        console.error(error);
+        res.status(500).send('Erreur lors de la modification de l\'image');
     }
 };

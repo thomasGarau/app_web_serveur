@@ -8,13 +8,13 @@ const {generateResetCode, storeVerificationCode} = code;
 const authenticateUser = async (num_etudiant, password) => {
     const [rows] = await db.query('SELECT * FROM utilisateur NATURAL JOIN utilisateur_valide WHERE num_etudiant = ?' , [num_etudiant]); 
     if(rows.length > 0 && await bcrypt.compare(password, rows[0].mdp)){
-        return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role);
+        return genToken(rows[0].num_etudiant, rows[0].id_utilisateur, rows[0].role, rows[0].consentement);
     } else {
         throw new Error('Identifiants incorrects');
     }
 };
 
-const registerUser = async (email, mdp) => {
+const registerUser = async (email, mdp, consentement) => {
     const query = `
     SELECT uv.num_etudiant, uv.role
     FROM utilisateur_valide uv
@@ -24,8 +24,8 @@ const registerUser = async (email, mdp) => {
     const [result] = await db.query(query, [email]);
 
     if (result.length > 0) {
-        const insert = await db.query('INSERT INTO utilisateur (num_etudiant, mdp) VALUES (?, ?)', [result[0].num_etudiant, mdp]);
-        return genToken(result[0].num_etudiant, insert[0].insertId, result[0].role);
+        const insert = await db.query('INSERT INTO utilisateur (num_etudiant, mdp, consentement) VALUES (?, ?, ?)', [result[0].num_etudiant, mdp, consentement]);
+        return genToken(result[0].num_etudiant, insert[0].insertId, result[0].role, consentement);
     } else {
         throw new Error('Vous n\'êtes pas autorisé à vous inscrire ou un compte avec ce numéro d\'étudiant existe déjà.');
     }
@@ -33,12 +33,13 @@ const registerUser = async (email, mdp) => {
 
 
 
-function genToken(num_etudiant, id_etudiant, role){
+function genToken(num_etudiant, id_etudiant, role, consentement){
     const token = jwt.sign(
         { 
             num_etudiant: num_etudiant,
             id_etudiant: id_etudiant,
-            role: role
+            role: role,
+            consentement: consentement
         },
 
         process.env.JWT_SECRET,
@@ -88,27 +89,38 @@ async function getRoleUtilisateurFromToken(token){
     return decoded.role;
 }
 
-async function getUserInfo(id_utilisateur) {
+async function getNumetudiantFromToken(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.num_etudiant;
+}
+
+async function verifyUserConsentement(token){
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.consentement == 1;
+}
+
+async function getUserInfo(id_utilisateur, num_etudiant) {
     try {
         // Requête pour obtenir les informations de base et la formation
         const userInfoQuery = `
-        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, f.label as formation
+        SELECT uv.nom, uv.prenom, uv.date_naissance, uv.role, u.url, f.label as formation
         FROM utilisateur u
         LEFT JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
-        LEFT JOIN promotion p ON u.id_utilisateur = p.id_utilisateur
+        LEFT JOIN promotion p ON u.num_etudiant = p.num_etudiant
         LEFT JOIN formation f ON p.id_formation = f.id_formation
         WHERE u.id_utilisateur = ?;`;
 
         const [userRows] = await db.query(userInfoQuery, [id_utilisateur]);
-
+        console.log(userRows);
+        
         // Requête pour obtenir les UEs associées à un enseignant
         const ueQuery = `
         SELECT ue.label, ue.id_ue, ue.path
         FROM enseignants_ue eu
         JOIN ue ON eu.id_ue = ue.id_ue
-        WHERE eu.id_utilisateur = ?;`;
+        WHERE eu.num_etudiant = ?;`;
 
-        const [ueRows] = await db.query(ueQuery, [id_utilisateur]);
+        const [ueRows] = await db.query(ueQuery, [num_etudiant]);
 
         if (userRows.length > 0) {
             const user = userRows[0];
@@ -118,6 +130,7 @@ async function getUserInfo(id_utilisateur) {
                 prenom: user.prenom,
                 anniversaire: anniversaire,
                 role: user.role,
+                url: user.url,
                 formation: user.formation, // uniquement élève
                 ue: ueRows.map(ue => ({
                     id_ue: ue.id_ue,
@@ -201,6 +214,17 @@ const resetPassword = async(num_etudiant, code, newMdp) => {
     }
 };
 
+const updateProfilPicture = async (id_utilisateur, imageUrl) => {
+    try{
+        const query = 'UPDATE utilisateur SET url = ? WHERE id_utilisateur = ?;';
+        await db.query(query, [imageUrl, id_utilisateur]);
+        return true;
+    }catch(error){
+        console.error('Erreur lors de la mise à jour de l\'image de profil:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     authenticateUser,
     registerUser,
@@ -211,8 +235,11 @@ module.exports = {
     invalidateToken,
     getUserInfo,
     sendResetEmail,
-    resetPassword
+    resetPassword,
+    updateProfilPicture
 };
 
 module.exports.getIdUtilisateurFromToken = getIdUtilisateurFromToken;
 module.exports.getRoleUtilisateurFromToken = getRoleUtilisateurFromToken;
+module.exports.getNumetudiantFromToken = getNumetudiantFromToken;
+module.exports.verifyUserConsentement = verifyUserConsentement;

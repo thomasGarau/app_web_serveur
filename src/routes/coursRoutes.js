@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {handleValidationErrors, validateField} = require('../middlewares/sanitizeInput');
+const {handleValidationErrors, validateField, exceptionField} = require('../middlewares/sanitizeInput');
 const {verifyTokenBlacklist, verifyAuthorisation, verifyIsTeacher } = require('../middlewares/verifyAuthorisation');
 const {verifyIsAdministration} = require('../middlewares/verifyAuthorisation');
 const {verifyOwner} = require('../middlewares/verifyAuthorisation');
@@ -12,8 +12,8 @@ router.post('/allcours-chapitre',[validateField('id_chapitre'), handleValidation
 router.post('/cours-id',[validateField('id_study'), handleValidationErrors, verifyAuthorisation], courById);
 router.post('/getChapitreById', [verifyAuthorisation, verifyTokenBlacklist, validateField('id_chapitre'), handleValidationErrors], ChapitreById);
 
-router.post('/add-cours', [validateField('id_study','label','contenu','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist], addcours);
-router.post('/update-cours',[validateField('id_study','label','contenu'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
+router.post('/add-cours', [exceptionField('contenu', 'label',), validateField('id_study','id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist], addcours);
+router.post('/update-cours',[exceptionField('contenu', 'label'), validateField('id_study'), handleValidationErrors, verifyAuthorisation,verifyIsTeacher, verifyTokenBlacklist,verifyOwner(ueConfig,"id_study")], updatecours); // reservé au créateur
 router.post('/delete-cours',[validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher,verifyOwner(ueConfig,"id_study")], deletecours);// reservé au créateur
 
 module.exports = router;

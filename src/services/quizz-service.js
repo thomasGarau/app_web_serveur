@@ -180,7 +180,7 @@ const getQuizzProfesseurForUe = async (ue) => {
         JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
-        WHERE c.id_ue = ? AND uv.role = 'enseignant'
+        WHERE c.id_ue = ? AND uv.role = 'enseignant' AND q.visible = 1
         GROUP BY q.id_quizz
     `;
     try {
@@ -207,7 +207,7 @@ const getQuizzEleveForUe = async (ue) => {
         JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
-        WHERE c.id_ue = ? AND uv.role = 'etudiant'
+        WHERE c.id_ue = ? AND uv.role = 'etudiant' AND q.visible = 1
         GROUP BY q.id_quizz
     `;
     try {
@@ -233,7 +233,7 @@ const getQuizzProfesseurForChapitre = async (id_chapitre) => {
         JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
-        WHERE c.id_chapitre = ? AND uv.role = 'enseignant'
+        WHERE c.id_chapitre = ? AND uv.role = 'enseignant' AND q.visible = 1
         GROUP BY q.id_quizz
     `;
     try {
@@ -261,7 +261,7 @@ const getQuizzEleveForChapitre = async (id_chapitre) => {
         JOIN utilisateur u ON q.id_utilisateur = u.id_utilisateur
         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
         LEFT JOIN note_du_quizz ndq ON q.id_quizz = ndq.id_quizz
-        WHERE c.id_chapitre = ? AND uv.role = 'etudiant'
+        WHERE c.id_chapitre = ? AND uv.role = 'etudiant' AND q.visible = 1
         GROUP BY q.id_quizz
     `;
     try {
@@ -640,9 +640,29 @@ const updateQuizz = async (id, data) => {
 };
 
 const updateQuestionAndReponses = async (questionId, data) => {
-    await updateQuestion(questionId, data);
-    if (data.reponses) {
-        await updateReponses(questionId, data.reponses);
+    try {
+        // Mettre à jour la question
+        await updateQuestion(questionId, data);
+
+        // Mettre à jour les réponses, si présentes
+        if (data.reponses) {
+            await updateReponses(questionId, data.reponses);
+        }
+
+        // Récupérer l'ID du quizz associé à la question
+        const query_id_quizz = 'SELECT quizz.id_quizz FROM quizz JOIN question ON quizz.id_quizz = question.id_quizz WHERE question.id_question = ?';
+        const [rows] = await db.query(query_id_quizz, [questionId]);
+
+        if (rows.length > 0) {
+            const id_quizz = rows[0].id_quizz;
+
+            // Mettre à jour la visibilité du quizz si nécessaire
+            const query_update_visibilite = 'UPDATE quizz SET visible = 1, modifie = 1 WHERE id_quizz = ? AND visible = 0';
+            await db.query(query_update_visibilite, [id_quizz]);
+        }
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de la question et des réponses :', error);
+        throw error;
     }
 };
 

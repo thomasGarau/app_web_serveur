@@ -1,6 +1,7 @@
 const ueService = require('../services/ue-services');
 const jwt = require('jsonwebtoken');
 const {GetToken} = require('../middlewares/verifyAuthorisation');
+const userService = require('../services/user-service');
  
 // liste des ue d'un utilisateur et le nom et prenoms de l'enseignant associé
 exports.useruelist = (async (req,res) => {
