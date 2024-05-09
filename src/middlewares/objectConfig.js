@@ -92,7 +92,7 @@ const ueUserConfig = {
         return {
              query: `SELECT ue.id_ue, ue.label
                 FROM utilisateur
-                JOIN promotion ON utilisateur.id_utilisateur = promotion.id_utilisateur
+                JOIN promotion ON utilisateur.num_etudiant = promotion.num_etudiant
                 JOIN formation_ue ON promotion.id_formation = formation_ue.formation_id_formation
                 JOIN ue ON formation_ue.ue_id_ue = ue.id_ue
                 WHERE utilisateur.num_etudiant = ?`,
@@ -106,7 +106,7 @@ const ueConfig = {
         return {
           query : `SELECT *
             FROM utilisateur u
-            JOIN enseignants_ue eu ON u.id_utilisateur = eu.id_utilisateur
+            JOIN enseignants_ue eu ON u.num_etudiant = eu.num_etudiant
             JOIN chapitre c ON eu.id_ue = c.id_ue
             JOIN cours cr ON c.id_chapitre = cr.id_chapitre
             WHERE u.id_utilisateur = ? AND cr.id_cours = ?`,
