@@ -22,7 +22,7 @@ const sendPasswordResetEmail = async (toEmail, resetCode) => {
 
   transporter.sendMail(mailOptions, function(error, info) {
     if (error) {
-      console.log(error);
+      console.error(error);
       throw new Error("Erreur lors de l'envoi du mail de réinitialisation");
     } else {
       return true;

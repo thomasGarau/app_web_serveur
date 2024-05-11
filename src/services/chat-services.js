@@ -75,7 +75,6 @@ const messageListQuizz = async (id_quizz) => {
                     INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
                     WHERE fq.id_quizz = ?`;
         const [forum] = await db.query(query, [id_quizz])
-        console.log(forum);
         if (forum.length === 0){
             throw new Error('Aucun responsable disponible');
         }
@@ -137,7 +136,6 @@ const messageListCours = async (id_cours) => {
                         INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
                         WHERE fc.id_cours = ?`;
         const [forum] = await db.query(query, [id_cours])
-        console.log(forum);
         if (forum.length === 0){
             throw new Error('Aucun responsable disponible');
         }
@@ -186,9 +184,7 @@ const messageListCours = async (id_cours) => {
 
 const convertDate = (date) => {
     const dateStrings = date.toISOString();
-    console.log("dateString",dateStrings);
     const theDate = new Date(date);
-    console.log("vuy",theDate);
     const heure = dateStrings.split('T')[1].split('.')[0];
     const thedate = theDate.toLocaleDateString()
 
@@ -300,14 +296,11 @@ const forumList = async (id_forum) => {
                         INNER JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant 
                         WHERE f.id_forum = ?`;
         const [rows] = await db.query(query, [id_forum]);
-        console.log(rows,"test");
-        console.log(rows[0].message_date, rows[0].message_heure, "test1")
         const [forum_informations] = await db.query(query2, [id_forum]);
         
         if (rows.length > 0){
             rows.forEach(row => {
                 if (row.message_date) {
-                    console.log(row.message_date, row.message_heure, "test2")
                     const date = convertDate(row.message_date);
                     row.message_date = date.thedate;
                     if(row.message_heure === null){
@@ -341,7 +334,6 @@ const addForumCours = async (label,id_cours,contenu,id_utilisateur) => {
         const heure = date.getHours() + ':' + date.getMinutes();   
         const [rows] =  await db.query('INSERT INTO forum(label,date,etat,id_utilisateur) VALUES(?,?,?,?)', [label,date,etat,id_utilisateur]);
         const id_forum = rows.insertId;
-        console.log(id_forum);
         await db.query('INSERT INTO forum_cours(id_forum,id_cours) VALUES(?,?)', [id_forum,id_cours]);
         await db.query('INSERT INTO message(contenu,date,id_forum,id_utilisateur,heure) VALUES(?,?,?,?,?)', [contenu,date,id_forum,id_utilisateur,heure]);
         return {id_forum};

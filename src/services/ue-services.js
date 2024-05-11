@@ -41,7 +41,6 @@ const profUeList = async (num_etudiant_prof) => {
         const query =`select *  from enseignants_ue
         where num_etudiant = ?`;
         const [rows] = await db.query(query, [num_etudiant_prof] );
-        console.log(num_etudiant_prof);
         if (rows.length > 0){
             return rows;
         }

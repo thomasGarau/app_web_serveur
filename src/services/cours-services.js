@@ -74,7 +74,6 @@ const deletecour = async (id_study) => {
 const updatecour = async (id_study, label, contenu) => {
     try {
         const row = await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ?', [contenu, label, id_study]);
-        console.log(row, 'row');
     } catch (err) {
         console.error(err);
         throw new Error('Erreur durant la modification');
