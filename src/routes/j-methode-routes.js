@@ -5,9 +5,11 @@ const {verifyTokenBlacklist, verifyAuthorisation } = require('../middlewares/ver
 const { verifyIsStuddent } = require('../middlewares/verifyAuthorisation');
 const {jMethode} = require('../middlewares/sanitizeInput');
 const {validateJtrackingType} = jMethode;
-const {ajouterSuivisActivite, makePrediction} = require('../controllers/j-methode-controller');
+const {ajouterSuivisActivite, makePrediction, ajoutCalendrier, getCalendrier} = require('../controllers/j-methode-controller');
 
 router.post('/recolteInteraction', [validateJtrackingType, verifyAuthorisation, verifyTokenBlacklist, verifyIsStuddent], ajouterSuivisActivite);
 router.get('/prediction', [verifyAuthorisation, verifyTokenBlacklist, verifyIsStuddent], makePrediction);
+router.post('/ajouterCalendrier', [verifyAuthorisation, verifyTokenBlacklist, verifyIsStuddent], ajoutCalendrier);
+router.post('/getCalendrier', [verifyAuthorisation, verifyTokenBlacklist, verifyIsStuddent], getCalendrier);
 
 module.exports = router;
