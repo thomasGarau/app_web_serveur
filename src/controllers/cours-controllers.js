@@ -80,6 +80,6 @@ exports.updatecours = (async (req,res)=>{
     }
     catch(err){
         console.error(err);
-        res.status(200).send('Echec de la modification');
+        res.status(500).send('Echec de la modification');
     }
 })
