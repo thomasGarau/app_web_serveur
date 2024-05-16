@@ -30,3 +30,30 @@ exports.makePrediction = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.ajoutCalendrier = async (req, res) => {
+    try {
+        const data = req.body;
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        if(await verifyUserConsentement(req.headers.authorization.split(' ')[1])){
+            await jMethodeService.creerCalendrier(userId, data);
+            return res.status(200).send('Calendrier ajouté');
+        }else{
+            res.status(401).send('Consentement utilisateur non valide');
+            console.error('Consentement utilisateur non valide');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Erreur serveur');
+    }
+};
+
+exports.getCalendrier = async (req, res) => {
+    try {
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const calendrier = await jMethodeService.getCalendrier(userId);
+        res.status(200).json(calendrier);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
