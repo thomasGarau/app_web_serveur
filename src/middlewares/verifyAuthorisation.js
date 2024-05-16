@@ -77,6 +77,7 @@ const verifyOwner = (config, idParamName) => async (req, res, next) => {
         const objectId = req.body[idParamName];
         const { query, params } = config.generateOwnerQuery(userId, objectId);
         const [rows] = await db.query(query, params);
+        console.log("zz", userId, objectId, rows)
         if (rows[0]) {
             next();
         } else {
