@@ -176,9 +176,9 @@ const creerCalendrier = async (id_utilisateur) => {
 
 const getCalendrier = async (id_utilisateur) => {
     try {
-        const [rows] = await db.query('SELECT * FROM methode_des_j_chapitre WHERE id_utilisateur = ?', [id_utilisateur]);
-        const calendrier = rows.reduce((acc, { id_chapitre, date }) => {
-            acc[id_chapitre] = date;
+        const [rows] = await db.query('SELECT j.*, chapitre.label FROM methode_des_j_chapitre j  join chapitre on j.id_chapitre = chapitre.id_chapitre WHERE id_utilisateur = ?', [id_utilisateur]);
+        const calendrier = rows.reduce((acc, { id_chapitre, date, label }) => {
+            acc[id_chapitre] = {date, label};
             return acc;
         }, {});
 
