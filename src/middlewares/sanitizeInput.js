@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
 const { schemaInteraction } = require('../models_JSON/trackingDataValidation.js')
 const { updateUserSchema } = require('../models_JSON/userValidation.js');
+const { answerToAnnotationSchema, annotationUpdateSchema, answerToAnnotationUpdateSchema } = require('../models_JSON/annotationValidation.js');
 
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
@@ -159,6 +160,39 @@ const updateUserType = (req, res, next) => {
     next();
 };
 
+const validateAnnotationType = (schema) => (req, res, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+};
+
+const validateAnnotationUpdateType = (req, res, next) => {
+    const { error } = annotationUpdateSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+}
+
+const validateAnswerToAnnotationType = (req, res, next) => {
+    const { error } = answerToAnnotationSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+}
+
+const validateAnswerToAnnotationUpdateType = (req, res, next) => {
+    const { error } = answerToAnnotationUpdateSchema.validate(req.body);
+    if (error) {
+        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
+    }
+    next();
+}
+
+
 module.exports = {
     validate,
     validateRegistrationFields,
@@ -185,4 +219,11 @@ module.exports.jMethode = {
 
 module.exports.userValidation = {
     updateUserType
+};
+
+module.exports.annotationValidation = {
+    validateAnnotationType,
+    validateAnnotationUpdateType,
+    validateAnswerToAnnotationType,
+    validateAnswerToAnnotationUpdateType
 };

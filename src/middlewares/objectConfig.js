@@ -154,6 +154,54 @@ const forumConfig = {
     }
 };
 
+const annotationConfig  = {
+    generateOwnerQuery: (userId, annotationId) => {
+        return {
+            query: `SELECT *
+                    FROM annotation a
+                    LEFT JOIN annotation_cours ac ON a.id_annotation = ac.id_annotation
+                    LEFT JOIN cours c ON ac.id_cours = c.id_cours
+                    LEFT JOIN annotation_quizz aq ON a.id_annotation = aq.id_annotation
+                    LEFT JOIN question q ON aq.id_question = q.id_question
+                    LEFT JOIN quizz qz ON q.id_quizz = qz.id_quizz
+                    WHERE a.id_annotation = ?
+                    AND (
+                        (c.id_utilisateur = ? AND ac.id_cours IS NOT NULL) -- L'annotation est liée à un cours, et l'utilisateur est propriétaire du cours
+                        OR
+                        (qz.id_utilisateur = ? AND aq.id_question IS NOT NULL) --L'annotation est liée à un quizz, et l'utilisateur est propriétaire du quizz
+                    )`,    
+            params: [annotationId, userId, userId]
+        };
+    }
+};
+
+const answerToAnnotationConfig = {
+    generateOwnerQuery: (userId, answerId) => {
+        return {
+            query: `
+                SELECT *
+                FROM reponse_annotation ra
+                JOIN annotation a ON ra.id_annotation = a.id_annotation
+                LEFT JOIN annotation_cours ac ON a.id_annotation = ac.id_annotation
+                LEFT JOIN cours c ON ac.id_cours = c.id_cours
+                LEFT JOIN annotation_quizz aq ON a.id_annotation = aq.id_annotation
+                LEFT JOIN question q ON aq.id_question = q.id_question
+                LEFT JOIN quizz qz ON q.id_quizz = qz.id_quizz
+                WHERE ra.id_reponse_annotation = ? 
+                AND (
+                    ra.id_utilisateur = ? -- Propriétaire de la réponse
+                    OR 
+                    (ac.id_annotation IS NOT NULL AND c.id_utilisateur = ?) -- Propriétaire du cours
+                    OR 
+                    (aq.id_annotation IS NOT NULL AND qz.id_utilisateur = ?) -- Propriétaire du quizz
+                )
+            `,
+            params: [answerId, userId, userId, userId]
+        };
+    }
+};
+
+
 
 module.exports.quizzConfig = quizzConfig,
 module.exports.noteQuizzConfig = noteQuizzConfig;
@@ -166,3 +214,5 @@ module.exports.ueUserConfig = ueUserConfig;
 module.exports.userConfig = userConfig;
 module.exports.forumConfig = forumConfig;
 module.exports.messageConfig = messageConfig;
+module.exports.annotationConfig = annotationConfig;
+module.exports.answerToAnnotationConfig = answerToAnnotationConfig;
