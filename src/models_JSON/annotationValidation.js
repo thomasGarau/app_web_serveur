@@ -9,14 +9,14 @@ const annotationSchema = Joi.object({
     contenu: Joi.string().min(1).max(1000).required()
 });
 
-const annotation_cours_Schema = Joi.object({
+const annotationCoursSchema = Joi.object({
     annotation: Joi.array().items(annotationSchema).required(),
     cours: Joi.number().integer().required(),
     index_depart: Joi.number().integer().required(),
     index_fin: Joi.number().integer().required()
 });
 
-const annotation_quizz_Schema = Joi.object({
+const annotationQuizzSchema = Joi.object({
     annotation: Joi.array().items(annotationSchema).required(),
     question: Joi.number().integer().required()
 }); 
@@ -43,8 +43,8 @@ const answerToAnnotationUpdateSchema = Joi.object({
 
 module.exports = {
     annotationSchema,
-    annotation_cours_Schema,
-    annotation_quizz_Schema,
+    annotationCoursSchema,
+    annotationQuizzSchema,
     answerToAnnotationSchema,
     annotationUpdateSchema,
     answerToAnnotationUpdateSchema

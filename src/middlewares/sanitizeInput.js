@@ -1,11 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-const {reponseQuizzSchema, creationQuizzSchema, questionSchema, updateQuestionSchema, updateQuizzSchema, updateReponseSchema} = require('../models_JSON/reponseQuizzValidation.js');
-const { schemaInteraction } = require('../models_JSON/trackingDataValidation.js')
-const { updateUserSchema } = require('../models_JSON/userValidation.js');
-const { answerToAnnotationSchema, annotationUpdateSchema, answerToAnnotationUpdateSchema } = require('../models_JSON/annotationValidation.js');
-
 // Validation pour les champs généraux
 const validateField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
@@ -29,6 +24,7 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
+//pareille que validateField mais pour les champs de type texte nécessitant plus de caractère ainsi que de la poncutation est des accents
 const exceptionField = (...fieldNames) => {
     return fieldNames.map(fieldName => {
       return body(fieldName)
@@ -96,71 +92,7 @@ const validate = (req, res, next) => {
     next();
 };
 
-const validateReponseQuizzType = (req, res, next) => {
-    const { error } = reponseQuizzSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateQuizzType = (req, res, next) => {
-    const { error } = creationQuizzSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateQuestionType = (req, res, next) => {
-    const { error } = questionSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateQuizzUpdateType = (req, res, next) => {
-    const { error } = updateQuizzSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateQuestionUpdateType = (req, res, next) => {
-    const { error } = updateQuestionSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateReponseUpdateType = (req, res, next) => {
-    const { error } = updateReponseSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateJtrackingType = (req, res, next) => {
-    const { error } = schemaInteraction.validate(req.body.data);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const updateUserType = (req, res, next) => {
-    const { error } = updateUserSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-};
-
-const validateAnnotationType = (schema) => (req, res, next) => {
+const validateObjectSchema = (schema) => (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
         return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
@@ -168,29 +100,6 @@ const validateAnnotationType = (schema) => (req, res, next) => {
     next();
 };
 
-const validateAnnotationUpdateType = (req, res, next) => {
-    const { error } = annotationUpdateSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-}
-
-const validateAnswerToAnnotationType = (req, res, next) => {
-    const { error } = answerToAnnotationSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-}
-
-const validateAnswerToAnnotationUpdateType = (req, res, next) => {
-    const { error } = answerToAnnotationUpdateSchema.validate(req.body);
-    if (error) {
-        return res.status(400).send({ message: `Validation error: ${error.details.map(x => x.message).join(', ')}` });
-    }
-    next();
-}
 
 
 module.exports = {
@@ -201,29 +110,7 @@ module.exports = {
     exceptionField,
     validateEmail,
     validatePassword,
-    hashPassword
+    hashPassword,
+    validateObjectSchema,
 };
 
-module.exports.quizzValidation = { 
-    validateQuizzType, 
-    validateReponseQuizzType,
-    validateQuestionType,
-    validateQuizzUpdateType,
-    validateQuestionUpdateType,
-    validateReponseUpdateType
-}
-
-module.exports.jMethode = {
-    validateJtrackingType
-}
-
-module.exports.userValidation = {
-    updateUserType
-};
-
-module.exports.annotationValidation = {
-    validateAnnotationType,
-    validateAnnotationUpdateType,
-    validateAnswerToAnnotationType,
-    validateAnswerToAnnotationUpdateType
-};
