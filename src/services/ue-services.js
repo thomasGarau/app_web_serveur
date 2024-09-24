@@ -1,6 +1,4 @@
 const db = require('../../config/database.js');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 
 
 // liste d'ue d'un utilisateur

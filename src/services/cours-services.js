@@ -1,7 +1,4 @@
 const db = require('../../config/database.js');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-
 
 const ChapitreById = async (id_chapitre) => {
     try{
