@@ -20,12 +20,12 @@ router.post('/add-formation', [exceptionField('label'), validateField('id_format
 router.post('/add-ue', [exceptionField('label'), validateField('id_formation'),handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsAdministration, uploadImage], addue);
 router.post('/add-chapitre', [exceptionField('label'), validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher], addchapitre);
 
-router.post('/delete-ue', [validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteue); // role admin 
-router.post('/delete-formation', [validateField('id_formation'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteformation); // role admin
-router.post('/delete-chapitre', [validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher], deletechapitre); // role enseignant
+router.post('/delete-ue', [validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteue); 
+router.post('/delete-formation', [validateField('id_formation'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], deleteformation);
+router.post('/delete-chapitre', [validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist,verifyIsTeacher], deletechapitre);
 
-router.post('/update-ue', [exceptionField('label'), validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration, uploadImage], updateue); // role admin
-router.post('/update-formation', [exceptionField('label'), validateField('id_formation'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], updateformation); // role admin
-router.post('/update-chapitre', [exceptionField('label'), validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher], updatechapitre); // role enseignant
+router.post('/update-ue', [exceptionField('label'), validateField('id_ue'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration, uploadImage], updateue);
+router.post('/update-formation', [exceptionField('label'), validateField('id_formation'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], updateformation);
+router.post('/update-chapitre', [exceptionField('label'), validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher], updatechapitre);
 module.exports = router;
 

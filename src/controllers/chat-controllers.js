@@ -1,6 +1,7 @@
 const chatService = require('../services/chat-services');
 const jwt = require('jsonwebtoken');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
+const {getRoleUtilisateurFromToken} = require('../services/user-service');
 
 
 
@@ -35,9 +36,7 @@ exports.messageByForum = (async (req,res) => {
 exports.addMessage = (async (req,res) => {
     try{
         const {contenu,id_forum} = req.body;
-        const token = req.headers.authorization.split(' ')[1];
-        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id_etudiant = token_decoded.id_etudiant;
+        const id_etudiant = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await chatService.saveMessage(contenu,id_forum,id_etudiant);
         res.status(200).send('Ajout réussi');
     }
@@ -51,10 +50,9 @@ exports.addMessage = (async (req,res) => {
 
 exports.deleteMessage = (async (req,res) => {
     try{
-        const {id_message,token} = req.body;
-        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const role = token_decoded.role;
-        const id_etudiant = token_decoded.id_etudiant;
+        const {id_message} = req.body;
+        const id_etudiant = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const role = await getRoleUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await chatService.deleteMessage(id_message,role,id_etudiant);
         res.status(200).send('Suppression réussie');
     }
@@ -68,9 +66,8 @@ exports.deleteMessage = (async (req,res) => {
 
 exports.updateMessage = (async (req,res) => {
     try{
-        const {id_message,contenu,id_forum,token} = req.body;
-        const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id_etudiant = token_decoded.id_etudiant;
+        const {id_message,contenu,id_forum} = req.body;
+        const id_etudiant = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await chatService.updateMessage(id_message,contenu,id_forum,id_etudiant);
         res.status(200).send('Modification réussie');
     }
@@ -170,10 +167,9 @@ exports.forumList = (async (req,res) => {
 
 exports.addForumCours = (async (req,res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const id_utilisateur = await getIdUtilisateurFromToken(token);
         const {label,id_cours,contenu} = req.body;
-        const forum = await chatService.addForumCours(label,id_cours,contenu,id_utilisateur);
+        const id_etudiant = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const forum = await chatService.addForumCours(label,id_cours,contenu,id_etudiant);
         res.status(200).send(forum);
     } catch (err) {
         console.error(err);
@@ -183,8 +179,7 @@ exports.addForumCours = (async (req,res) => {
 
 exports.addForumQuizz = (async (req,res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const id_utilisateur = await getIdUtilisateurFromToken(token);
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const {label,id_quizz,contenu} = req.body;
         const forum = await chatService.addForumQuizz(label,id_quizz,contenu,id_utilisateur);
         res.status(200).send(forum);
@@ -196,9 +191,8 @@ exports.addForumQuizz = (async (req,res) => {
 
 exports.updateForum = (async (req,res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const id_utilisateur = await getIdUtilisateurFromToken(token);
         const {id_forum,label,etat} = req.body;
+        const id_utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await chatService.updateForum(id_forum,label,etat,id_utilisateur);
         res.status(200).send('Modification réussie');
     } catch (err) {

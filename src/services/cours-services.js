@@ -16,16 +16,32 @@ const ChapitreById = async (id_chapitre) => {
 }
 
 //liste des cours d'un chapitre
-const courlist = async (id_chapitre) => {
-    try{
-        const [rows] = await db.query('SELECT * FROM cours WHERE id_chapitre = ?' , [id_chapitre]);
-        if (rows.length > 0){
-            return rows;
+const courlist = async (id_chapitre, utilisateur) => {
+    try {
+        const query = `
+        SELECT c.id_cours AS id, c.label, c.type, COALESCE(ac.etat_progression, 0) AS progression
+        FROM cours c
+        LEFT JOIN avancement_cours ac 
+        ON c.id_cours = ac.id_cours AND ac.id_user = ?
+        WHERE c.id_chapitre = ?
+        `;
+        const [rows] = await db.query(query, [utilisateur, id_chapitre]);
+
+        if (rows.length > 0) {
+            const totalProgress = rows.reduce((sum, row) => sum + row.progression, 0);
+            const progressionChapitre = totalProgress / rows.length;
+
+            return {
+                progression_chapitre: progressionChapitre,
+                cours: rows
+            };
+        } else {
+            return {
+                progression_chapitre: 0,
+                cours: []
+            };
         }
-        else {
-           return [];
-        }
-    }catch(error){
+    } catch (error) {
         throw new Error('Erreur lors de la récupération des cours');
     }
 }
@@ -46,15 +62,17 @@ const courById = async (id_study) => {
 }
 
 // ajouter un cours
-const addcour = async (id_study,label,contenu,id_chapitre) => {
-    try{
-        await db.query('INSERT INTO cours(id_cours,label,contenu,id_chapitre) VALUES(?,?,?,?)', [id_study,label,contenu,id_chapitre]);
-    }
-    catch (err) {
+const addcour = async ({ label, id_chapitre, path, type }) => {
+    try {
+        await db.query(
+            'INSERT INTO cours (label, id_chapitre, path, type) VALUES (?, ?, ?, ?)',
+            [label, id_chapitre, path, type]
+        );
+    } catch (err) {
         console.error(err);
-        throw new Error('erreur durant l ajout');
+        throw new Error('Erreur durant l\'ajout');
     }
-}
+};
 
 // supprimer un cours
 const deletecour = async (id_study) => {
@@ -70,7 +88,12 @@ const deletecour = async (id_study) => {
 // modifier un cours
 const updatecour = async (id_study, label, contenu) => {
     try {
-        const row = await db.query('UPDATE cours SET contenu = ?, label = ? WHERE id_cours = ?', [contenu, label, id_study]);
+        const query = `
+            UPDATE cours SET label = ?,
+            WHERE id_cours = ?;
+        `;
+        await db.query(query, [label, id_study]);
+        return true;
     } catch (err) {
         console.error(err);
         throw new Error('Erreur durant la modification');

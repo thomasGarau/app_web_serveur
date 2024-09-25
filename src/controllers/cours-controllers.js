@@ -1,5 +1,5 @@
 const coursService = require('../services/cours-services');
-const jwt = require('jsonwebtoken');
+const {getIdUtilisateurFromToken} = require('../services/user-service');
 
 exports.ChapitreById = (async (req,res) => {
     try{
@@ -13,12 +13,11 @@ exports.ChapitreById = (async (req,res) => {
     }
 })
 
-// liste des cours d'un chapitre
-
 exports.courlist = (async (req,res) => {
     try{
         const {id_chapitre} = req.body;
-        const cours = await coursService.courlist(id_chapitre);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const cours = await coursService.courlist(id_chapitre, utilisateur);
         res.status(200).send(cours);
     }
     catch (err) {
@@ -26,9 +25,6 @@ exports.courlist = (async (req,res) => {
         res.status(500).send('Echec de la récupération des cours');
     }
 })
-
-
-// cours par id
 
 exports.courById = (async (req,res) => {
     try{
@@ -42,21 +38,25 @@ exports.courById = (async (req,res) => {
     }
 })
 
-// ajouter un cours
+exports.addcours = async (req, res) => {
+    try {
+        const { id_chapitre, label } = req.body;
+        const type = req.courseType;
+        const coursePath = req.coursePath;
 
-exports.addcours = (async (req,res) => {
-    try{
-        const {id_study,label,contenu,id_chapitre} = req.body;
-        await coursService.addcour(id_study,label,contenu,id_chapitre);
+        if (!type || !coursePath) {
+            return res.status(400).send('Type de cours ou chemin du cours manquant.');
+        }
+
+        await coursService.addcour({label,id_chapitre, path: coursePath, type});
+
         res.status(200).send('Ajout réussi');
-    }
-    catch (err){
+    } catch (err) {
         console.error(err);
-        res.status(500).send('Echec de l ajout');
+        res.status(500).send('Echec de l\'ajout');
     }
-})
+}
 
-// supprimer un cours
 
 exports.deletecours = (async (req,res) => {
     try{
@@ -70,12 +70,10 @@ exports.deletecours = (async (req,res) => {
     }
 })
 
-// modifie un cours
-
 exports.updatecours = (async (req,res)=>{
     try{
-        const {id_study,label,contenu} = req.body;
-        await coursService.updatecour(id_study,label,contenu);
+        const {id_study,label} = req.body;
+        await coursService.updatecour(id_study,label);
         res.status(200).send('Modification réussie');
     }
     catch(err){
