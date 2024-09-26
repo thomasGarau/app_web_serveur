@@ -26,17 +26,39 @@ exports.courlist = (async (req,res) => {
     }
 })
 
-exports.courById = (async (req,res) => {
-    try{
-        const {id_study} = req.body;
-        const cours = await coursService.courById(id_study);
-        res.status(200).send(cours);
-    }
-    catch (err) {
+exports.courById = async (req, res) => {
+    try {
+        const { id_cours } = req.params;
+        const coursContent = await coursService.getCoursContentById(id_cours);
+
+        if (!coursContent) {
+            return res.status(404).send('Aucun cours avec cet ID');
+        }
+
+        if (coursContent.type === 'file') {
+            res.sendFile(coursContent.filePath, (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send('Erreur lors de l\'envoi du fichier');
+                }
+            });
+        } else if (coursContent.type === 'link') {
+            res.status(200).json({ link: coursContent.link });
+        } else {
+            res.status(400).send('Type de cours inconnu');
+        }
+    } catch (err) {
         console.error(err);
-        res.status(500).send('Echec de la récupération du cours');
+
+        if (err.message === 'Accès non autorisé') {
+            res.status(403).send(err.message);
+        } else if (err.message === 'Fichier introuvable') {
+            res.status(404).send(err.message);
+        } else {
+            res.status(500).send('Échec de la récupération du cours');
+        }
     }
-})
+};
 
 exports.addcours = async (req, res) => {
     try {
@@ -81,3 +103,16 @@ exports.updatecours = (async (req,res)=>{
         res.status(500).send('Echec de la modification');
     }
 })
+
+exports.addProgression = async (req,res) => {
+    try{
+        const {id_study, progression} = req.body;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        await coursService.addProgression(id_study, utilisateur);
+        res.status(200).send('Progression ajoutée');
+    }
+    catch(err){
+        console.error(err);
+        res.status(500).send('Echec de l\'ajout de la progression');
+    }
+};

@@ -1,4 +1,6 @@
 const db = require('../../config/database.js');
+const fs = require('fs').promises;
+const path = require('path');
 
 const ChapitreById = async (id_chapitre) => {
     try{
@@ -15,7 +17,6 @@ const ChapitreById = async (id_chapitre) => {
     }
 }
 
-//liste des cours d'un chapitre
 const courlist = async (id_chapitre, utilisateur) => {
     try {
         const query = `
@@ -46,22 +47,41 @@ const courlist = async (id_chapitre, utilisateur) => {
     }
 }
 
-// cours par id 
-const courById = async (id_study) => {
-    try{
-        const [rows] = await db.query('SELECT * FROM cours WHERE id_cours = ?' , [id_study]);
-        if (rows.length > 0){
-            return rows;
+const getCoursContentById = async (id_cours) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM cours WHERE id_cours = ?', [id_cours]);
+        if (rows.length === 0) {
+            return null; 
         }
-        else {
-            return 'Aucun cours avec cet id';
-        }
-    }catch(error){
-        throw new Error('Erreur lors de la récupération du cours');
-    }
-}
 
-// ajouter un cours
+        const cours = rows[0];
+        const { type, path: coursePath, label } = cours;
+
+        if (['pdf', 'video', 'telechargeable'].includes(type)) {
+
+            const filePath = path.resolve(__dirname, '..', '..', coursePath);
+
+            const allowedDir = path.resolve(__dirname, '..', '..', 'cours');
+            if (!filePath.startsWith(allowedDir)) {
+                throw new Error('Accès non autorisé');
+            }
+
+            await fs.access(filePath);
+
+            return { type: 'file', filePath, label };
+        } else if (['youtube', 'lien'].includes(type)) {
+
+            return { type: 'link', link: coursePath };
+
+        } else {
+            throw new Error('Type de cours inconnu');
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('Erreur lors de la récupération du contenu du cours', error);
+    }
+};
+
 const addcour = async ({ label, id_chapitre, path, type }) => {
     try {
         await db.query(
@@ -74,19 +94,38 @@ const addcour = async ({ label, id_chapitre, path, type }) => {
     }
 };
 
-// supprimer un cours
-const deletecour = async (id_study) => {
-    try{
-        await db.query('DELETE FROM cours WHERE id_cours = ?', [id_study]);
-    }
-    catch (err) {
-        console.error(err);
-        throw new Error('erreur durant la suppression');
-    }
-}
+const deleteCour = async (id_cours) => {
+    try {
+        // Récupére les informations du cours
+        const [rows] = await db.query('SELECT path, type FROM cours WHERE id_cours = ?', [id_cours]);
 
-// modifier un cours
-const updatecour = async (id_study, label, contenu) => {
+        if (rows.length === 0) {
+            throw new Error('Cours non trouvé');
+        }
+
+        const { path: coursePath, type } = rows[0];
+
+        // Si le cours est un fichier stocké sur le serveur, le supprimer
+        if (['pdf', 'video', 'telechargeable'].includes(type)) {
+            // Construit le chemin absolu du fichier
+            const filePath = path.join(__dirname, '..', '..', coursePath);
+
+            // Vérifie si le fichier existe
+            await fs.access(filePath);
+
+            // Supprime le fichier
+            await fs.unlink(filePath);
+        }
+
+        await db.query('DELETE FROM cours WHERE id_cours = ?', [id_cours]);
+
+    } catch (err) {
+        console.error(err);
+        throw new Error('Erreur lors de la suppression du cours');
+    }
+};
+
+const updatecour = async (id_study, label) => {
     try {
         const query = `
             UPDATE cours SET label = ?,
@@ -100,12 +139,27 @@ const updatecour = async (id_study, label, contenu) => {
     }
 }
 
+const addProgression = async (id_cours, id_user, progression) => { 
+    try {
+        await db.query(
+            'INSERT INTO avancement_cours (id_cours, id_utilisateur, progression) VALUES (?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE progression = GREATEST(progression, VALUES(progression))',
+            [id_cours, id_user, progression]
+        );
+    } catch (err) {
+        console.error(err);
+        throw new Error('Erreur durant l\'ajout de la progression');
+    }
+};
+
+
 
 module.exports = {
     courlist,
-    courById,
+    getCoursContentById,
     addcour,
-    deletecour,
+    deleteCour,
     updatecour,
-    ChapitreById
+    ChapitreById,
+    addProgression
 }
