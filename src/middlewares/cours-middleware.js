@@ -52,6 +52,9 @@ async function determineCourseType(req, res, next) {
                 '.mpeg': 'video',
                 '.mov': 'video',
                 '.wmv': 'video',
+                '.jpg': 'img',
+                '.png': 'img',
+                '.webp': 'img',
             };
 
             const type = extensionToType[extension] || 'telechargeable';

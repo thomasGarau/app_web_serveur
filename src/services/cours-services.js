@@ -57,7 +57,7 @@ const getCoursContentById = async (id_cours) => {
         const cours = rows[0];
         let { type, path: coursePath, label } = cours;
 
-        if (['pdf', 'video', 'telechargeable'].includes(type)) {
+        if (['pdf', 'video', 'img', 'telechargeable'].includes(type)) {
 
             // Supprimer le préfixe 'app_web_serveur\' de coursePath
             coursePath = coursePath.replace(/^app_web_serveur[\\/]/, '');
@@ -65,10 +65,11 @@ const getCoursContentById = async (id_cours) => {
             const filePath = path.resolve(__dirname, '..', '..', coursePath);
 
             const allowedDir = path.resolve(__dirname, '..', '..', 'cours');
+            console.log(allowedDir)
+            
             if (!filePath.startsWith(allowedDir)) {
                 throw new Error('Accès non autorisé');
             }
-
             await fs.access(filePath);
 
             return { type: 'file', filePath, label };
