@@ -19,7 +19,7 @@ const annotationQuizzSchema = Joi.object({
 }); 
 
 const answerToAnnotationSchema = Joi.object({
-    id_annotation: Joi.number().integer().required(),
+    annotation: Joi.number().integer().required(),
     date: Joi.date().required(),
     contenu: Joi.string().min(1).max(1000).required()
 });
@@ -31,7 +31,7 @@ const annotationUpdateSchema = Joi.object({
 });
 
 const answerToAnnotationUpdateSchema = Joi.object({
-    answer: Joi.number().integer().required(),
+    reponse: Joi.number().integer().required(),
     contenu: Joi.string().min(1).max(255).optional()
 });
 

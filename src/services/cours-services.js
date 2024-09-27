@@ -23,7 +23,7 @@ const courlist = async (id_chapitre, utilisateur) => {
         SELECT c.id_cours AS id, c.label, c.type, COALESCE(ac.etat_progression, 0) AS progression
         FROM cours c
         LEFT JOIN avancement_cours ac 
-        ON c.id_cours = ac.id_cours AND ac.id_user = ?
+        ON c.id_cours = ac.id_cours AND ac.id_utilisateur = ?
         WHERE c.id_chapitre = ?
         `;
         const [rows] = await db.query(query, [utilisateur, id_chapitre]);
@@ -43,7 +43,7 @@ const courlist = async (id_chapitre, utilisateur) => {
             };
         }
     } catch (error) {
-        throw new Error('Erreur lors de la récupération des cours');
+        throw new Error('Erreur lors de la récupération des cours', error);
     }
 }
 
@@ -55,9 +55,12 @@ const getCoursContentById = async (id_cours) => {
         }
 
         const cours = rows[0];
-        const { type, path: coursePath, label } = cours;
+        let { type, path: coursePath, label } = cours;
 
         if (['pdf', 'video', 'telechargeable'].includes(type)) {
+
+            // Supprimer le préfixe 'app_web_serveur\' de coursePath
+            coursePath = coursePath.replace(/^app_web_serveur[\\/]/, '');
 
             const filePath = path.resolve(__dirname, '..', '..', coursePath);
 
@@ -82,11 +85,11 @@ const getCoursContentById = async (id_cours) => {
     }
 };
 
-const addcour = async ({ label, id_chapitre, path, type }) => {
+const addcour = async ({ label, chapitre, path, type }) => {
     try {
         await db.query(
             'INSERT INTO cours (label, id_chapitre, path, type) VALUES (?, ?, ?, ?)',
-            [label, id_chapitre, path, type]
+            [label, chapitre, path, type]
         );
     } catch (err) {
         console.error(err);
@@ -96,19 +99,23 @@ const addcour = async ({ label, id_chapitre, path, type }) => {
 
 const deleteCour = async (id_cours) => {
     try {
-        // Récupére les informations du cours
+        // Récupère les informations du cours
         const [rows] = await db.query('SELECT path, type FROM cours WHERE id_cours = ?', [id_cours]);
 
         if (rows.length === 0) {
             throw new Error('Cours non trouvé');
         }
 
-        const { path: coursePath, type } = rows[0];
+        let { path: coursePath, type } = rows[0];
+
+        // Supprimer le préfixe 'app_web_serveur\' de coursePath
+        coursePath = coursePath.replace(/^app_web_serveur[\\/]/, '');
 
         // Si le cours est un fichier stocké sur le serveur, le supprimer
         if (['pdf', 'video', 'telechargeable'].includes(type)) {
             // Construit le chemin absolu du fichier
-            const filePath = path.join(__dirname, '..', '..', coursePath);
+            const baseDir = path.join(__dirname, '..', '..'); // Remonte à la racine du projet
+            const filePath = path.join(baseDir, coursePath);
 
             // Vérifie si le fichier existe
             await fs.access(filePath);
@@ -128,7 +135,7 @@ const deleteCour = async (id_cours) => {
 const updatecour = async (id_study, label) => {
     try {
         const query = `
-            UPDATE cours SET label = ?,
+            UPDATE cours SET label = ?
             WHERE id_cours = ?;
         `;
         await db.query(query, [label, id_study]);
@@ -142,8 +149,8 @@ const updatecour = async (id_study, label) => {
 const addProgression = async (id_cours, id_user, progression) => { 
     try {
         await db.query(
-            'INSERT INTO avancement_cours (id_cours, id_utilisateur, progression) VALUES (?, ?, ?) ' +
-            'ON DUPLICATE KEY UPDATE progression = GREATEST(progression, VALUES(progression))',
+            'INSERT INTO avancement_cours (id_cours, id_utilisateur, etat_progression) VALUES (?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE etat_progression = GREATEST(etat_progression, VALUES(etat_progression))',
             [id_cours, id_user, progression]
         );
     } catch (err) {

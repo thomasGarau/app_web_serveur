@@ -106,7 +106,7 @@ const ueConfig = {
         return {
           query : `SELECT *
             FROM utilisateur u
-            JOIN enseignants_ue eu ON u.num_etudiant = eu.num_etudiant
+            JOIN enseignants_ue eu ON u.id_utilisateur = eu.id_utilisateur
             JOIN chapitre c ON eu.id_ue = c.id_ue
             JOIN cours cr ON c.id_chapitre = cr.id_chapitre
             WHERE u.id_utilisateur = ? AND cr.id_cours = ?`,

@@ -20,16 +20,16 @@ exports.courlist = (async (req,res) => {
         const cours = await coursService.courlist(id_chapitre, utilisateur);
         res.status(200).send(cours);
     }
-    catch (err) {
-        console.error(err);
+    catch (error) {
+        console.error(error);
         res.status(500).send('Echec de la récupération des cours');
     }
 })
 
 exports.courById = async (req, res) => {
     try {
-        const { id_cours } = req.params;
-        const coursContent = await coursService.getCoursContentById(id_cours);
+        const { id_study } = req.body;
+        const coursContent = await coursService.getCoursContentById(id_study);
 
         if (!coursContent) {
             return res.status(404).send('Aucun cours avec cet ID');
@@ -62,15 +62,16 @@ exports.courById = async (req, res) => {
 
 exports.addcours = async (req, res) => {
     try {
-        const { id_chapitre, label } = req.body;
+        const { chapitre } = req.body;
         const type = req.courseType;
         const coursePath = req.coursePath;
+        const label = req.label
 
         if (!type || !coursePath) {
             return res.status(400).send('Type de cours ou chemin du cours manquant.');
         }
 
-        await coursService.addcour({label,id_chapitre, path: coursePath, type});
+        await coursService.addcour({label, chapitre, path: coursePath, type});
 
         res.status(200).send('Ajout réussi');
     } catch (err) {
@@ -83,7 +84,7 @@ exports.addcours = async (req, res) => {
 exports.deletecours = (async (req,res) => {
     try{
         const {id_study} = req.body;
-        await coursService.deletecour(id_study);
+        await coursService.deleteCour(id_study);
         res.status(200).send('Suppression réussie');
     }
     catch (err) {
@@ -108,7 +109,7 @@ exports.addProgression = async (req,res) => {
     try{
         const {id_study, progression} = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        await coursService.addProgression(id_study, utilisateur);
+        await coursService.addProgression(id_study, utilisateur, progression);
         res.status(200).send('Progression ajoutée');
     }
     catch(err){

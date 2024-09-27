@@ -11,8 +11,8 @@ router.post('/allcours-chapitre',[validateField('id_chapitre'), handleValidation
 router.post('/cours-id',[validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], courById);
 router.post('/getChapitreById', [validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], ChapitreById);
 
-router.post('/add-cours', [exceptionField('label'), validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyTokenBlacklist, verifyIsTeacher, determineCourseType, fetchIdUe, uploadCoursFile], addcours);
-router.post('/update-cours',[exceptionField('contenu', 'label'), validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher, verifyOwner(ueConfig,"id_study")], updatecours);
+router.post('/add-cours', [validateField('id_chapitre'), handleValidationErrors, verifyAuthorisation,verifyTokenBlacklist, verifyIsTeacher, uploadCoursFile, fetchIdUe, determineCourseType], addcours);
+router.post('/update-cours',[exceptionField('label'), validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher, verifyOwner(ueConfig,"id_study")], updatecours);
 router.post('/delete-cours',[validateField('id_study'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyIsTeacher, verifyOwner(ueConfig,"id_study")], deletecours);
 
 router.post('/add-cours-progression', [validateField('id_study', 'progression'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], addProgression);

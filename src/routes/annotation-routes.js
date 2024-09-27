@@ -12,8 +12,8 @@ router.post('/annotation-quizz', [validateField("quizz"), handleValidationErrors
 router.post('/annotation-cours', [validateField("cours") , handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], getAllAnnotationForCours);
 router.post('/annotation-answer', [validateField("annotation"), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], getAllAnswerForAnnotation);
 
-router.post('/create-annotation_cours', [validateObjectSchema(annotationCoursSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createAnnotationCours);
-router.post('/create-annotation_quizz', [validateObjectSchema(annotationQuizzSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createAnnotationQuizz);
+router.post('/create-annotation-cours', [validateObjectSchema(annotationCoursSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createAnnotationCours);
+router.post('/create-annotation-quizz', [validateObjectSchema(annotationQuizzSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createAnnotationQuizz);
 router.post('/add-answer', [validateObjectSchema(answerToAnnotationSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], addAnswerToAnnotation);
 
 router.put('/update-annotation-state', [validateObjectSchema(annotationUpdateSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(annotationConfig, "annotation")], updateAnnotationState);

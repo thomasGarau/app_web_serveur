@@ -32,7 +32,7 @@ const {quizzConfig} = require('../middlewares/objectConfig.js');
 const {questionConfig} = require('../middlewares/objectConfig.js');
 const {noteQuizzConfig} = require('../middlewares/objectConfig.js');
 const { validateObjectSchema } = require('../middlewares/sanitizeInput.js');
-const { creationQuizzSchema, questionSchema, reponseQuizzSchema, updateQuizzSchema, updateQuestionSchema, } = require('../models_JSON/quizzValidation.js');
+const { creationQuizzSchema, questionSchema, reponseQuizzSchema, updateQuizzSchema, updateQuestionSchema, } = require('../models_JSON/reponseQuizzValidation.js');
 
 router.get('/listQuizzCreer', [verifyAuthorisation, verifyTokenBlacklist], listQuizzCreer);
 router.get('/listQuizzPasser', [verifyAuthorisation, verifyTokenBlacklist], listQuizzPasser);

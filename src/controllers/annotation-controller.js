@@ -36,8 +36,9 @@ exports.getAllAnswerForAnnotation = async (req,res) => {
 
 exports.createAnnotationCours = async (req,res) => {
     try{
-        const {cours, contenu, etat, date} = req.body;
+        const {cours, contenu, etat} = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const date = new Date();
         await annotationService.createAnnotationCours(cours, contenu, etat, date, utilisateur);
         res.status(200).send('Annotation créée');
     }catch(err){
@@ -48,8 +49,9 @@ exports.createAnnotationCours = async (req,res) => {
 
 exports.createAnnotationQuizz = async (req,res) => {
     try{
-        const {question, contenu, etat, date} = req.body;
+        const {question, contenu, etat} = req.body;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const date = new Date();
         await annotationService.createAnnotationQuizz(question, contenu, etat, date, utilisateur);
         res.status(200).send('Annotation créée');
     }catch(err){
@@ -60,7 +62,8 @@ exports.createAnnotationQuizz = async (req,res) => {
 
 exports.addAnswerToAnnotation = async (req,res) => {
     try{
-        const {annotation, contenu, etat, date} = req.body;
+        const {annotation, contenu, etat} = req.body;
+        const date = new Date();
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         await annotationService.addAnswerToAnnotation(annotation, contenu, etat, date, utilisateur);
         res.status(200).send('Réponse ajoutée');
