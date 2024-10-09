@@ -6,7 +6,6 @@ const fs = require('fs');
 // Configuration du stockage
 const storage = multer.diskStorage({
     destination: function(req, file, callback) {
-
         //chemin du dossier
         const dir = path.join(__dirname, '..', 'multer_cache');
 
@@ -22,9 +21,18 @@ const storage = multer.diskStorage({
 });
 
 // Filtrage des fichiers pour accepter les types souhaités
-const allowedTypes = ['application/pdf', 'video/mp4', 'video/avi', 'video/mpeg'];
+const allowedTypes = [
+    'application/pdf',       // PDF
+    'video/mp4',             // MP4 Video
+    'video/avi',             // AVI Video
+    'video/mpeg',            // MPEG Video
+    'image/jpeg',            // JPEG Image
+    'image/png',             // PNG Image
+    'image/gif'              // GIF Image
+];
 
 const fileFilter = (req, file, callback) => {
+    console.log(file.mimetype)
     if (allowedTypes.includes(file.mimetype)) {
         callback(null, true);
     } else {
@@ -35,3 +43,4 @@ const fileFilter = (req, file, callback) => {
 const uploadCours = multer({ storage: storage, fileFilter: fileFilter });
 
 module.exports = uploadCours;
+
