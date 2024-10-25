@@ -15,17 +15,11 @@ const RoleEnum = {
     ETUDIANT: 'etudiant'
 }
 
-const VisibiliteCMEnum = { 
+const VisibiliteEnum = { 
     PUBLIC: 'public',
     PRIVE: 'prive',
-    COMMUN: 'commun'
 }
 
-const PrivilegeCMEnum = {
-    LECTURE: 'lecture',
-    ECRITURE: 'ecriture',
-    CREATEUR: 'createur'
-}
 
 const QuizzTypeEnum = {
     NORMAL: 'normal',
@@ -52,9 +46,8 @@ module.exports.userEnum = {
     RoleEnum
 };
 
-module.exports.coursEnum = {
-    VisibiliteCMEnum,
-    PrivilegeCMEnum
+module.exports.visibiliteEnum = {
+    VisibiliteEnum,
 };
 
 module.exports.quizzEnum = {

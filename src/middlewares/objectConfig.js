@@ -201,6 +201,17 @@ const answerToAnnotationConfig = {
     }
 };
 
+const flashcardConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM flashcard
+                    WHERE id_flashcard = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        };
+    }
+}
+
 
 
 module.exports.quizzConfig = quizzConfig,
@@ -216,3 +227,4 @@ module.exports.forumConfig = forumConfig;
 module.exports.messageConfig = messageConfig;
 module.exports.annotationConfig = annotationConfig;
 module.exports.answerToAnnotationConfig = answerToAnnotationConfig;
+module.exports.flashcardConfig = flashcardConfig;
