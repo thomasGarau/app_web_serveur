@@ -14,7 +14,7 @@ router.post('/daily-flashcards', [verifyAuthorisation, verifyTokenBlacklist], da
 router.post('/flashcard-answer', [validateField('flashcard', 'answer'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], flashcardAnswer);
 
 router.post('/add-flashcard-to-collection', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyVisibility(flashcardVisibilityConfig, "flashcard")], addToCollection);
-router.post('/remove-flashcard-from-collection', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], removeFromCollection);
+router.delete('/remove-flashcard-from-collection', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], removeFromCollection);
 
 router.post('/create-flashcard', [validateObjectSchema(flashcardSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createFlashcard);
 router.put('/update-flashcard', [validateObjectSchema(updateFlashcardSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(flashcardConfig, "flashcard")], updateFlashcard);
