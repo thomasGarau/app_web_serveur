@@ -179,11 +179,33 @@ const GetToken = (req) => {
     return req.headers.authorization.split(' ')[1];
 };
 
+const verifyVisibility = (config, idParamName) => async (req, res, next) => {
+    try {
+        const userId = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const objectId = req.body[idParamName];
+        
+        // récupération et execution de la requete
+        const { query, params } = config.generateVisibilityQuery(userId, objectId);
+        const [rows] = await db.query(query, params);
+
+        //verifie si public ou privé
+        if (rows.length > 0) {
+            next();
+        } else {
+            return res.status(403).send('Ressource privée.');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(401).send('Token invalide ou problème d\'authentification.');
+    }
+};
+
 
 module.exports = {
     verifyAuthorisation,
     verifyTokenBlacklist,
     verifyOwner,
+    verifyVisibility,
     GetToken
 }
 

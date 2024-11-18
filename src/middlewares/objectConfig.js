@@ -212,6 +212,17 @@ const flashcardConfig = {
     }
 }
 
+const flashcardVisibilityConfig = {
+    generateVisibilityQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM flashcard
+                    WHERE id_flashcard = ? AND visibilite = 'public'`,
+            params: [objectId]
+        };
+    }
+};
+
 
 
 module.exports.quizzConfig = quizzConfig,
@@ -228,3 +239,4 @@ module.exports.messageConfig = messageConfig;
 module.exports.annotationConfig = annotationConfig;
 module.exports.answerToAnnotationConfig = answerToAnnotationConfig;
 module.exports.flashcardConfig = flashcardConfig;
+module.exports.flashcardVisibilityConfig = flashcardVisibilityConfig;
