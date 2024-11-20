@@ -1,6 +1,6 @@
 const Joi = require('joi');
-const { annotation } = require('../constants/enums.js');
-const { EtatAnnotationEnum } = annotation;
+const { annotationEnum } = require('../constants/enums.js');
+const { EtatAnnotationEnum } = annotationEnum;
 
 const annotationSchema = Joi.object({
     date: Joi.date().required(),
