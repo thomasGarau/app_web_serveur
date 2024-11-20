@@ -1,7 +1,6 @@
 const flashcardService = require('../services/flashcard-services');
 const {getIdUtilisateurFromToken} = require('../services/user-service');
-
-
+const OwnFlashcardError = require('../constants/errors');
 
 exports.allFlashcard = async (req,res) => {
     try{
@@ -17,7 +16,7 @@ exports.allFlashcard = async (req,res) => {
 exports.userFlashcard = async (req,res) => {
     try{
         const chapitre = req.body.chapitre;
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const flashcards = await flashcardService.userFlashcard(utilisateur, chapitre);
         res.status(200).send(flashcards);
     }catch(err){
@@ -28,7 +27,7 @@ exports.userFlashcard = async (req,res) => {
 
 exports.dailyFlashcard = async (req,res) => {
     try{
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const flashcards = await flashcardService.dailyFlashcard(utilisateur);
         res.status(200).send(flashcards);
     }catch(err){
@@ -39,9 +38,8 @@ exports.dailyFlashcard = async (req,res) => {
 
 exports.flashcardAnswer = async (req,res) => {
     try{
-        const flashcard = req.body.flashcard;
-        const answer = req.body.answer;
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
+        const {flashcard, answer} = req.body;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
         const response = await flashcardService.flashcardAnswer(utilisateur, flashcard, date, answer);
         res.status(200).send(response);
@@ -51,21 +49,26 @@ exports.flashcardAnswer = async (req,res) => {
     }
 };
 
-exports.addToCollection = async (req,res) => {
-    try{
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
+exports.addToCollection = async (req, res) => {
+    try {
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const flashcard = req.body.flashcard;
+
         await flashcardService.addToCollection(utilisateur, flashcard);
         res.status(200).send("Flashcard ajoutée à la collection");
-    }catch(err){
-        console.error(err);
-        res.status(500).send('Echec de l\'ajout de la flashcard à la collection');
+    } catch (err) {
+        if (err instanceof OwnFlashcardError) {
+            return res.status(err.status).send({ message: err.message });
+        }
+
+        console.error('Erreur dans addToCollection Controller :', err);
+        res.status(500).send({ message: 'Echec de l\'ajout de la flashcard à la collection' });
     }
 };
 
 exports.removeFromCollection = async (req,res) => {
     try{
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const flashcard = req.body.flashcard;
         await flashcardService.removeFromCollection(utilisateur, flashcard);
         res.status(200).send("Flashcard retirée de la collection");
@@ -77,8 +80,9 @@ exports.removeFromCollection = async (req,res) => {
 
 exports.createFlashcard = async (req,res) => {
     try{
-        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization);
-        const flashcard = req.body.flashcard;
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const {chapitre, question, reponse, visibilite} = req.body;
+        const flashcard = {chapitre, question, reponse, visibilite};
         await flashcardService.createFlashcard(utilisateur, flashcard);
         res.status(200).send("Flashcard créée");
     }catch(err){
@@ -89,8 +93,9 @@ exports.createFlashcard = async (req,res) => {
 
 exports.updateFlashcard = async (req,res) => {
     try{
-        const flashcard = req.body.flashcard;
-        await flashcardService.updateFlashcard(flashcard);
+        const {flashcard, question, reponse} = req.body;
+        const flashcardData = {flashcard, question, reponse};
+        await flashcardService.updateFlashcard(flashcardData);
         res.status(200).send("Flashcard mise à jour");
     }catch(err){
         console.error(err);

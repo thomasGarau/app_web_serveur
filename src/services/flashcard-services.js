@@ -1,9 +1,10 @@
 const db = require('../../config/database.js');
 const AnswerService = require('./answer-service');
+const OwnFlashcardError = require('../constants/errors');
 
 const allFlashcard = async (chapitre) => {
     try{
-        const query = 'SELECT * FROM flashcard WHERE chapitre = ?';
+        const query = 'SELECT * FROM flashcard WHERE id_chapitre = ?';
         const [rows] = await db.query(query, [chapitre]);
         if (rows.length > 0){
             return rows;
@@ -26,7 +27,7 @@ const userFlashcard = async (utilisateur, chapitre) => {
             WHERE f.id_chapitre = ? 
             AND (f.id_utilisateur = ? OR fc.id_utilisateur = ?);
         `;
-        const [rows] = await db.query(query, [chapitre, utilisateur]);
+        const [rows] = await db.query(query, [chapitre, utilisateur, utilisateur]);
         if (rows.length > 0){
             return rows;
         }
@@ -63,13 +64,11 @@ const flashcardAnswer = async(utilisateur, flashcard, date, userAnswer) => {
     try{
         //récupére la réponse type de la flashcard
         const flashcardAnswerQuery = 'SELECT reponse FROM flashcard WHERE id_flashcard = ?';
-        const flashcardAnswer = await db.query(flashcardAnswerQuery, [flashcard]);
-
+        const flashcardAnswer = (await db.query(flashcardAnswerQuery, [flashcard]))[0][0].reponse;
         //annalyse la corrélation entre la réponse de l'utilisateur et la réponse de la flashcard
-        const answerType = AnswerService.annalyse(flashcardAnswer, userAnswer);
-
+        const answerType = await AnswerService.analyse(flashcardAnswer, userAnswer);
         //enregistre le résultat de la réponse de la flashcard
-        const query = 'INSERT INTO flashcard_reponse (id_utilisateur, id_flashcard, date_reponse, etat_reponse) VALUES (?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO reponse_flashcard (id_utilisateur, id_flashcard, date_reponse, etat_reponse) VALUES (?, ?, ?, ?)';
         const [rows] = await db.query(query, [utilisateur, flashcard, date, answerType]);
         return rows;
     }catch(err){
@@ -78,12 +77,23 @@ const flashcardAnswer = async(utilisateur, flashcard, date, userAnswer) => {
 };
 
 const addToCollection = async (utilisateur, flashcard) => {
-    try{
-        const query = 'INSERT INTO flashcard_collection (id_utilisateur, id_flashcard) VALUES (?, ?)';
-        const [rows] = await db.query(query, [utilisateur, flashcard]);
+    try {
+        const query = `
+            INSERT INTO flashcard_collection (id_utilisateur, id_flashcard)
+            SELECT ?, ?
+            FROM flashcard
+            WHERE id_flashcard = ? AND id_utilisateur != ?;
+        `;
+        const [rows] = await db.query(query, [utilisateur, flashcard, flashcard, utilisateur]);
+
+        if (rows.affectedRows === 0) {
+            throw new OwnFlashcardError();
+        }
+
         return rows;
-    }catch(err){
-        throw new Error('erreur dans l\'ajout de la flashcard à la collection');
+    } catch (err) {
+        console.error('Erreur dans addToCollection :', err);
+        throw err;
     }
 };
 
@@ -99,18 +109,18 @@ const removeFromCollection = async (utilisateur, flashcard) => {
 
 const createFlashcard = async (utilisateur, flashcard) => {
     try{
-        const query = 'INSERT INTO flashcard (id_utilisateur, chapitre, question, reponse) VALUES (?, ?, ?, ?)';
-        const [rows] = await db.query(query, [utilisateur, flashcard.chapitre, flashcard.question, flashcard.reponse]);
+        const query = 'INSERT INTO flashcard (id_utilisateur, id_chapitre, question, reponse, visibilite) VALUES (?, ?, ?, ?, ?)';
+        const [rows] = await db.query(query, [utilisateur, flashcard.chapitre, flashcard.question, flashcard.reponse, flashcard.visibilite]);
         return rows;
     }catch(err){
         throw new Error('erreur dans la création de la flashcard');
     }
 };
 
-const updateFlashcard = async (utilisateur, flashcard) => {
+const updateFlashcard = async (flashcard) => {
     try {
         const query = `update flashcard set question = ?, reponse = ? where id_flashcard = ?`;	
-        await db.query(query, [flashcard.question, flashcard.reponse, flashcard.id_flashcard]);
+        await db.query(query, [flashcard.question, flashcard.reponse, flashcard.flashcard]);
         return 'Flashcard mise à jour';
     }catch(err){
         console.error(err);
@@ -118,7 +128,7 @@ const updateFlashcard = async (utilisateur, flashcard) => {
     }
 };
 
-const deleteFlashcard = async (utilisateur, flashcard) => {
+const deleteFlashcard = async (flashcard) => {
     try{
         const query = `
             UPDATE flashcard

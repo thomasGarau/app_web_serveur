@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { visibiliteEnum } = require('../constants/enums.js');
-const { VisibiliteEnum } = VisibiliteEnum;
+const { VisibiliteEnum } = visibiliteEnum;
 
 const flashcardSchema = Joi.object({
     chapitre: Joi.number().integer().required(),
@@ -10,6 +10,7 @@ const flashcardSchema = Joi.object({
 });
 
 const updateFlashcardSchema = Joi.object({
+    flashcard: Joi.number().integer().required(),
     question: Joi.string().min(1).max(255).optional(),
     reponse: Joi.string().min(1).max(255).optional(),
     visibilite: Joi.string().valid(...Object.values(VisibiliteEnum)).optional(),
