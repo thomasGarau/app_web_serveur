@@ -15,7 +15,6 @@ exports.getAllAnnotationForQuizz = async (req,res) => {
 exports.getAllAnnotationForCours = async (req,res) => {
     try{
         const {cours} = req.body;
-        console.log(cours);
         const annotations = await annotationService.getAllAnnotationForCours(cours);
         res.status(200).send(annotations);
     }catch(err) {
@@ -37,7 +36,8 @@ exports.getAllAnswerForAnnotation = async (req,res) => {
 
 exports.createAnnotationCours = async (req,res) => {
     try{
-        const {cours, contenu, etat} = req.body;
+        const cours = req.body.cours;
+        const {contenu, etat} = req.body.annotation;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
         await annotationService.createAnnotationCours(cours, contenu, etat, date, utilisateur);
@@ -50,7 +50,8 @@ exports.createAnnotationCours = async (req,res) => {
 
 exports.createAnnotationQuizz = async (req,res) => {
     try{
-        const {question, contenu, etat} = req.body;
+        const question = req.body.question;
+        const {contenu, etat} = req.body.annotation;
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
         const date = new Date();
         await annotationService.createAnnotationQuizz(question, contenu, etat, date, utilisateur);
@@ -63,10 +64,10 @@ exports.createAnnotationQuizz = async (req,res) => {
 
 exports.addAnswerToAnnotation = async (req,res) => {
     try{
-        const {annotation, contenu, etat} = req.body;
+        const {annotation, contenu} = req.body;
         const date = new Date();
         const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
-        await annotationService.addAnswerToAnnotation(annotation, contenu, etat, date, utilisateur);
+        await annotationService.addAnswerToAnnotation(annotation, contenu, date, utilisateur);
         res.status(200).send('Réponse ajoutée');
     }catch(err){
         console.error(err);
@@ -77,7 +78,7 @@ exports.addAnswerToAnnotation = async (req,res) => {
 exports.deleteAnotation = async (req,res) => {
     try{
         const {annotation} = req.body;
-        await annotationService.deleteAnotation(annotation);
+        await annotationService.deleteAnnotation(annotation);
         res.status(200).send('Annotation supprimée');
     }catch(err){
         console.error(err);

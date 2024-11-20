@@ -154,28 +154,50 @@ const forumConfig = {
     }
 };
 
-const annotationConfig  = {
+const closeAnnotationConfig = {
     generateOwnerQuery: (userId, annotationId) => {
         return {
             query: `SELECT *
                     FROM annotation a
                     LEFT JOIN annotation_cours ac ON a.id_annotation = ac.id_annotation
-                    LEFT JOIN cours c ON ac.id_cours = c.id_cours
                     LEFT JOIN annotation_quizz aq ON a.id_annotation = aq.id_annotation
                     LEFT JOIN question q ON aq.id_question = q.id_question
                     LEFT JOIN quizz qz ON q.id_quizz = qz.id_quizz
                     WHERE a.id_annotation = ?
                     AND (
-                        (c.id_utilisateur = ? AND ac.id_cours IS NOT NULL) -- L'annotation est liée à un cours, et l'utilisateur est propriétaire du cours
+                        -- Vérifier si l'utilisateur est propriétaire du cours via une sous-requête
+                        (ac.id_cours IS NOT NULL AND EXISTS (
+                            SELECT 1
+                            FROM cours c
+                            JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre
+                            JOIN enseignants_ue eu ON ch.id_ue = eu.id_ue
+                            WHERE c.id_cours = ac.id_cours AND eu.id_utilisateur = ?
+                        ))
                         OR
-                        (qz.id_utilisateur = ? AND aq.id_question IS NOT NULL) --L'annotation est liée à un quizz, et l'utilisateur est propriétaire du quizz
-                    )`,    
-            params: [annotationId, userId, userId]
+                        -- Vérifier si l'utilisateur est propriétaire du quizz
+                        (aq.id_question IS NOT NULL AND qz.id_utilisateur = ?)
+                        OR 
+                        -- Vérifier si l'utilisateur est propriétaire de l'annotation
+                        a.id_utilisateur = ?
+                    )`,
+            params: [annotationId, userId, userId, userId]
         };
     }
 };
 
-const answerToAnnotationConfig = {
+const annotationConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM annotation
+                    WHERE id_annotation = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        }
+    }
+};
+
+
+const closeAnswerToAnnotationConfig = {
     generateOwnerQuery: (userId, answerId) => {
         return {
             query: `
@@ -188,15 +210,37 @@ const answerToAnnotationConfig = {
                 LEFT JOIN question q ON aq.id_question = q.id_question
                 LEFT JOIN quizz qz ON q.id_quizz = qz.id_quizz
                 WHERE ra.id_reponse_annotation = ? 
-                AND (
-                    ra.id_utilisateur = ? -- Propriétaire de la réponse
-                    OR 
-                    (ac.id_annotation IS NOT NULL AND c.id_utilisateur = ?) -- Propriétaire du cours
-                    OR 
-                    (aq.id_annotation IS NOT NULL AND qz.id_utilisateur = ?) -- Propriétaire du quizz
-                )
-            `,
-            params: [answerId, userId, userId, userId]
+            AND (
+                -- Vérifier si l'utilisateur est propriétaire du cours via une sous-requête
+                (ac.id_cours IS NOT NULL AND EXISTS (
+                    SELECT 1
+                    FROM cours c
+                    JOIN chapitre ch ON c.id_chapitre = ch.id_chapitre
+                    JOIN enseignants_ue eu ON ch.id_ue = eu.id_ue
+                    WHERE c.id_cours = ac.id_cours AND eu.id_utilisateur = ?
+                ))
+                OR
+                -- Vérifier si l'utilisateur est propriétaire du quizz
+                (aq.id_question IS NOT NULL AND qz.id_utilisateur = ?)
+                OR 
+                -- Vérifier si l'utilisateur est propriétaire de l'annotation
+                a.id_utilisateur = ?
+                OR
+                -- Vérifier si l'utilisateur est propriétaire de la réponse
+                ra.id_utilisateur = ?
+            )`,
+            params: [answerId, userId, userId, userId, userId]
+        };
+    }
+};
+
+const answerToAnnotationConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM reponse_annotation
+                    WHERE id_reponse_annotation = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
         };
     }
 };
@@ -236,7 +280,9 @@ module.exports.ueUserConfig = ueUserConfig;
 module.exports.userConfig = userConfig;
 module.exports.forumConfig = forumConfig;
 module.exports.messageConfig = messageConfig;
+module.exports.closeAnnotationConfig = closeAnnotationConfig;
 module.exports.annotationConfig = annotationConfig;
 module.exports.answerToAnnotationConfig = answerToAnnotationConfig;
+module.exports.closeAnswerToAnnotationConfig = closeAnswerToAnnotationConfig;
 module.exports.flashcardConfig = flashcardConfig;
 module.exports.flashcardVisibilityConfig = flashcardVisibilityConfig;

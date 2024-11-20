@@ -1,3 +1,4 @@
+const e = require('express');
 const db = require('../../config/database');
 
 
@@ -6,8 +7,9 @@ const getAllAnnotationForQuizz = async (quizz) => {
         const query = `
             SELECT *
             FROM annotation_quizz aq
+            JOIN annotation a ON aq.id_annotation = a.id_annotation
             WHERE aq.id_question IN (
-            SELECT q.id
+            SELECT q.id_question
             FROM question q
             WHERE q.id_quizz = ?
             );
@@ -22,10 +24,9 @@ const getAllAnnotationForQuizz = async (quizz) => {
 }
 
 const getAllAnnotationForCours = async (cours) => {
-    console.log(cours);
     try {
         const query = `
-            SELECT * 
+            SELECT ac.* , a.*
             FROM annotation_cours ac 
             JOIN annotation a ON ac.id_annotation = a.id_annotation 
             JOIN cours c ON ac.id_cours = c.id_cours 
@@ -57,7 +58,7 @@ const getAllAnswerForAnnotation = async (annotation) => {
 // Fonction générique pour insérer dans la table 'annotation'
 async function insertAnnotation(connection, contenu, etat, date, utilisateur) {
     const insertAnnotationQuery = `
-        INSERT INTO annotation (contenu, etat, date, id_utilisateur)
+        INSERT INTO annotation (contenu, etat_annotation, date, id_utilisateur)
         VALUES (?, ?, ?, ?);
     `;
     const [result] = await connection.query(insertAnnotationQuery, [contenu, etat, date, utilisateur]);
@@ -69,17 +70,13 @@ async function createAnnotation(tableName, foreignKeyColumn, foreignKeyValue, co
     let connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-
         const annotationId = await insertAnnotation(connection, contenu, etat, date, utilisateur);
-
         // Préparer la requête pour insérer dans la table spécifique
         const insertQuery = `
             INSERT INTO ${tableName} (id_annotation, ${foreignKeyColumn})
             VALUES (?, ?);
         `;
-
         await connection.query(insertQuery, [annotationId, foreignKeyValue]);
-
         await connection.commit();
         return true;
     } catch (error) {
@@ -119,18 +116,20 @@ const deleteAnnotation = async (annotation) => {
 
         // Supprimer l'annotation dans les tables enfants et la table principale
         const deleteQuery = `
+            DELETE FROM reponse_annotation WHERE id_annotation = ?;
             DELETE FROM annotation_cours WHERE id_annotation = ?;
             DELETE FROM annotation_quizz WHERE id_annotation = ?;
             DELETE FROM annotation WHERE id_annotation = ?;
         `;
 
-        await connection.query(deleteQuery, [annotation, annotation, annotation]);
+        await connection.query(deleteQuery, [annotation, annotation, annotation, annotation]);
 
         await connection.commit();
         return true;
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error(error);
         throw new Error('Erreur lors de la suppression de l\'annotation', error);
 
     } finally {
@@ -152,12 +151,13 @@ const updateAnnotationState = async (annotation, etat) => {
     try {
         const query = `
             UPDATE annotation
-            SET etat = ?
+            SET etat_annotation = ?
             WHERE id_annotation = ?;
         `;
         await db.query(query, [etat, annotation]);
         return true;
     } catch (error) {
+        console.error(error);
         throw new Error('Erreur lors de la modification de l\'annotation', error);
     }
 }
