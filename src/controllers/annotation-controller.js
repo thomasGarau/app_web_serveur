@@ -15,7 +15,6 @@ exports.getAllAnnotationForQuizz = async (req,res) => {
 exports.getAllAnnotationForCours = async (req,res) => {
     try{
         const {cours} = req.body;
-        console.log(cours);
         const annotations = await annotationService.getAllAnnotationForCours(cours);
         res.status(200).send(annotations);
     }catch(err) {

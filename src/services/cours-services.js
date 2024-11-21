@@ -65,8 +65,7 @@ const getCoursContentById = async (id_cours) => {
             const filePath = path.resolve(__dirname, '..', '..', coursePath);
 
             const allowedDir = path.resolve(__dirname, '..', '..', 'cours');
-            console.log(allowedDir)
-            
+
             if (!filePath.startsWith(allowedDir)) {
                 throw new Error('Accès non autorisé');
             }

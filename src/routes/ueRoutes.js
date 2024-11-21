@@ -4,7 +4,7 @@ const { validateField, handleValidationErrors, exceptionField } = require('../mi
 const { verifyTokenBlacklist, verifyAuthorisation, verifyIsAdministration } = require('../middlewares/verifyAuthorisation.js');
 const {verifyIsTeacher} = require('../middlewares/verifyAuthorisation.js');
 const {verifyIsTeacherOrAdmin} = require('../middlewares/verifyAuthorisation.js');
-const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deleteformation, updateformation,addformation,chapitreuelist,addchapitre,updatechapitre,deletechapitre,ueInfo, profUeList } = require('../controllers/ue-controllers.js') 
+const { useruelist, uelist, addue, deleteue, updateue, formationuelist, deleteformation, updateformation,addformation,chapitreuelist,addchapitre,updatechapitre,deletechapitre,ueInfo, profUeList } = require('../controllers/ue-controllers.js');
 const {uploadImage} = require('../middlewares/imageCloud');
 
 

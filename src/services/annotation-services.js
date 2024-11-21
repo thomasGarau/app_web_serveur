@@ -22,7 +22,6 @@ const getAllAnnotationForQuizz = async (quizz) => {
 }
 
 const getAllAnnotationForCours = async (cours) => {
-    console.log(cours);
     try {
         const query = `
             SELECT * 

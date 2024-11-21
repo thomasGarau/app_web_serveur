@@ -32,7 +32,6 @@ const allowedTypes = [
 ];
 
 const fileFilter = (req, file, callback) => {
-    console.log(file.mimetype)
     if (allowedTypes.includes(file.mimetype)) {
         callback(null, true);
     } else {

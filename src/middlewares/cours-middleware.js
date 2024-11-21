@@ -60,7 +60,7 @@ async function determineCourseType(req, res, next) {
             const type = extensionToType[extension] || 'telechargeable';
 
             // Définir le chemin du dossier de destination
-            const destDir = path.join(__dirname, '..', '..', 'cours', `ue_${id_ue}`, `chapitre_${chapitre}`);
+            const destDir = path.join(__dirname, '..', '..', 'cours/', `ue_${id_ue}/`, `chapitre_${chapitre}/`);
 
             // Créer le dossier de destination s'il n'existe pas
             await fs.mkdir(destDir, { recursive: true });
