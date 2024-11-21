@@ -93,7 +93,7 @@ const CreateUsersFromCSV = async (filePath, idUniversite) => {
 
 const createFormation = async (filePath, idUniversite) => {
     const results = [];
-    const enseignants = new Map(); // stockage pour éviter les doublons
+    const enseignants = new Map();
     const formations = new Map();
     const ues = new Map();
     const formationUeValues = [];
@@ -101,76 +101,101 @@ const createFormation = async (filePath, idUniversite) => {
 
     return new Promise((resolve, reject) => {
         fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (data) => {
-            results.push(data);
-            if (!enseignants.has(data.num_etudiant_enseignant)) {
-                enseignants.set(data.num_etudiant_enseignant, {
-                    num_etudiant: data.num_etudiant_enseignant,
-                    nom: data.nom_enseignant,
-                    prenom: data.prenom_enseignant,
-                    mail: data.mail_enseignant,
-                    role: data.role_enseignant,
-                    id_universite: idUniversite
-                });
-            }
-        })
-        .on('end', async () => {
-            try {
-                // Insertion des enseignants (uniquement si nouveau)
-                const enseignantValues = Array.from(enseignants.values());
-                const enseignantQuery = `
-                    INSERT INTO utilisateur_valide 
-                    (num_etudiant, nom, prenom, mail_utilisateur, role, id_universite) 
-                    VALUES ? ON DUPLICATE KEY UPDATE num_etudiant = VALUES(num_etudiant)`;
-                await db.query(enseignantQuery, [enseignantValues.map(ens => [ens.num_etudiant, ens.nom, ens.prenom, ens.mail, ens.role, ens.id_universite])]);
-                
-                // Préparation des données pour les insertions groupées des formations, UE et enseignants_UE
-                for (const row of results) {
-                    if (!formations.has(row.label_formation)) {
-                        formations.set(row.label_formation, null); // Placeholder pour l'ID à récupérer après insertion
-                    }
-                    if (!ues.has(row.label_ue)) {
-                        ues.set(row.label_ue, null); // Placeholder pour l'ID à récupérer après insertion
-                    }
-                    enseignantsUeValues.push([row.num_etudiant_enseignant, row.label_ue]); // Associer enseignant et UE
+            .pipe(csv())
+            .on('data', (data) => {
+                results.push(data);
+                if (!enseignants.has(data.num_etudiant_enseignant)) {
+                    enseignants.set(data.num_etudiant_enseignant, {
+                        num_etudiant: data.num_etudiant_enseignant,
+                        nom: data.nom_enseignant,
+                        prenom: data.prenom_enseignant,
+                        mail: data.mail_enseignant,
+                        role: data.role_enseignant,
+                        id_universite: idUniversite
+                    });
                 }
+            })
+            .on('end', async () => {
+                try {
+                    // Étape 1 : Insérer ou mettre à jour les enseignants dans utilisateur_valide
+                    const enseignantValues = Array.from(enseignants.values());
+                    const enseignantQuery = `
+                        INSERT INTO utilisateur_valide 
+                        (num_etudiant, nom, prenom, mail_utilisateur, role, id_universite) 
+                        VALUES ? ON DUPLICATE KEY UPDATE num_etudiant = VALUES(num_etudiant)`;
+                    await db.query(enseignantQuery, [enseignantValues.map(ens => [ens.num_etudiant, ens.nom, ens.prenom, ens.mail, ens.role, ens.id_universite])]);
 
-                // Insertion des formations
-                const formationValues = Array.from(formations.keys()).map(label => [label, idUniversite]);
-                const [formationResult] = await db.query(`INSERT INTO formation (label, id_universite) VALUES ?`, [formationValues]);
-                let formationIdStart = formationResult.insertId;
-                formationValues.forEach(([label], index) => {
-                    formations.set(label, formationIdStart + index);
-                });
+                    // Étape 2 : Insérer dans utilisateur avec des valeurs par défaut
+                    const numEtudiants = Array.from(enseignants.keys());
+                    const utilisateurQuery = `
+                        INSERT INTO utilisateur (num_etudiant, mdp, url, consentement) 
+                        VALUES ?
+                        ON DUPLICATE KEY UPDATE num_etudiant = VALUES(num_etudiant)`;
+                    const utilisateurValues = numEtudiants.map(num => [num, '', null, 0]);
+                    await db.query(utilisateurQuery, [utilisateurValues]);
 
-                // Insertion des UE
-                const ueValues = Array.from(ues.keys()).map(label => [label]);
-                const [ueResult] = await db.query(`INSERT INTO ue (label) VALUES ?`, [ueValues]);
-                let ueIdStart = ueResult.insertId;
-                ueValues.forEach(([label], index) => {
-                    ues.set(label, ueIdStart + index);
-                });
+                    // Étape 3 : Récupérer les id_utilisateur correspondants
+                    const [utilisateurRows] = await db.query(
+                        `SELECT u.id_utilisateur, uv.num_etudiant 
+                         FROM utilisateur u
+                         JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+                         WHERE uv.num_etudiant IN (?)`,
+                        [numEtudiants]
+                    );
 
-                // Préparer les données pour `formation_ue` et `enseignants_ue`
-                formationUeValues.push(...Array.from(formations.entries()).flatMap(([formationLabel, formationId]) => {
-                    return Array.from(ues.entries()).filter(([ueLabel]) => results.some(row => row.label_formation === formationLabel && row.label_ue === ueLabel))
-                                                    .map(([ueLabel, ueId]) => [formationId, ueId]);
-                }));
-                enseignantsUeValues.forEach(([num_etudiant, ueLabel], index) => {
-                    enseignantsUeValues[index] = [num_etudiant, ues.get(ueLabel)]; // Remplacer label UE par son ID
-                });
+                    const numToIdMap = new Map(utilisateurRows.map(row => [row.num_etudiant, row.id_utilisateur]));
 
-                // Insertions finales pour les relations
-                await db.query(`INSERT INTO formation_ue (formation_id_formation, ue_id_ue) VALUES ?`, [formationUeValues]);
-                await db.query(`INSERT INTO enseignants_ue (num_etudiant, id_ue) VALUES ?`, [enseignantsUeValues]);
+                    // Étape 4 : Préparer les données pour les insertions groupées
+                    for (const row of results) {
+                        if (!formations.has(row.label_formation)) {
+                            formations.set(row.label_formation, null);
+                        }
+                        if (!ues.has(row.label_ue)) {
+                            ues.set(row.label_ue, null);
+                        }
 
-                resolve('Formations, UEs, and teachers have been successfully added.');
-            } catch (error) {
-                console.error('Error inserting data:', error);
-                reject(error);
-            }
-        });
+                        const idUtilisateur = numToIdMap.get(row.num_etudiant_enseignant);
+                        if (idUtilisateur) {
+                            enseignantsUeValues.push([idUtilisateur, row.label_ue]);
+                        }
+                    }
+
+                    // Étape 5 : Insérer les formations
+                    const formationValues = Array.from(formations.keys()).map(label => [label, idUniversite]);
+                    const [formationResult] = await db.query(`INSERT INTO formation (label, id_universite) VALUES ?`, [formationValues]);
+                    let formationIdStart = formationResult.insertId;
+                    formationValues.forEach(([label], index) => {
+                        formations.set(label, formationIdStart + index);
+                    });
+
+                    // Étape 6 : Insérer les UE
+                    const ueValues = Array.from(ues.keys()).map(label => [label]);
+                    const [ueResult] = await db.query(`INSERT INTO ue (label) VALUES ?`, [ueValues]);
+                    let ueIdStart = ueResult.insertId;
+                    ueValues.forEach(([label], index) => {
+                        ues.set(label, ueIdStart + index);
+                    });
+
+                    // Étape 7 : Préparer les données pour formation_ue et enseignants_ue
+                    formationUeValues.push(...Array.from(formations.entries()).flatMap(([formationLabel, formationId]) => {
+                        return Array.from(ues.entries()).filter(([ueLabel]) => results.some(row => row.label_formation === formationLabel && row.label_ue === ueLabel))
+                            .map(([ueLabel, ueId]) => [formationId, ueId]);
+                    }));
+
+                    enseignantsUeValues.forEach(([idUtilisateur, ueLabel], index) => {
+                        enseignantsUeValues[index] = [idUtilisateur, ues.get(ueLabel)];
+                    });
+
+                    // Étape 8 : Insertions finales
+                    await db.query(`INSERT INTO formation_ue (formation_id_formation, ue_id_ue) VALUES ?`, [formationUeValues]);
+                    await db.query(`INSERT INTO enseignants_ue (id_utilisateur, id_ue) VALUES ?`, [enseignantsUeValues]);
+
+                    resolve('Formations, UEs, and teachers have been successfully added.');
+                } catch (error) {
+                    console.error('Error inserting data:', error);
+                    reject(error);
+                }
+            });
     });
 };
 
