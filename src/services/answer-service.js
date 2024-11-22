@@ -1,6 +1,12 @@
-const analyse = async(userAnswer, flashcardAnswer) => {
+const  {flaskAPI} = require('../../config/axiosConfig');
+
+const analyse = async(flashcardAnswer, userAnswer) => {
     try{
-        return "juste";
+        const reponse = await flaskAPI.post('/mistral/analyse', {
+            userAnswer,
+            flashcardAnswer
+        });
+        return reponse.data;
     }catch(err){
         console.error(err);
         throw new Error('Erreur dans l\'analyse de la réponse');

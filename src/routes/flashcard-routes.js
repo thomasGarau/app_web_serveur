@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifyTokenBlacklist, verifyAuthorisation, verifyOwner, verifyVisibility } = require('../middlewares/verifyAuthorisation.js');
-const { validateField, handleValidationErrors, validateObjectSchema } = require('../middlewares/sanitizeInput.js');
+const { validateField, handleValidationErrors, validateObjectSchema, exceptionField } = require('../middlewares/sanitizeInput.js');
 
 const {flashcardConfig, flashcardVisibilityConfig} = require('../middlewares/objectConfig.js');
 const {flashcardSchema, updateFlashcardSchema } = require('../models_JSON/flashcardValidation.js');
@@ -11,7 +11,7 @@ router.post('/all-flashcards', [validateField('chapitre'), handleValidationError
 router.post('/user-flashcards', [validateField('chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], userFlashcard);
 router.post('/daily-flashcards', [verifyAuthorisation, verifyTokenBlacklist], dailyFlashcard);
 
-router.post('/flashcard-answer', [validateField('flashcard', 'answer'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], flashcardAnswer);
+router.post('/flashcard-answer', [exceptionField('flashcard', 'answer'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], flashcardAnswer);
 
 router.post('/add-flashcard-to-collection', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyVisibility(flashcardVisibilityConfig, "flashcard")], addToCollection);
 router.delete('/remove-flashcard-from-collection', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], removeFromCollection);

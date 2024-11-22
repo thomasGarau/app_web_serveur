@@ -91,7 +91,7 @@ const getPrediction = async (id_utilisateur) => {
             const clicks = item.clicksMinute * DureeTotal / 60;
             const progression = item.chapitreProgression;
             const predictionData = { clicks, progression, note: 15 };
-            const prediction = await flaskAPI.post('/predict', predictionData);
+            const prediction = await flaskAPI.post('/ia/predict', predictionData);
             return { id_chapitre, prediction: prediction.data[0]};
         });
         const results = await Promise.all(promises);

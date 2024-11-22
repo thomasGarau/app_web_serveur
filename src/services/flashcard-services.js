@@ -60,21 +60,47 @@ const dailyFlashcard = async (utilisateur) => {
     }
 };
 
-const flashcardAnswer = async(utilisateur, flashcard, date, userAnswer) => {
-    try{
-        //récupére la réponse type de la flashcard
+const flashcardAnswer = async (utilisateur, flashcard, date, userAnswer) => {
+    try {
+        // Récupérer la réponse type de la flashcard
         const flashcardAnswerQuery = 'SELECT reponse FROM flashcard WHERE id_flashcard = ?';
         const flashcardAnswer = (await db.query(flashcardAnswerQuery, [flashcard]))[0][0].reponse;
-        //annalyse la corrélation entre la réponse de l'utilisateur et la réponse de la flashcard
-        const answerType = await AnswerService.analyse(flashcardAnswer, userAnswer);
-        //enregistre le résultat de la réponse de la flashcard
-        const query = 'INSERT INTO reponse_flashcard (id_utilisateur, id_flashcard, date_reponse, etat_reponse) VALUES (?, ?, ?, ?)';
-        const [rows] = await db.query(query, [utilisateur, flashcard, date, answerType]);
-        return rows;
-    }catch(err){
-        throw new Error('erreur dans la récupération de la réponse de la flashcard');
+
+        // Analyse la corrélation entre la réponse utilisateur et la réponse de la flashcard
+        const analysis = await AnswerService.analyse(flashcardAnswer, userAnswer);
+
+        // Vérifier si la réponse du serveur Flask est valide
+        if (!analysis || typeof analysis.correct !== 'number' || typeof analysis.explication !== 'string') {
+            console.error("Erreur : Réponse du serveur Flask invalide ou modèle défaillant");
+            return {
+                error: "Erreur dans le traitement par le modèle. Veuillez réessayer.",
+            };
+        }
+
+        const { correct, explication } = analysis;
+
+        // Déterminer si la réponse est juste ou fausse
+        const answer = correct > 70 ? 'juste' : 'faux';
+
+        // Enregistrer dans la base de données seulement si correct > 70
+        if (correct > 70) {
+            const query = 'INSERT INTO reponse_flashcard (id_utilisateur, id_flashcard, date_reponse, etat_reponse) VALUES (?, ?, ?, ?)';
+            await db.query(query, [utilisateur, flashcard, date, answer]);
+        }
+
+        // Retourner un objet JSON avec le résultat
+        return {
+            correcte: answer,
+            explication: explication,
+        };
+    } catch (err) {
+        console.error("Erreur dans flashcardAnswer :", err.message || err);
+        return {
+            error: "Une erreur interne s'est produite. Veuillez réessayer plus tard.",
+        };
     }
 };
+
 
 const addToCollection = async (utilisateur, flashcard) => {
     try {
