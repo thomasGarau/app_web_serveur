@@ -168,6 +168,130 @@ const deleteFlashcard = async (flashcard) => {
     }
 };
 
+function calculateFlashcardScore(flashcard, recentFlashcards, incorrectResponses, recentChapters, weights) {
+    let score = 0;
+
+    // Éviter les flashcards récemment utilisées
+    if (recentFlashcards.includes(flashcard.id_flashcard)) {
+        score -= weights.recentPenalty;
+    }
+
+    // Prioriser les mauvaises réponses
+    if (incorrectResponses.includes(flashcard.id_flashcard)) {
+        score += weights.incorrectResponseBonus;
+    }
+
+    // Prioriser les chapitres récemment consultés
+    if (recentChapters.includes(flashcard.id_chapitre)) {
+        score += weights.recentChapterBonus;
+    }
+
+    // Ajouter une pondération aléatoire pour diversité
+    score += Math.random() * weights.randomFactor;
+
+    return score;
+};
+
+const GenerateDailyFlashcard = async () => {
+    try {
+        // Étape 1 : Récupérer les utilisateurs avec au moins 3 flashcards
+        const [users] = await db.query(`
+            SELECT DISTINCT id_utilisateur
+            FROM (
+                SELECT id_utilisateur
+                FROM flashcard
+                WHERE id_utilisateur IS NOT NULL
+        
+                UNION
+        
+                SELECT id_utilisateur
+                FROM flashcard_collection
+            ) AS combined
+            GROUP BY id_utilisateur
+            HAVING COUNT(*) >= 3;
+        `);
+
+        // Poids des critères
+        const weights = {
+            recentPenalty: 10,           // Pénalité pour les flashcards récemment utilisées
+            incorrectResponseBonus: 20, // Bonus pour les flashcards avec réponses incorrectes
+            recentChapterBonus: 15,     // Bonus pour les flashcards de chapitres récemment consultés
+            randomFactor: 5             // Diversité aléatoire
+        };
+        for (const user of users) {
+            const userId = user.id_utilisateur;
+
+            // Étape 2 : Récupérer toutes les flashcards de l'utilisateur
+            const [flashcards] = await db.query(`
+                SELECT f.id_flashcard, f.id_chapitre
+                FROM flashcard_collection fc
+                JOIN flashcard f ON fc.id_flashcard = f.id_flashcard
+                WHERE fc.id_utilisateur = ?;
+            `, [userId]);
+
+            // Étape 3 : Obtenir les flashcards récemment utilisées
+            const [recentFlashcardsData] = await db.query(`
+                SELECT id_flashcard
+                FROM flashcard_du_jour
+                WHERE id_utilisateur = ?
+                  AND date_flashcard_du_jour >= CURDATE() - INTERVAL 7 DAY;
+            `, [userId]);
+            const recentFlashcards = recentFlashcardsData.map(f => f.id_flashcard);
+
+            // Étape 4 : Obtenir les flashcards avec mauvaises réponses
+            const [incorrectResponsesData] = await db.query(`
+                SELECT id_flashcard
+                FROM reponse_flashcard
+                WHERE id_utilisateur = ?
+                  AND etat_reponse = 'faux'
+                  AND date_reponse >= CURDATE() - INTERVAL 30 DAY;
+            `, [userId]);
+            const incorrectResponses = incorrectResponsesData.map(f => f.id_flashcard);
+
+            // Étape 5 : Obtenir les chapitres récents (via quizz)
+            const [recentChaptersData] = await db.query(`
+                SELECT DISTINCT q.id_chapitre
+                FROM note_quizz nq
+                JOIN quizz q ON nq.id_quizz = q.id_quizz
+                WHERE nq.id_utilisateur = ?
+                  AND nq.date >= CURDATE() - INTERVAL 30 DAY
+                  AND nq.note < 10;
+            `, [userId]);
+            const recentChapters = recentChaptersData.map(c => c.id_chapitre);
+
+            // Étape 6 : Appliquer une heuristique pour calculer le score de chaque flashcard
+            const scoredFlashcards = flashcards.map(flashcard => ({
+                ...flashcard,
+                score: calculateFlashcardScore(
+                    flashcard,
+                    recentFlashcards,
+                    incorrectResponses,
+                    recentChapters,
+                    weights
+                )
+            }));
+
+            // Étape 7 : Sélectionner la flashcard avec le meilleur score
+            const bestFlashcard = scoredFlashcards.sort((a, b) => b.score - a.score)[0];
+            console.log("bestFlashcard", bestFlashcard);
+            if (bestFlashcard) {
+                // Étape 8 : Insérer la flashcard sélectionnée dans `flashcard_du_jour`
+                await db.query(`
+                    INSERT INTO flashcard_du_jour (id_utilisateur, id_flashcard, date_flashcard_du_jour)
+                    VALUES (?, ?, CURDATE())
+                    ON DUPLICATE KEY UPDATE id_flashcard = VALUES(id_flashcard);
+                `, [userId, bestFlashcard.id_flashcard]);
+            } else {
+                console.log(`Aucune flashcard disponible pour l'utilisateur ${userId}`);
+            }
+        }
+
+        console.log("Flashcards du jour générées avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de la génération des flashcards du jour :", error);
+    }
+};
+
 module.exports = {
     allFlashcard,
     userFlashcard,
@@ -177,5 +301,6 @@ module.exports = {
     removeFromCollection,
     createFlashcard,
     updateFlashcard,
-    deleteFlashcard
+    deleteFlashcard,
+    GenerateDailyFlashcard
 }

@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { verifyTokenBlacklist, verifyAuthorisation, verifyOwner, verifyVisibility } = require('../middlewares/verifyAuthorisation.js');
+const { verifyTokenBlacklist, verifyAuthorisation, verifyOwner, verifyVisibility, verifyIsAdministration } = require('../middlewares/verifyAuthorisation.js');
 const { validateField, handleValidationErrors, validateObjectSchema, exceptionField } = require('../middlewares/sanitizeInput.js');
 
 const {flashcardConfig, flashcardVisibilityConfig} = require('../middlewares/objectConfig.js');
 const {flashcardSchema, updateFlashcardSchema } = require('../models_JSON/flashcardValidation.js');
-const {allFlashcard, userFlashcard, dailyFlashcard, flashcardAnswer, addToCollection, removeFromCollection, createFlashcard, updateFlashcard, deleteFlashcard} = require('../controllers/flashcard-controller');
+const {allFlashcard, userFlashcard, dailyFlashcard, flashcardAnswer, addToCollection, removeFromCollection, createFlashcard, updateFlashcard, deleteFlashcard, GenerateDailyFlashcard} = require('../controllers/flashcard-controller');
 
 router.post('/all-flashcards', [validateField('chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], allFlashcard);
 router.post('/user-flashcards', [validateField('chapitre'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], userFlashcard);
@@ -20,4 +20,5 @@ router.post('/create-flashcard', [validateObjectSchema(flashcardSchema), handleV
 router.put('/update-flashcard', [validateObjectSchema(updateFlashcardSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(flashcardConfig, "flashcard")], updateFlashcard);
 router.delete('/delete-flashcard', [validateField('flashcard'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(flashcardConfig, "flashcard")], deleteFlashcard);
 
+router.get('/generate-daily-flashcards', [verifyAuthorisation, verifyTokenBlacklist, verifyIsAdministration], GenerateDailyFlashcard);
 module.exports = router;

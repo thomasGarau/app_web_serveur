@@ -5,9 +5,11 @@ const db = require('../../config/database');
 const getAllAnnotationForQuizz = async (quizz) => {
     try {
         const query = `
-            SELECT *
+            SELECT aq.* , a.* , uv.nom, uv.prenom, uv.num_etudiant
             FROM annotation_quizz aq
             JOIN annotation a ON aq.id_annotation = a.id_annotation
+            JOIN utilisateur u ON a.id_utilisateur = u.id_utilisateur
+            JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
             WHERE aq.id_question IN (
             SELECT q.id_question
             FROM question q
@@ -26,9 +28,11 @@ const getAllAnnotationForQuizz = async (quizz) => {
 const getAllAnnotationForCours = async (cours) => {
     try {
         const query = `
-            SELECT ac.* , a.*
+            SELECT ac.* , a.* , uv.nom, uv.prenom, uv.num_etudiant
             FROM annotation_cours ac 
             JOIN annotation a ON ac.id_annotation = a.id_annotation 
+            JOIN utilisateur u ON a.id_utilisateur = u.id_utilisateur
+            JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
             JOIN cours c ON ac.id_cours = c.id_cours 
             WHERE c.id_cours = ?;
         `
@@ -36,6 +40,7 @@ const getAllAnnotationForCours = async (cours) => {
         return rows;
 
     } catch (error) {
+        console.error(error); 
         throw new Error('Erreur lors de la récupération des annotations', error);
     }
 }
@@ -81,6 +86,7 @@ async function createAnnotation(tableName, foreignKeyColumn, foreignKeyValue, co
         return true;
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error(error);
         throw new Error(`Erreur lors de la création de l'annotation`, error);
     } finally {
         if (connection) connection.release();
