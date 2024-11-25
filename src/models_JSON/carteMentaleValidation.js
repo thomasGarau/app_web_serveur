@@ -34,10 +34,10 @@ const carteMentaleSchema = Joi.object({
 });
 
 const updateCarteMentaleSchema = Joi.object({
-    carteMentale: Joi.number().integer().required(),
-    titre: Joi.string().min(1).max(255).optional(),
-    visibilite: Joi.string().valid(...VisibiliteEnum).optional(),
-    details: detailsSchema.optional()
+    cm: Joi.number().integer().required(),
+    titre: Joi.string().min(1).max(255).required(),
+    visibilite: Joi.string().valid(...VisibiliteEnum).required(),
+    details: detailsSchema.required()
 });
 
 module.exports = {
