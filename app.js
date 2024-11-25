@@ -27,13 +27,15 @@ const jMethodeRoutes = require('./src/routes/j-methode-routes')
 const administrationRoutes = require('./src/routes/administration-routes')
 const flashcardRoutes = require('./src/routes/flashcard-routes')
 const annotationRoutes = require('./src/routes/annotation-routes')
+const carteMentaleRoutes = require('./src/routes/carte-mentale-routes')
 
-app.use('/api/user', userRoutes)
-app.use('/api/quizz', quizzRoute)
-app.use('/api/ue', ueRoutes)
-app.use('/api/cours', coursRoutes)
-app.use('/api/chat', chatRoutes)
-app.use('/api/jMethode', jMethodeRoutes)
-app.use('/api/administration', administrationRoutes)
-app.use('/api/flashcard', flashcardRoutes)
-app.use('/api/annotation', annotationRoutes)
+app.use('/api/user', userRoutes);
+app.use('/api/quizz', quizzRoute);
+app.use('/api/ue', ueRoutes);
+app.use('/api/cours', coursRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/jMethode', jMethodeRoutes);
+app.use('/api/administration', administrationRoutes);
+app.use('/api/flashcard', flashcardRoutes);
+app.use('/api/annotation', annotationRoutes);
+app.use('/api/carte-mentale', carteMentaleRoutes);

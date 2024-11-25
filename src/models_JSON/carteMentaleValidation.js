@@ -29,14 +29,14 @@ const detailsSchema = Joi.object({
 const carteMentaleSchema = Joi.object({
     titre: Joi.string().min(1).max(255).required(),
     chapitre: Joi.number().integer().required(),
-    visibilite: Joi.string().valid(...VisibiliteEnum).required(),
+    visibilite: Joi.string().valid(...Object.values(VisibiliteEnum)).required(),
     details: detailsSchema.required()
 });
 
 const updateCarteMentaleSchema = Joi.object({
     cm: Joi.number().integer().required(),
     titre: Joi.string().min(1).max(255).required(),
-    visibilite: Joi.string().valid(...VisibiliteEnum).required(),
+    visibilite: Joi.string().valid(...Object.values(VisibiliteEnum)).required(),  
     details: detailsSchema.required()
 });
 

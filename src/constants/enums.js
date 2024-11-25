@@ -18,7 +18,7 @@ const RoleEnum = {
 const VisibiliteEnum = { 
     PUBLIC: 'public',
     PRIVE: 'prive',
-    ORPHELIN: 'orphein',
+    ORPHELIN: 'orphelin',
 }
 
 
