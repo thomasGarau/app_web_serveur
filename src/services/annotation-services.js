@@ -45,9 +45,10 @@ const getAllAnnotationForCours = async (cours) => {
 }
 
 const getAllAnswerForAnnotation = async (annotation) => {
+    console.log(annotation);
     try {
         const query = `
-            SELECT ra.*, u.nom, u.prenom, u.num_etudiant
+            SELECT ra.*, uv.nom, uv.prenom, u.num_etudiant
             FROM reponse_annotation ra
             JOIN utilisateur u ON ra.id_utilisateur = u.id_utilisateur
             JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
