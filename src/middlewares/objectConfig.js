@@ -266,6 +266,27 @@ const flashcardVisibilityConfig = {
         };
     }
 };
+const CMConfig = {
+    generateOwnerQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM carte_mentale
+                    WHERE id_carte_mentale = ? AND id_utilisateur = ?`,
+            params: [objectId, userId]
+        };
+    }
+}
+
+const CMVisibilityConfig = {
+    generateVisibilityQuery: (userId, objectId) => {
+        return {
+            query: `SELECT *
+                    FROM carte_mentale
+                    WHERE id_carte_mentale = ? AND visibilite = 'public'`,
+            params: [objectId]
+        };
+    }
+};
 
 
 
@@ -286,3 +307,5 @@ module.exports.answerToAnnotationConfig = answerToAnnotationConfig;
 module.exports.closeAnswerToAnnotationConfig = closeAnswerToAnnotationConfig;
 module.exports.flashcardConfig = flashcardConfig;
 module.exports.flashcardVisibilityConfig = flashcardVisibilityConfig;
+module.exports.CMConfig = CMConfig;
+module.exports.CMVisibilityConfig = CMVisibilityConfig;
