@@ -45,7 +45,7 @@ const dailyFlashcard = async (utilisateur) => {
             SELECT f.*
             FROM flashcard f
             JOIN flashcard_du_jour fdj ON f.id_flashcard = fdj.id_flashcard
-            WHERE fdj.id_utilisateur = ?;
+            WHERE fdj.id_utilisateur = ?
             AND fdj.date_flashcard_du_jour = CURDATE();
         `;
         const [rows] = await db.query(query, [utilisateur, utilisateur]);
@@ -196,19 +196,20 @@ const GenerateDailyFlashcard = async () => {
     try {
         // Étape 1 : Récupérer les utilisateurs avec au moins 3 flashcards
         const [users] = await db.query(`
-            SELECT DISTINCT id_utilisateur
+            SELECT id_utilisateur, SUM(flashcard_count) AS total_flashcards
             FROM (
-                SELECT id_utilisateur
+                SELECT id_utilisateur, COUNT(*) AS flashcard_count
                 FROM flashcard
-                WHERE id_utilisateur IS NOT NULL
-        
-                UNION
-        
-                SELECT id_utilisateur
+                GROUP BY id_utilisateur
+
+                UNION ALL
+
+                SELECT id_utilisateur, COUNT(*) AS flashcard_count
                 FROM flashcard_collection
+                GROUP BY id_utilisateur
             ) AS combined
             GROUP BY id_utilisateur
-            HAVING COUNT(*) >= 3;
+            HAVING total_flashcards > 3;
         `);
 
         // Poids des critères
