@@ -15,7 +15,7 @@ router.post('/all-cm-chapter', [validateField('chapitre'), handleValidationError
 router.post('/cm-info', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], cmInfo); //es favorie ou pas
 router.post('/cm-details', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], cmDetails);
 
-router.post('/create-cm', [parseMultipartJson, uploadImage, validateObjectSchema(carteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createCM);
+router.post('/create-cm', [uploadImage, parseMultipartJson, validateObjectSchema(carteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createCM);
 router.put('/update-cm', [uploadImage, parseMultipartJson, validateObjectSchema(updateCarteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(cmConfig, "cm")], updateCM);
 router.delete('/delete-cm', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(cmConfig, "cm")], deleteCM);
 
