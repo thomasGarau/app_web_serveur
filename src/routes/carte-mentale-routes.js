@@ -5,7 +5,7 @@ const { validateField, handleValidationErrors, validateObjectSchema, exceptionFi
 const {uploadImage} = require('../middlewares/imageCloud');
 const {parseMultipartJson} = require('../middlewares/parse-data-middleawre');
  
-const {cmConfig, cmVisibilityConfig} = require('../middlewares/objectConfig.js');
+const {CMConfig, CMVisibilityConfig} = require('../middlewares/objectConfig.js');
 const {carteMentaleSchema, updateCarteMentaleSchema } = require('../models_JSON/carteMentaleValidation.js');
 
 const {userCM, allCMChapter, cmInfo, cmDetails, createCM, updateCM, deleteCM, addToCollection, removeFromCollection} = require('../controllers/carte-mentale-controllers');
@@ -16,10 +16,10 @@ router.post('/cm-info', [validateField('cm'), handleValidationErrors, verifyAuth
 router.post('/cm-details', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], cmDetails);
 
 router.post('/create-cm', [uploadImage, parseMultipartJson, validateObjectSchema(carteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], createCM);
-router.put('/update-cm', [uploadImage, parseMultipartJson, validateObjectSchema(updateCarteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(cmConfig, "cm")], updateCM);
-router.delete('/delete-cm', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(cmConfig, "cm")], deleteCM);
+router.put('/update-cm', [uploadImage, parseMultipartJson, validateObjectSchema(updateCarteMentaleSchema), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(CMConfig, "cm")], updateCM);
+router.delete('/delete-cm', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyOwner(CMConfig, "cm")], deleteCM);
 
-router.post('/add-cm-to-collection', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyVisibility(cmVisibilityConfig, "cm")], addToCollection);
+router.post('/add-cm-to-collection', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist, verifyVisibility(CMVisibilityConfig, "cm")], addToCollection);
 router.delete('/remove-cm-from-collection', [validateField('cm'), handleValidationErrors, verifyAuthorisation, verifyTokenBlacklist], removeFromCollection);
 
 module.exports = router;

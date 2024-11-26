@@ -72,7 +72,7 @@ exports.updateCM = async (req,res) => {
         if(!imageUrl){
             throw new Error('Erreur lors de la récupération de l\'image de la carte mentale');
         }
-        await cmService.updateCM(cm, titre, visibilite, date, url, details);
+        await cmService.updateCM(cm, titre, visibilite, date, imageUrl, details);
         res.status(200).send('Carte mentale mise à jour');
     }catch(err){
         console.error(err);

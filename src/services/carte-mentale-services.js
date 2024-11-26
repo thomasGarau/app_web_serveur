@@ -7,7 +7,7 @@ const userCM = async (utilisateur, chapitre) => {
             SELECT cm.*
             FROM carte_mentale cm
             LEFT JOIN carte_mentale_collection cmc ON cm.id_carte_mentale = cmc.id_carte_mentale
-            WHERE c.chapitre = ? 
+            WHERE cm.id_chapitre = ? 
             AND (cm.id_utilisateur = ? OR cmc.id_utilisateur = ?);
         `;
         const [rows] = await db.query(query, [chapitre, utilisateur, utilisateur]);
@@ -22,8 +22,8 @@ const allCMChapter = async (chapitre) => {
     try {
         const query = `
             SELECT c.*
-            FROM carte_mentale_chapitre c
-            WHERE c.chapitre = ?;
+            FROM carte_mentale c
+            WHERE c.id_chapitre = ?;
         `;
         const [rows] = await db.query(query, [chapitre]);
         return rows;
@@ -37,7 +37,7 @@ const allCMChapter = async (chapitre) => {
 const cmInfo = async (utilisateur, cm) => {
     try {
         const query = `
-            SELECT cm.*
+            SELECT cm.*,
                    CASE 
                        WHEN cmc.id_utilisateur IS NOT NULL THEN true 
                        ELSE false 
@@ -51,6 +51,7 @@ const cmInfo = async (utilisateur, cm) => {
         const [rows] = await db.query(query, [utilisateur, cm]);
         return rows[0]; // Retourne une seule carte mentale si `cm` est un identifiant unique
     } catch (error) {
+        console.error(error);
         throw new Error('Erreur lors de la récupération des informations de la carte mentale');
     }
 };
@@ -200,7 +201,7 @@ const addToCollection = async (utilisateur, cm, date) => {
     try {
         const query = `
             INSERT INTO carte_mentale_collection
-            (id_utilisateur, id_carte_mentale, date)
+            (id_utilisateur, id_carte_mentale, date_ajout)
             VALUES (?, ?, ?);
         `;
         await db.query(query, [utilisateur, cm, date]);
