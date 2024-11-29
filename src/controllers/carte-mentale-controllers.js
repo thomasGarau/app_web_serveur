@@ -16,7 +16,8 @@ exports.userCM = async (req,res) => {
 exports.allCMChapter = async (req,res) => {
     try{
         const {chapitre} = req.body;
-        const cm = await cmService.allCMChapter(chapitre);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const cm = await cmService.allCMChapter(chapitre, utilisateur);
         res.status(200).send(cm);
     }catch(err){
         console.error(err);

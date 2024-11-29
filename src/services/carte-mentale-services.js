@@ -4,9 +4,11 @@ const carteMentaleModele = require('../models/carte-mentale-modele');
 const userCM = async (utilisateur, chapitre) => {
     try {
         const query = `
-            SELECT cm.*
+            SELECT cm.*, uv.nom, uv.prenom
             FROM carte_mentale cm
             LEFT JOIN carte_mentale_collection cmc ON cm.id_carte_mentale = cmc.id_carte_mentale
+            JOIN utilisateur u ON cm.id_utilisateur = u.id_utilisateur
+            JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
             WHERE cm.id_chapitre = ? 
             AND (cm.id_utilisateur = ? OR cmc.id_utilisateur = ?);
         `;
@@ -14,21 +16,32 @@ const userCM = async (utilisateur, chapitre) => {
         return rows;
     }
     catch (error) {
+        console.error(error);
         throw new Error('Erreur lors de la récupération des cartes mentales');
     }
 };
 
-const allCMChapter = async (chapitre) => {
+const allCMChapter = async (chapitre, utilisateur) => {
     try {
         const query = `
-            SELECT c.*
+            SELECT c.*, uv.nom, uv.prenom
             FROM carte_mentale c
-            WHERE c.id_chapitre = ?;
+            JOIN utilisateur u ON c.id_utilisateur = u.id_utilisateur
+            JOIN utilisateur_valide uv ON u.num_etudiant = uv.num_etudiant
+            WHERE c.id_chapitre = ?
+            AND c.visibilite = 'public'
+            AND c.id_carte_mentale NOT IN (
+                SELECT cmc.id_carte_mentale
+                FROM carte_mentale_collection cmc
+                WHERE cmc.id_utilisateur = ?
+            )
+            AND c.id_utilisateur != ?;
         `;
-        const [rows] = await db.query(query, [chapitre]);
+        const [rows] = await db.query(query, [chapitre, utilisateur, utilisateur]);
         return rows;
     }
     catch (error) {
+        console.error(error);
         throw new Error('Erreur lors de la récupération des chapitres de la carte mentale');
     }
 }
@@ -58,17 +71,23 @@ const cmInfo = async (utilisateur, cm) => {
 
 const cmDetails = async (cm) => {
     try {
-        const document = await carteMentaleModele.findOne({ id_carte_mentale: cm });
+        const mongoData = await carteMentaleModele.findOne({ id_carte_mentale: cm });
 
-        if (!document) {
-            throw new Error('Document non trouvé pour cette carte mentale');
+        const query = `SELECT * FROM carte_mentale WHERE id_carte_mentale = ?`;
+        const [sqlData] = await db.query(query, [cm]);
+
+        if (!sqlData.length || !mongoData) {
+            throw new Error('Carte mentale non trouvée');
         }
 
-        return document;
+        const result = { ...(sqlData[0] || {}), ...(mongoData ? mongoData._doc : {}) };
+        return result;
+
     } catch (error) {
         throw new Error('Erreur lors de la récupération des détails de la carte mentale : ' + error.message);
     }
 };
+
 
 const createCM = async (utilisateur, titre, chapitre, visibilite, date, url, details) => {
     const connection = await db.getConnection(); // Obtenir une connexion pour gérer la transaction
