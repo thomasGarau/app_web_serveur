@@ -200,12 +200,33 @@ const verifyVisibility = (config, idParamName) => async (req, res, next) => {
     }
 };
 
+const verifyState = (config, idParamName) => async (req, res, next) => {
+    try {
+        const objectId = req.body[idParamName];
+        
+        // récupération et execution de la requete
+        const { query, params } = config.generateStateQuery(objectId);
+        const [rows] = await db.query(query, params);
+
+        //verifie si cloturer ou non cloturer
+        if (rows.length > 0) {
+            next();
+        } else {
+            return res.status(403).send('Annotation cloturer !');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(401).send('Token invalide ou problème d\'authentification.');
+    }
+};
+
 
 module.exports = {
     verifyAuthorisation,
     verifyTokenBlacklist,
     verifyOwner,
     verifyVisibility,
+    verifyState,
     GetToken
 }
 

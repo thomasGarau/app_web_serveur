@@ -288,6 +288,17 @@ const CMVisibilityConfig = {
     }
 };
 
+const verifyAnnotationStateConfig = {
+    generateStateQuery: (objectId) => {
+        return {
+            query: `SELECT *
+                    FROM annotation
+                    WHERE id_annotation = ? AND etat_annotation != 'resolu'`,
+            params: [objectId]
+        };
+    }
+}
+
 
 
 module.exports.quizzConfig = quizzConfig,
@@ -309,3 +320,4 @@ module.exports.flashcardConfig = flashcardConfig;
 module.exports.flashcardVisibilityConfig = flashcardVisibilityConfig;
 module.exports.CMConfig = CMConfig;
 module.exports.CMVisibilityConfig = CMVisibilityConfig;
+module.exports.verifyAnnotationStateConfig = verifyAnnotationStateConfig;

@@ -2,21 +2,33 @@ const db = require('../../config/database.js');
 const AnswerService = require('./answer-service');
 const OwnFlashcardError = require('../constants/errors');
 
-const allFlashcard = async (chapitre) => {
-    try{
-        const query = 'SELECT * FROM flashcard WHERE id_chapitre = ?';
-        const [rows] = await db.query(query, [chapitre]);
-        if (rows.length > 0){
+const allFlashcard = async (chapitre, utilisateur) => {
+    try {
+        const query = `
+            SELECT f.*
+            FROM flashcard f
+            WHERE f.id_chapitre = ?
+            AND f.visibilite = 'public'
+            AND f.id_flashcard NOT IN (
+                SELECT fc.id_flashcard
+                FROM flashcard_collection fc
+                WHERE fc.id_utilisateur = ?
+            )
+            AND f.id_utilisateur != ?;
+        `;
+
+        const [rows] = await db.query(query, [chapitre, utilisateur, utilisateur]);
+
+        if (rows.length > 0) {
             return rows;
-        }
-        else {
+        } else {
             return 'Aucune flashcard disponible';
         }
-    }
-    catch(error){
-        throw new Error('erreur dans la récupération des flashcards');
+    } catch (error) {
+        throw new Error('Erreur dans la récupération des flashcards');
     }
 };
+
 
 const userFlashcard = async (utilisateur, chapitre) => {
     try{

@@ -5,7 +5,8 @@ const OwnFlashcardError = require('../constants/errors');
 exports.allFlashcard = async (req,res) => {
     try{
         const chapitre = req.body.chapitre;
-        const flashcards = await flashcardService.allFlashcard(chapitre);
+        const utilisateur = await getIdUtilisateurFromToken(req.headers.authorization.split(' ')[1]);
+        const flashcards = await flashcardService.allFlashcard(chapitre, utilisateur);
         res.status(200).send(flashcards);
     }catch(err) {
         console.error(err);
