@@ -148,9 +148,10 @@ const updatecour = async (id_study, label) => {
 
 const addProgression = async (id_cours, id_user, progression) => { 
     try {
+        console.log('progression', progression, id_cours, id_user);
         await db.query(
             'INSERT INTO avancement_cours (id_cours, id_utilisateur, etat_progression) VALUES (?, ?, ?) ' +
-            'ON DUPLICATE KEY UPDATE etat_progression = GREATEST(etat_progression, VALUES(etat_progression))',
+            'ON DUPLICATE KEY UPDATE etat_progression = GREATEST(CAST(etat_progression AS UNSIGNED), CAST(VALUES(etat_progression) AS UNSIGNED))',
             [id_cours, id_user, progression]
         );
     } catch (err) {
